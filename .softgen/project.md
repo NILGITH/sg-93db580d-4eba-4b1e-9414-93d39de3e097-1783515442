@@ -28,13 +28,39 @@ Body: Inter (sans-serif professionnel, 400/500/600)
 
 Direction : Espacement généreux, hiérarchie claire, accents dorés sur éléments critiques uniquement (CTA primaires, badges de statut premium, métriques importantes). Dashboards data-dense avec tabular-nums.
 
-## Features
-MVP Phase 1 :
-- Auth multi-agences avec rôles (Admin Plateforme, Admin Agence, Comptable, Commercial, Secrétaire)
-- Dashboard décisionnel par rôle
-- Gestion des agences
-- Gestion des biens (CRUD, photos, documents)
-- Gestion des mandats (types : gestion, location, vente)
-- Gestion des propriétaires avec portail dédié
-- Module encaissement basique (enregistrement paiements, justificatifs)
-- GED simplifiée (upload documents par bien)
+## Features Implémentées (MVP V1)
+
+**Infrastructure & Auth**
+- Auth multi-agences avec Supabase Auth
+- RBAC 6 rôles (super_admin, admin_agency, secretary, commercial, accountant, proprietaire)
+- RLS strict avec isolation multi-agences
+- Base de données PostgreSQL (15 tables)
+
+**Modules Core**
+- Dashboard décisionnel multi-rôles avec KPI temps réel
+- Gestion des Biens (CRUD complet, photos, filtrage)
+- Gestion des Mandats (4 types : gestion, location, vente, gestion_complete)
+- Gestion Propriétaires avec portail dédié
+- Gestion Locataires
+- Module Interventions + Prestataires (workflow : création → affectation → en_cours → terminee)
+- Module Paiements/Encaissements (multi-moyens avec upload justificatifs)
+- CRM Prospects (pipeline Kanban 6 étapes)
+- GED simplifiée (upload documents par bien via Supabase Storage)
+
+**Portails**
+- Vitrine professionnelle (landing page premium avec Hero, Services, Tarifs, Contact)
+- Portail Agence (dashboard + tous modules métier)
+- Portail Propriétaire (/owner) — voit uniquement SES biens/mandats
+- Catalogue Public (/public) — recherche biens disponibles
+- Administration Plateforme (/admin/*) — gestion agences, users, settings (super_admin only)
+
+## Features V2 (À venir)
+- Blog + CMS (structure DB prête)
+- FAQ dynamique (structure DB prête)
+- Assistant IA conversationnel
+- Rapports PDF automatiques (génération mensuelle/trimestrielle)
+- Notifications multi-canaux (SMS, WhatsApp)
+- PWA (offline mode)
+- 2FA (Supabase Auth config)
+- Journal d'audit UI (table audit_logs existe)
+- Comptabilité avancée (exports SAGE, écritures)
