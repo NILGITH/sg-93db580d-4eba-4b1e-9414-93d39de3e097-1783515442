@@ -1,6 +1,6 @@
 ---
 title: Dashboard principal multi-rôles
-status: todo
+status: done
 priority: high
 type: feature
 tags: [dashboard, kpi, charts]

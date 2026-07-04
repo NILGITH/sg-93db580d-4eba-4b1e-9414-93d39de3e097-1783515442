@@ -1,6 +1,6 @@
 ---
 title: Schema de base de données multi-agences MVP
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [database, schema, rbac, multi-tenant]
