@@ -13,9 +13,9 @@ position: 2
 Implémenter le design system IMMO360 : palette marine/doré, typographie Crimson Pro + Inter, tokens personnalisés pour badges/statuts premium.
 
 ## Checklist
-- [ ] Retheme globals.css avec palette marine/doré (--primary, --accent, --muted)
-- [ ] Import Google Fonts (Crimson Pro 600/700, Inter 400/500/600)
-- [ ] Enregistrer fonts dans tailwind.config.ts (serif pour headings, sans pour body)
+- [x] Retheme globals.css avec palette marine/doré (--primary, --accent, --muted)
+- [x] Import Google Fonts (Crimson Pro 600/700, Inter 400/500/600)
+- [x] Enregistrer fonts dans tailwind.config.ts (serif pour headings, sans pour body)
 - [ ] Créer variants cva pour badges premium (doré), statuts biens, boutons CTA
 - [ ] Ajouter gradients subtils et shadows pour depth
 
