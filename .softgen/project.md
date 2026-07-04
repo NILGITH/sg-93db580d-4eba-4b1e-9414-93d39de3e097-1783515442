@@ -46,6 +46,7 @@ Direction : Espacement généreux, hiérarchie claire, accents dorés sur élém
 - Module Paiements/Encaissements (multi-moyens avec upload justificatifs)
 - CRM Prospects (pipeline Kanban 6 étapes)
 - GED simplifiée (upload documents par bien via Supabase Storage)
+- **Assistant IA conversationnel** (rédaction annonces avec OpenAI GPT-4, 4 tons, actions rapides)
 
 **Portails**
 - Vitrine professionnelle (landing page premium avec Hero, Services, Tarifs, Contact)
@@ -57,7 +58,6 @@ Direction : Espacement généreux, hiérarchie claire, accents dorés sur élém
 ## Features V2 (À venir)
 - Blog + CMS (structure DB prête)
 - FAQ dynamique (structure DB prête)
-- Assistant IA conversationnel
 - Rapports PDF automatiques (génération mensuelle/trimestrielle)
 - Notifications multi-canaux (SMS, WhatsApp)
 - PWA (offline mode)
