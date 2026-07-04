@@ -1,9 +1,9 @@
 ---
 title: Site Public + Catalogue Biens
-status: todo
+status: done
 priority: medium
 type: feature
-tags: [public-site, catalog]
+tags: [public, catalog, marketing]
 created_by: agent
 created_at: 2026-07-04T12:47:00Z
 position: 13

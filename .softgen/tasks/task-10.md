@@ -1,9 +1,9 @@
 ---
 title: Module Interventions + Prestataires
-status: todo
+status: done
 priority: high
 type: feature
-tags: [interventions, contractors, workflow]
+tags: [interventions, providers, workflow]
 created_by: agent
 created_at: 2026-07-04T12:47:00Z
 position: 10

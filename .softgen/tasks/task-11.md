@@ -1,6 +1,6 @@
 ---
 title: Module Paiements + Encaissements
-status: todo
+status: done
 priority: high
 type: feature
 tags: [payments, accounting]

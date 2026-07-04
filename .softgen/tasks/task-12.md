@@ -1,6 +1,6 @@
 ---
 title: CRM Prospects + Pipeline
-status: todo
+status: done
 priority: medium
 type: feature
 tags: [crm, prospects, sales]
