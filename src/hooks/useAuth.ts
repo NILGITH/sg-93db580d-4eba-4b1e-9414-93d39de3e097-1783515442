@@ -37,7 +37,7 @@ export function useAuth(): AuthUser {
           const { data: profileData, error: profileError } = await supabase
             .from("profiles")
             .select("*, agencies(*)")
-            .eq("user_id", currentUser.id)
+            .eq("id", currentUser.id)
             .single();
 
           if (profileError) throw profileError;
@@ -65,7 +65,7 @@ export function useAuth(): AuthUser {
         const { data: profileData } = await supabase
           .from("profiles")
           .select("*, agencies(*)")
-          .eq("user_id", session.user.id)
+          .eq("id", session.user.id)
           .single();
 
         if (profileData && mounted) {
