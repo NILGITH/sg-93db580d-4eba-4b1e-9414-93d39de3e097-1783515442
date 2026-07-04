@@ -20,14 +20,14 @@ export async function getInterventions(agencyId: string) {
   return data;
 }
 
-export async function getProviderInterventions(providerId: string) {
+export async function getProviderInterventions(contractorId: string) {
   const { data, error } = await supabase
     .from("interventions")
     .select(`
       *,
       properties (*)
     `)
-    .eq("provider_id", providerId)
+    .eq("contractor_id", contractorId)
     .order("created_at", { ascending: false });
 
   if (error) throw error;

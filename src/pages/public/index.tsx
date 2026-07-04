@@ -37,7 +37,7 @@ export default function PublicCatalogPage() {
       const { data } = await supabase
         .from("properties")
         .select("*")
-        .in("status", ["disponible", "en_vente"])
+        .eq("status", "disponible")
         .order("created_at", { ascending: false });
 
       setProperties(data ?? []);
