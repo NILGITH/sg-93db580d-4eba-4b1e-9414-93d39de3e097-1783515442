@@ -12,12 +12,12 @@ import Link from "next/link";
 
 type UserProfile = {
   id: string;
-  full_name: string;
-  email: string;
+  first_name: string;
+  last_name: string;
   role: string;
   agencies: {
     name: string;
-  };
+  } | null;
   created_at: string;
 };
 
@@ -45,10 +45,10 @@ export default function AdminUsers() {
     let filtered = users;
     
     if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter(user => {
+        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+        return fullName.includes(searchTerm.toLowerCase());
+      });
     }
     
     if (roleFilter !== "all") {
@@ -124,8 +124,10 @@ export default function AdminUsers() {
                       <User className="h-6 w-6 text-accent" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{user.full_name || "Sans nom"}</h3>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <h3 className="font-semibold">
+                        {user.first_name} {user.last_name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Agence: {user.agencies?.name || "N/A"}
                       </p>

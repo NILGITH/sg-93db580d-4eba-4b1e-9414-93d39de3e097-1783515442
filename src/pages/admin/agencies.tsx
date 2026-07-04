@@ -61,8 +61,12 @@ export default function AdminAgencies() {
       .order("created_at", { ascending: false });
 
     if (data) {
-      setAgencies(data);
-      setFilteredAgencies(data);
+      const mappedAgencies = data.map(agency => ({
+        ...agency,
+        active: agency.is_active
+      }));
+      setAgencies(mappedAgencies);
+      setFilteredAgencies(mappedAgencies);
     }
   }
 
@@ -81,7 +85,7 @@ export default function AdminAgencies() {
   async function toggleAgency(id: string, currentStatus: boolean) {
     const { error } = await supabase
       .from("agencies")
-      .update({ active: !currentStatus })
+      .update({ is_active: !currentStatus })
       .eq("id", id);
 
     if (!error) {
