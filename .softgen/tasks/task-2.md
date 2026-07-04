@@ -1,6 +1,6 @@
 ---
 title: Design system premium marine/doré
-status: todo
+status: done
 priority: urgent
 type: chore
 tags: [design-system, theme, typography]
@@ -16,8 +16,8 @@ Implémenter le design system IMMO360 : palette marine/doré, typographie Crimso
 - [x] Retheme globals.css avec palette marine/doré (--primary, --accent, --muted)
 - [x] Import Google Fonts (Crimson Pro 600/700, Inter 400/500/600)
 - [x] Enregistrer fonts dans tailwind.config.ts (serif pour headings, sans pour body)
-- [ ] Créer variants cva pour badges premium (doré), statuts biens, boutons CTA
-- [ ] Ajouter gradients subtils et shadows pour depth
+- [x] Créer variants cva pour badges premium (doré), statuts biens, boutons CTA
+- [x] Ajouter gradients subtils et shadows pour depth
 
 ## Acceptance
 - Couleurs marines/dorées visibles

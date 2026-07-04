@@ -1,6 +1,6 @@
 ---
 title: Auth multi-agences et RBAC
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [auth, rbac, supabase]
