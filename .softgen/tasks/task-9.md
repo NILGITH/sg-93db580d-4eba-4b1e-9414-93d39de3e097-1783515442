@@ -1,9 +1,9 @@
 ---
 title: Portail Propriétaire dédié
-status: todo
+status: done
 priority: high
 type: feature
-tags: [owner-portal, reports]
+tags: [owner-portal, dashboard]
 created_by: agent
 created_at: 2026-07-04T12:47:00Z
 position: 9

@@ -1,6 +1,6 @@
 ---
 title: Module Gestion des Mandats
-status: todo
+status: done
 priority: high
 type: feature
 tags: [mandates, contracts]
