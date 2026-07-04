@@ -72,10 +72,10 @@ export default function PropertiesPage() {
   }
 
   const getStatusVariant = (status: string) => {
-    const variants: Record<string, "available" | "occupied" | "maintenance" | "default"> = {
+    const variants: Record<string, "available" | "rented" | "maintenance" | "default"> = {
       disponible: "available",
-      loue: "occupied",
-      vendu: "occupied",
+      loue: "rented",
+      vendu: "rented",
       en_travaux: "maintenance",
     };
     return variants[status] || "default";
@@ -180,7 +180,7 @@ export default function PropertiesPage() {
                       {property.price.toLocaleString()} €
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {property.type.replace("_", " ")}
+                      {property.property_type.replace("_", " ")}
                     </span>
                   </div>
                 </CardContent>

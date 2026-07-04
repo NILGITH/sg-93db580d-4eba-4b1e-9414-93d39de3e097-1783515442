@@ -68,9 +68,9 @@ export default function MandatesPage() {
   }
 
   const getStatusVariant = (status: string) => {
-    const variants: Record<string, "available" | "occupied" | "default"> = {
+    const variants: Record<string, "available" | "rented" | "default"> = {
       actif: "available",
-      expire: "occupied",
+      expire: "rented",
       termine: "default",
     };
     return variants[status] || "default";

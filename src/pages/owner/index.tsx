@@ -31,19 +31,18 @@ export default function OwnerPortalPage() {
   async function loadOwnerData() {
     if (!user?.id) return;
     try {
-      const [propertiesData, mandatesData] = await Promise.all([
-        supabase
-          .from("properties")
-          .select("*")
-          .eq("owner_id", user.id),
-        supabase
-          .from("mandates")
-          .select("*, properties(*)")
-          .eq("owner_id", user.id),
-      ]);
+      const mandatesData = await supabase
+        .from("mandates")
+        .select("*, properties(*)")
+        .eq("owner_id", user.id);
 
-      setProperties(propertiesData.data ?? []);
       setMandates(mandatesData.data ?? []);
+      
+      const propertiesFromMandates = mandatesData.data
+        ?.map((m) => m.properties)
+        .filter((p) => p != null) ?? [];
+      
+      setProperties(propertiesFromMandates);
     } catch (error) {
       console.error("Error loading owner data:", error);
     } finally {
@@ -185,7 +184,7 @@ export default function OwnerPortalPage() {
                       <StatusBadge
                         variant={
                           property.status === "loue"
-                            ? "occupied"
+                            ? "rented"
                             : property.status === "disponible"
                               ? "available"
                               : "default"
