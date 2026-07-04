@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, FileText, TrendingUp, Users, DollarSign } from "lucide-react";
+import { Building2, Home, FileText, TrendingUp, Users, DollarSign, Wrench, Sparkles } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -90,29 +90,89 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.title} className="border-border/50 shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`w-5 h-5 ${stat.variant === "premium" ? "text-accent" : "text-primary"}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-3xl font-bold tabular-nums ${stat.variant === "premium" ? "text-accent" : "text-foreground"}`}>
-                    {stat.value}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/properties")}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Biens actifs</p>
+                  <p className="text-3xl font-bold tabular-nums mt-2">127</p>
+                </div>
+                <Building2 className="h-12 w-12 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/mandates")}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Mandats en cours</p>
+                  <p className="text-3xl font-bold tabular-nums mt-2">43</p>
+                </div>
+                <FileText className="h-12 w-12 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/payments")}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Loyers du mois</p>
+                  <p className="text-3xl font-bold tabular-nums mt-2">45 780 €</p>
+                </div>
+                <DollarSign className="h-12 w-12 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/crm")}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Prospects actifs</p>
+                  <p className="text-3xl font-bold tabular-nums mt-2">28</p>
+                </div>
+                <Users className="h-12 w-12 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Actions rapides</CardTitle>
+            </CardHeader>
+            <CardContent className="grid sm:grid-cols-2 gap-4">
+              <Button onClick={() => router.push("/properties")} className="h-auto py-6" variant="outline">
+                <div className="flex flex-col items-center gap-2">
+                  <Building2 className="h-6 w-6" />
+                  <span>Nouveau bien</span>
+                </div>
+              </Button>
+              <Button onClick={() => router.push("/mandates")} className="h-auto py-6" variant="outline">
+                <div className="flex flex-col items-center gap-2">
+                  <FileText className="h-6 w-6" />
+                  <span>Nouveau mandat</span>
+                </div>
+              </Button>
+              <Button onClick={() => router.push("/interventions")} className="h-auto py-6" variant="outline">
+                <div className="flex flex-col items-center gap-2">
+                  <Wrench className="h-6 w-6" />
+                  <span>Nouvelle intervention</span>
+                </div>
+              </Button>
+              <Button onClick={() => router.push("/ai-assistant")} className="h-auto py-6 bg-accent/10 border-accent hover:bg-accent/20" variant="outline">
+                <div className="flex flex-col items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-accent" />
+                  <span className="text-accent">Assistant IA</span>
+                </div>
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="font-serif">Activité récente</CardTitle>
