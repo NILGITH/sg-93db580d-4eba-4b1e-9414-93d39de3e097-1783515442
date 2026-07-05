@@ -11,12 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Mail, Lock, User, Phone } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
-type Agency = Database["public"]["Tables"]["agencies"]["Row"];
 type UserRole = Database["public"]["Enums"]["user_role"];
 
 export default function SignupPage() {
   const router = useRouter();
-  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [agencies, setAgencies] = useState<Array<{ id: string; name: string }>>([]);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
