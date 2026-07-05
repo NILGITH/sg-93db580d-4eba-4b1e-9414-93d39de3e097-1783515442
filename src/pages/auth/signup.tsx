@@ -32,17 +32,28 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    async function loadAgencies() {
-      const { data } = await supabase
-        .from("agencies")
-        .select("*")
-        .eq("is_active", true)
-        .order("name");
-      
-      if (data) setAgencies(data);
-    }
     loadAgencies();
   }, []);
+
+  async function loadAgencies() {
+    try {
+      const { data, error } = await supabase
+        .from("agencies")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) {
+        console.error("Error loading agencies:", error);
+        return;
+      }
+
+      console.log("Agencies loaded:", data);
+      setAgencies(data || []);
+    } catch (error) {
+      console.error("Failed to load agencies:", error);
+    }
+  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -194,11 +205,17 @@ export default function SignupPage() {
                   <SelectValue placeholder="Sélectionnez une agence" />
                 </SelectTrigger>
                 <SelectContent>
-                  {agencies.map((agency) => (
-                    <SelectItem key={agency.id} value={agency.id}>
-                      {agency.name}
-                    </SelectItem>
-                  ))}
+                  {agencies.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      Aucune agence disponible
+                    </div>
+                  ) : (
+                    agencies.map((agency) => (
+                      <SelectItem key={agency.id} value={agency.id}>
+                        {agency.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
