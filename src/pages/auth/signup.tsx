@@ -220,6 +220,26 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="role">Rôle</Label>
+              <Select
+                value={formData.role}
+                onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Sélectionnez un rôle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="super_admin">Super Admin (Administrateur Plateforme)</SelectItem>
+                  <SelectItem value="admin_agency">Gérant d'Agence</SelectItem>
+                  <SelectItem value="secretary">Secrétaire</SelectItem>
+                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="accountant">Comptable</SelectItem>
+                  <SelectItem value="proprietaire">Propriétaire</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
