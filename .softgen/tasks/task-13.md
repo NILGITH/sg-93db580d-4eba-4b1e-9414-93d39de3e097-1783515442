@@ -1,26 +1,30 @@
 ---
-title: Site Public + Catalogue Biens
-status: done
-priority: medium
+title: Blog et Conseils
+status: todo
+priority: low
 type: feature
-tags: [public, catalog, marketing]
+tags: [blog, content]
 created_by: agent
-created_at: 2026-07-04T12:47:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 13
 ---
 
 ## Notes
-Vitrine publique : présentation agence, catalogue biens disponibles, recherche avancée, formulaire contact.
+Module blog permettant de publier articles, conseils immobiliers, vidéos courtes. Visible sur le site vitrine pour attirer et informer les visiteurs.
 
 ## Checklist
-- [ ] Page /public landing avec hero
-- [ ] Catalogue biens publics (statut: disponible, à vendre)
-- [ ] Recherche avancée (ville, type, budget, surface)
-- [ ] Fiche bien détaillée publique
-- [ ] Formulaire contact/demande
-- [ ] Page services et présentation
+- [ ] Page blog/index (liste articles publics)
+- [ ] Page blog/[slug] (article détaillé)
+- [ ] Page admin/blog (gestion articles)
+- [ ] Éditeur rich-text pour rédaction
+- [ ] Upload image couverture
+- [ ] Embed vidéos YouTube/Vimeo
+- [ ] Catégories articles (conseils, actu, guides)
+- [ ] SEO (meta description, slug)
+- [ ] Partage social (Facebook, Twitter, LinkedIn)
 
 ## Acceptance
-- Catalogue biens visible sans login
-- Recherche fonctionnelle
-- Design premium cohérent
+- Admin/Agent peut créer/publier articles
+- Articles visibles sur site vitrine
+- Interface moderne et lisible
+- SEO optimisé

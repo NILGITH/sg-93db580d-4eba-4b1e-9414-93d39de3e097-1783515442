@@ -1,26 +1,30 @@
 ---
-title: Dashboard principal multi-rôles
-status: done
+title: Gestion des Biens (CRUD Complet)
+status: todo
 priority: high
 type: feature
-tags: [dashboard, kpi, charts]
+tags: [properties, crud]
 created_by: agent
-created_at: 2026-07-04T12:36:30Z
+created_at: 2026-07-07T13:30:25Z
 position: 4
 ---
 
 ## Notes
-Dashboard adaptatif selon le rôle de l'utilisateur. Admin agence : vue globale KPI. Comptable : focus finances. Propriétaire : focus patrimoine personnel.
+Module de gestion des biens immobiliers avec tous les champs demandés : référence, 8 types, 4 statuts, localisation GPS, caractéristiques, photos, vidéos, documents.
 
 ## Checklist
-- [ ] Layout principal avec sidebar navigation
-- [ ] Dashboard admin agence (KPI : biens actifs, mandats, revenus mois, taux occupation)
-- [ ] Dashboard comptable (encaissements, impayés, graphique revenus/dépenses)
-- [ ] Dashboard propriétaire (mes biens, revenus, interventions, documents)
-- [ ] Cartes statistiques avec icônes et design premium
-- [ ] Graphiques simples (revenus mensuels)
+- [ ] Page properties/index (liste avec filtres)
+- [ ] Page properties/[id] (détail bien)
+- [ ] Page properties/create (formulaire création)
+- [ ] Formulaire avec tous les champs (GPS, vidéos)
+- [ ] Upload photos multiple
+- [ ] Upload vidéos
+- [ ] Gestion statut (Disponible, Loué, Vendu, Réservé)
+- [ ] Publication/dépublication sur site vitrine
+- [ ] Service propertiesService complet
 
 ## Acceptance
-- Chaque rôle voit son dashboard approprié
-- Données en temps réel depuis Supabase
-- Design premium avec accents dorés sur métriques clés
+- Agent/Admin peut créer/modifier/supprimer un bien
+- Tous les champs du cahier sont présents
+- Photos et vidéos s'uploadent correctement
+- Bien publié apparaît sur le site vitrine

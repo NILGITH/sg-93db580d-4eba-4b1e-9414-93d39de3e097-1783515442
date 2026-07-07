@@ -1,26 +1,28 @@
 ---
-title: Module Gestion des Biens complet
-status: done
+title: Module Réservations (Meublés)
+status: todo
 priority: high
 type: feature
-tags: [properties, crud]
+tags: [bookings, reservations]
 created_by: agent
-created_at: 2026-07-04T12:47:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 7
 ---
 
 ## Notes
-CRUD complet pour les biens : liste, création, édition, détail, upload photos, gestion documents, historique.
+Système de réservation en ligne pour les biens réservables (meublés notamment). Le visiteur choisit les dates, envoie une demande, paye un acompte (prévoir intégration paiement future).
 
 ## Checklist
-- [ ] Page /properties avec liste filtrée
-- [ ] Formulaire création/édition bien
-- [ ] Page détail bien avec photos et docs
-- [ ] Upload photos vers Supabase Storage
-- [ ] Filtres par statut, type, ville
-- [ ] Actions rapides (changer statut)
+- [ ] Formulaire réservation sur bien réservable (dates début/fin, infos client)
+- [ ] Calendrier de disponibilité (bloquer dates réservées)
+- [ ] Calcul prix selon durée
+- [ ] Enregistrement réservation avec statut (en_attente, confirmee, annulee)
+- [ ] Page bookings/index pour secrétaire/agent
+- [ ] Confirmation réservation (email + SMS optionnel)
+- [ ] Gestion acompte (montant, mode paiement)
 
 ## Acceptance
-- CRUD fonctionnel pour les biens
-- Photos uploadées et affichées
-- Filtrage temps réel
+- Visiteur peut réserver un meublé avec dates précises
+- Calendrier bloque les dates réservées
+- Secrétaire/Agent voit toutes les réservations
+- Confirmation envoyée au client

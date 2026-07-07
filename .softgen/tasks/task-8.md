@@ -1,26 +1,28 @@
 ---
-title: Module Gestion des Mandats
-status: done
-priority: high
+title: Gestion des Prospects (CRM)
+status: todo
+priority: medium
 type: feature
-tags: [mandates, contracts]
+tags: [crm, prospects]
 created_by: agent
-created_at: 2026-07-04T12:47:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 8
 ---
 
 ## Notes
-Gestion des mandats : création, suivi, documents, échéances. Types : gestion, location, vente.
+Module CRM pour gérer tous les prospects (enregistrés automatiquement via demandes visite/info/réservation). Historique des échanges, qualification, suivi commercial.
 
 ## Checklist
-- [ ] Page /mandates liste
-- [ ] Formulaire création mandat
-- [ ] Détail mandat avec timeline
-- [ ] Upload documents mandat
-- [ ] Alertes échéances
-- [ ] Lien mandat ↔ bien ↔ propriétaire
+- [ ] Page crm/prospects/index (liste avec filtres)
+- [ ] Page crm/prospects/[id] (fiche prospect détaillée)
+- [ ] Enregistrement automatique depuis visites/réservations/contact
+- [ ] Champs : nom, prénom, tel, email, bien concerné, type demande, statut
+- [ ] Historique des échanges (timeline)
+- [ ] Statut prospect (nouveau, contacte, qualifie, negocie, converti, perdu)
+- [ ] Notes et commentaires
+- [ ] Assignation agent responsable
 
 ## Acceptance
-- CRUD mandats fonctionnel
-- Documents attachés
-- Filtrage par type et statut
+- Tous les contacts entrants deviennent des prospects
+- Agent peut qualifier et suivre chaque prospect
+- Historique complet des interactions

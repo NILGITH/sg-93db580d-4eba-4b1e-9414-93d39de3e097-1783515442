@@ -1,29 +1,39 @@
 ---
-title: Schema de base de données multi-agences MVP
-status: done
+title: Nouvelle Architecture Database Complète
+status: in_progress
 priority: urgent
-type: feature
-tags: [database, schema, rbac, multi-tenant]
+type: chore
+tags: [database, migration, architecture]
 created_by: agent
-created_at: 2026-07-04T12:36:30Z
+created_at: 2026-07-07T13:30:25Z
 position: 1
 ---
 
 ## Notes
-Créer le schéma PostgreSQL pour le MVP IMMO360 avec isolation stricte multi-agences. Chaque table doit avoir RLS activé. Structure : agences → users → biens/mandats/propriétaires.
+Refonte complète de la structure database selon le nouveau cahier des charges. Suppression de l'ancienne structure et création d'un schéma complet couvrant tous les modules demandés.
 
 ## Checklist
-- [x] Table agencies (nom, siret, adresse, contact, créé_le, actif)
-- [x] Table profiles (user_id FK auth.users, agency_id FK, role enum, prénom, nom, téléphone)
-- [x] Table properties (bien : agency_id FK, adresse, type, surface, chambres, statut, prix, photos[], créé_le)
-- [x] Table mandates (mandat : agency_id FK, property_id FK, owner_id FK, type, date_début, date_fin, honoraires, documents[])
-- [x] Table owners (propriétaire : agency_id FK, prénom, nom, email, téléphone, user_id FK optionnel pour portail)
-- [x] Table payments (paiement : agency_id FK, property_id FK, montant, date, mode, référence, justificatif_url)
-- [x] RLS policies strictes (chaque agence voit uniquement ses données)
-- [x] Trigger auto-création profile après signup
-- [x] Types enum (role, property_status, mandate_type, payment_method)
+- [ ] Supprimer toutes les anciennes tables
+- [ ] Créer table users avec 6 rôles (admin, agent, secretary, accountant, provider, owner)
+- [ ] Créer table properties (biens) avec tous les champs (GPS, vidéos, statut étendu)
+- [ ] Créer table owners (propriétaires/mandants)
+- [ ] Créer table tenants (locataires)
+- [ ] Créer table prospects avec type_demande
+- [ ] Créer table visits (demandes de visite)
+- [ ] Créer table bookings (réservations avec dates, acompte)
+- [ ] Créer table interventions avec photos avant/après
+- [ ] Créer table providers (prestataires)
+- [ ] Créer table payments avec photo_justificatif
+- [ ] Créer table documents (bibliothèque par bien)
+- [ ] Créer table contracts (contrats)
+- [ ] Créer table reports (rapports automatisés)
+- [ ] Créer table blog_posts (articles)
+- [ ] Créer table faq_items (FAQ)
+- [ ] Créer table notifications
+- [ ] Configurer RLS pour chaque profil utilisateur
+- [ ] Régénérer les types TypeScript
 
 ## Acceptance
-- Schéma complet sans erreur, types générés, RLS activé partout
-- Un utilisateur d'une agence A ne peut pas voir les données d'une agence B
-- Création automatique du profile lors de l'inscription
+- La nouvelle DB couvre tous les modules du cahier des charges
+- Chaque profil utilisateur a ses permissions RLS
+- Les types TypeScript sont à jour

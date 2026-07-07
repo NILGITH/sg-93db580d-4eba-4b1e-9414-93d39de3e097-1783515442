@@ -1,28 +1,27 @@
 ---
-title: Vitrine professionnelle complète
-status: done
-priority: high
+title: FAQ Dynamique
+status: todo
+priority: low
 type: feature
-tags: [landing, marketing, vitrine]
+tags: [faq, content]
 created_by: agent
-created_at: 2026-07-04T13:45:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 14
 ---
 
 ## Notes
-Créer une vraie landing page premium IMMO360 avec sections Hero, Services, Fonctionnalités, À propos, Témoignages, Contact, Footer avec liens vers Blog/FAQ.
+FAQ dynamique administrable : admin/agent peut créer/modifier/supprimer questions-réponses. Affichée sur site vitrine avec accordion.
 
 ## Checklist
-- [ ] Hero section avec CTA puissants (design premium marine/doré)
-- [ ] Section Services (4-6 services clés de la plateforme)
-- [ ] Section Fonctionnalités (modules avec icônes)
-- [ ] Section Témoignages/Social proof
-- [ ] Section Tarifs (3 plans : Starter, Pro, Enterprise)
-- [ ] Formulaire de contact fonctionnel
-- [ ] Footer complet (liens, social, légal)
-- [ ] Navigation sticky avec smooth scroll
+- [ ] Page faq (affichage public avec accordion)
+- [ ] Page admin/faq (gestion questions/réponses)
+- [ ] Champs : question, réponse, catégorie, ordre
+- [ ] Catégories FAQ (location, vente, gestion, réservation)
+- [ ] Recherche dans FAQ
+- [ ] Interface accordion shadcn/ui
 
 ## Acceptance
-- Design premium cohérent avec l'app
-- CTA convertissent vers /auth/signup
-- Formulaire contact enregistre dans DB
+- Admin peut gérer toutes les questions FAQ
+- FAQ affichée sur site vitrine
+- Interface accordion claire
+- Recherche fonctionnelle

@@ -1,27 +1,28 @@
 ---
-title: Module Interventions + Prestataires
-status: done
-priority: high
+title: Gestion des Paiements
+status: todo
+priority: medium
 type: feature
-tags: [interventions, providers, workflow]
+tags: [payments, finance]
 created_by: agent
-created_at: 2026-07-04T12:47:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 10
 ---
 
 ## Notes
-Workflow interventions : Création → Affectation → En cours → Validation → Clôture. Prestataires peuvent uploader photos/factures.
+Module paiements complet : enregistrement loyers, acomptes, réservations. Modes de paiement multiples (Espèces, Mobile Money, Carte, Chèque, Virement). Upload photo justificatif pour espèces/chèque.
 
 ## Checklist
-- [ ] CRUD prestataires
-- [ ] Création intervention
-- [ ] Affectation prestataire
-- [ ] Portail prestataire /contractor
-- [ ] Upload photos/factures intervention
-- [ ] Changement statut workflow
-- [ ] Validation finale par agence
+- [ ] Page payments/index (liste tous paiements)
+- [ ] Page payments/create (enregistrer paiement)
+- [ ] Champs : type (loyer, acompte, reservation), montant, mode, date, bien, propriétaire
+- [ ] Upload photo justificatif (espèces/chèque)
+- [ ] Suivi des impayés
+- [ ] Génération reçu PDF
+- [ ] Statistiques paiements (total, par bien, par propriétaire)
 
 ## Acceptance
-- Workflow complet fonctionnel
-- Prestataire peut uploader photos
-- Historique traçable
+- Comptable/Agent enregistre tous types de paiements
+- Photo justificatif uploadée pour espèces/chèque
+- Impayés visibles sur dashboard
+- Reçu généré automatiquement

@@ -1,31 +1,29 @@
 ---
-title: Assistant IA - Rédaction d'annonces
-status: done
+title: Portail Propriétaire
+status: todo
 priority: high
 type: feature
-tags: [ai, assistant, openai, chat]
+tags: [owner, portal]
 created_by: agent
-created_at: 2026-07-04T13:56:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 16
 ---
 
 ## Notes
-Interface de chat IA conversationnelle pour aider les agents immobiliers à rédiger des annonces professionnelles. L'assistant peut générer des descriptions, améliorer des textes existants, suggérer des titres et adapter le ton selon le contexte.
-
-Nécessite OPENAI_API_KEY configurée dans .env.local
+Espace personnel propriétaire : dashboard avec ses biens, loyers encaissés, dépenses, interventions, photos travaux, contrats, documents, rapports. Visibilité complète temps réel.
 
 ## Checklist
-- [ ] Créer route API /api/ai/generate-listing (appel OpenAI GPT-4)
-- [ ] Créer page /ai-assistant avec interface chat
-- [ ] Interface conversationnelle avec historique messages
-- [ ] Formulaire contexte bien (type, surface, prix, caractéristiques)
-- [ ] Sélecteur de ton (professionnel, chaleureux, premium, commercial)
-- [ ] Boutons actions rapides (générer description, améliorer texte, suggérer titre)
-- [ ] Copier le texte généré en un clic
-- [ ] Historique conversations sauvegardé (localStorage)
-- [ ] Design cohérent avec le reste de l'app
+- [ ] Page owner/dashboard (KPI : biens, loyers, dépenses, interventions)
+- [ ] Page owner/properties (liste ses biens uniquement)
+- [ ] Page owner/payments (historique loyers reçus)
+- [ ] Page owner/interventions (travaux sur ses biens)
+- [ ] Page owner/documents (documents de ses biens)
+- [ ] Page owner/reports (rapports mensuels/trimestriels)
+- [ ] RLS strict : voit uniquement SES données
+- [ ] Graphiques évolution loyers/dépenses
 
 ## Acceptance
-- Agent peut générer une annonce complète en quelques secondes
-- Texte généré est de qualité professionnelle
-- Interface intuitive et rapide
+- Propriétaire voit uniquement ses biens et données associées
+- Dashboard temps réel avec KPI pertinents
+- Historique complet paiements/interventions
+- Rapports téléchargeables

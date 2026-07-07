@@ -1,26 +1,29 @@
 ---
-title: CRM Prospects + Pipeline
-status: done
+title: Bibliothèque Documents (GED)
+status: todo
 priority: medium
 type: feature
-tags: [crm, prospects, sales]
+tags: [documents, storage]
 created_by: agent
-created_at: 2026-07-04T12:47:00Z
+created_at: 2026-07-07T13:30:25Z
 position: 12
 ---
 
 ## Notes
-Pipeline commercial : Prospect → Contact → Visite → Négociation → Signature → Client.
+Gestion documentaire : chaque bien possède sa bibliothèque de documents (contrats, factures, reçus, photos, vidéos, plans, documents administratifs). Upload, visualisation, téléchargement.
 
 ## Checklist
-- [ ] Page /prospects avec kanban
-- [ ] Formulaire création prospect
-- [ ] Détail prospect + historique
-- [ ] Drag & drop statuts
-- [ ] Relances automatiques (structure)
-- [ ] Conversion prospect → client
+- [ ] Page documents/index (liste documents par bien)
+- [ ] Upload multi-fichiers (PDF, images, vidéos)
+- [ ] Catégorisation (contrat, facture, reçu, photo, vidéo, plan, admin)
+- [ ] Prévisualisation documents (PDF, images)
+- [ ] Téléchargement
+- [ ] Suppression (admin/agent)
+- [ ] Recherche documents
+- [ ] Stockage Supabase Storage
 
 ## Acceptance
-- Kanban fonctionnel
-- Historique interactions
-- Filtrage par statut
+- Agent/Admin peut uploader tout type de document
+- Documents organisés par bien et catégorie
+- Propriétaire voit documents de ses biens
+- Prévisualisation et téléchargement fonctionnent

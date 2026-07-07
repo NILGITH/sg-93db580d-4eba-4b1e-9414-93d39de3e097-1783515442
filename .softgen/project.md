@@ -1,67 +1,110 @@
-# IMMO360 — Plateforme de Gestion Immobilière
+# IMMO360 — Application de Gestion Immobilière Complète
 
 ## Vision
-Application web unique de gestion immobilière destinée à une agence immobilière, offrant un site vitrine premium, un système de réservation de visites, et des outils de gestion métier complets.
+Application web unique de gestion immobilière pour UNE SEULE agence, centralisant toute l'activité : gestion des biens, propriétaires, locataires, prospects, interventions, paiements, et rapports. Intègre un site vitrine public permettant consultation des offres, demandes de visites, et réservations en ligne.
 
-Valeurs fondamentales : Transparence • Traçabilité • Collaboration • Automatisation
+Valeurs : Centralisation • Transparence • Automatisation • Simplicité
 
 ## Design
-Style : Premium professionnel, interfaces de gestion patrimoniale haut de gamme
+Style : Professionnel moderne, interfaces claires et épurées
 
 Palette :
---primary: 222 47% 11% (bleu marine profond #0F1A2B)
+--primary: 222 47% 11% (bleu marine #0F1A2B)
 --primary-foreground: 210 40% 98%
---secondary: 214 32% 91%
+--secondary: 214 32% 91% (gris clair)
 --accent: 43 74% 66% (doré #E4B850)
 --accent-foreground: 222 47% 11%
 --muted: 210 40% 96%
 --muted-foreground: 215 16% 47%
---background: 0 0% 100%
+--background: 0 0% 100% (blanc)
 --foreground: 222 47% 11%
---card: 0 0% 100%
 --destructive: 0 84% 60%
 --border: 214 32% 91%
 
-Typographie : 
-Headings: Crimson Pro (serif élégant, 600/700)
-Body: Inter (sans-serif professionnel, 400/500/600)
+Typographie :
+Headings: Crimson Pro (serif professionnel, 600/700)
+Body: Inter (sans-serif moderne, 400/500/600)
 
-Direction : Espacement généreux, hiérarchie claire, accents dorés sur éléments critiques uniquement (CTA primaires, badges de statut premium, métriques importantes). Dashboards data-dense avec tabular-nums.
+Direction : Interfaces respirantes, hiérarchie claire, accents dorés sur actions critiques (CTA, badges premium, métriques clés). Dashboards data-dense avec tabular-nums.
 
-## Features Implémentées (MVP V1)
+## Features (Cahier des charges complet)
 
-**Infrastructure & Auth**
-- Auth avec Supabase Auth (application unique, une seule agence)
-- RBAC 5 rôles (admin, secretary, commercial, accountant, proprietaire)
-- RLS strict avec isolation par utilisateur
-- Base de données PostgreSQL (15 tables + visit_bookings)
+**6 Profils Utilisateurs**
+- Administrateur (accès total)
+- Agent Immobilier (gestion biens, visites, locations, ventes)
+- Secrétaire (rendez-vous, prospects, contrats, réservations)
+- Comptable (paiements, loyers, impayés, rapports financiers)
+- Prestataire (missions affectées, photos, commentaires, clôture)
+- Mandant/Propriétaire (espace personnel : biens, loyers, dépenses, interventions, documents)
 
-**Modules Core**
-- Dashboard décisionnel multi-rôles avec KPI temps réel
-- Gestion des Biens (CRUD complet, photos, filtrage)
-- Gestion des Mandats (4 types : gestion, location, vente, gestion_complete)
-- Gestion Propriétaires avec portail dédié
-- Gestion Locataires
-- Module Interventions + Prestataires (workflow : création → affectation → en_cours → terminee)
-- Module Paiements/Encaissements (multi-moyens avec upload justificatifs)
-- CRM Prospects (pipeline Kanban 6 étapes)
-- GED simplifiée (upload documents par bien via Supabase Storage)
-- **Assistant IA conversationnel** (rédaction annonces avec OpenAI GPT-4, 4 tons, actions rapides)
+**Gestion des Biens**
+- Référence, type (8 types), statut (4 statuts)
+- Vente ou location
+- Localisation (adresse, ville, commune, quartier, GPS)
+- Caractéristiques (pièces, surface, prix)
+- Description, équipements
+- Photos, vidéos, documents
+- Publication sur site vitrine
 
-**Portails**
-- Vitrine professionnelle (landing page premium avec Hero, Services, Tarifs, Contact)
-- Portail Agence (dashboard + tous modules métier)
-- Portail Propriétaire (/owner) — voit uniquement SES biens/mandats
-- Catalogue Public (/public) — recherche biens disponibles avec réservation de visites
-- Administration (/admin/*) — gestion utilisateurs, paramètres système (admin only)
+**Site Web Vitrine**
+- Accueil (hero, recherche, biens récents, vedette)
+- Catalogue filtrable (vente/location, type, localisation, prix, pièces, surface)
+- Fiche bien détaillée (galerie, vidéos, carte, caractéristiques, contact)
+- Demande de visite (formulaire → notification agent)
+- Réservation en ligne (meublés : dates, acompte, confirmation)
+- Demande d'information (contact direct)
 
-## Features V2 (À venir)
-- Blog + CMS (structure DB prête)
-- FAQ dynamique (structure DB prête)
-- Améliorer système de réservation de visites (confirmation email, notifications)
-- Rapports PDF automatiques (génération mensuelle/trimestrielle)
-- Notifications multi-canaux (SMS, WhatsApp)
-- PWA (offline mode)
-- 2FA (Supabase Auth config)
-- Journal d'audit UI (table audit_logs existe)
-- Comptabilité avancée (exports SAGE, écritures)
+**Gestion des Prospects**
+- Enregistrement automatique
+- Historique des échanges
+- Type de demande (visite, info, réservation)
+- Suivi commercial
+
+**Gestion des Interventions**
+- Création par agents
+- Affectation prestataire
+- Photos avant/après
+- Commentaires
+- Validation/clôture
+- Types : plomberie, peinture, climatisation, maçonnerie, nettoyage
+
+**Gestion des Paiements**
+- Loyers, acomptes, réservations
+- Modes : Espèces, Mobile Money, Carte, Chèque, Virement
+- Photo justificatif (espèces/chèque)
+- Suivi des impayés
+
+**Rapports Automatisés**
+- Mensuels, trimestriels, semestriels
+- Loyers encaissés, dépenses, interventions
+- Graphiques, rentabilité
+- Export PDF
+
+**Documents**
+- Bibliothèque par bien
+- Contrats, factures, reçus
+- Photos, vidéos, plans
+- Documents administratifs
+
+**Blog et Conseils**
+- Articles
+- Conseils immobiliers
+- Vidéos courtes
+- FAQ dynamique
+
+**Notifications**
+- Nouvelle demande de visite
+- Nouvelle réservation
+- Nouveau prospect
+- Intervention terminée
+- Paiement enregistré
+- Rapport disponible
+
+**Tableau de Bord**
+- Statistiques temps réel
+- Biens (total, disponibles, loués, vendus)
+- Revenus, loyers, impayés
+- Visites programmées
+- Réservations actives
+- Nouveaux prospects
+- Interventions en cours
