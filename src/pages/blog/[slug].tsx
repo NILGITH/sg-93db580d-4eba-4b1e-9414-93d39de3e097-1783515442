@@ -28,10 +28,12 @@ export default function BlogPostPage() {
 
   async function loadPost() {
     try {
+      const slugString = Array.isArray(slug) ? slug[0] : slug;
+      
       const { data: postData } = await supabase
         .from("blog_posts")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", slugString)
         .eq("published", true)
         .single();
 
