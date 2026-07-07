@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { authService } from "@/services/authService";
 import { 
   Building2, 
   Users, 
@@ -38,6 +39,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { mockStats, mockRevenueData, mockPropertyTypeData, mockTopProperties, isInDemoMode } from "@/lib/mock-data";
 
 interface DashboardStats {
   totalProperties: number;
@@ -103,11 +105,67 @@ export default function Dashboard() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    if (user) {
-      loadDashboardStats();
-      loadChartData();
+    async function loadDashboardData() {
+      try {
+        const isDemoMode = localStorage.getItem("demo_user");
+
+        if (isDemoMode) {
+          setStats({
+            totalProperties: mockStats.totalProperties,
+            availableProperties: mockStats.availableProperties,
+            rentedProperties: mockStats.rentedProperties,
+            soldProperties: mockStats.soldProperties,
+            totalRevenue: mockStats.totalRevenue,
+            monthlyRevenue: mockStats.monthlyRevenue,
+            pendingPayments: mockStats.pendingPayments,
+            upcomingVisits: mockStats.totalVisits,
+            activeContracts: 12,
+            newProspects: mockStats.newProspects,
+          });
+
+          setChartData({
+            monthlyRevenue: mockRevenueData,
+            propertyTypes: mockPropertyTypeData,
+            revenueByProperty: mockTopProperties.map(p => ({
+              name: p.name,
+              revenue: p.prix,
+            })),
+          });
+          return;
+        }
+
+        if (user) {
+          await loadDashboardStats();
+          await loadChartData();
+        }
+      } catch (error) {
+        console.error("Erreur chargement dashboard:", error);
+        setStats({
+          totalProperties: mockStats.totalProperties,
+          availableProperties: mockStats.availableProperties,
+          rentedProperties: mockStats.rentedProperties,
+          soldProperties: mockStats.soldProperties,
+          totalRevenue: mockStats.totalRevenue,
+          monthlyRevenue: mockStats.monthlyRevenue,
+          pendingPayments: mockStats.pendingPayments,
+          upcomingVisits: mockStats.totalVisits,
+          activeContracts: 12,
+          newProspects: mockStats.newProspects,
+        });
+
+        setChartData({
+          monthlyRevenue: mockRevenueData,
+          propertyTypes: mockPropertyTypeData,
+          revenueByProperty: mockTopProperties.map(p => ({
+            name: p.name,
+            revenue: p.prix,
+          })),
+        });
+      }
     }
-  }, [user]);
+
+    loadDashboardData();
+  }, [user, router]);
 
   async function loadDashboardStats() {
     try {
