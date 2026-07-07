@@ -15,57 +15,8 @@ export type Database = {
   }
   public: {
     Tables: {
-      agencies: {
-        Row: {
-          address: string | null
-          city: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          is_active: boolean | null
-          logo_url: string | null
-          name: string
-          phone: string | null
-          postal_code: string | null
-          siret: string | null
-          updated_at: string | null
-          website: string | null
-        }
-        Insert: {
-          address?: string | null
-          city?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          is_active?: boolean | null
-          logo_url?: string | null
-          name: string
-          phone?: string | null
-          postal_code?: string | null
-          siret?: string | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Update: {
-          address?: string | null
-          city?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          is_active?: boolean | null
-          logo_url?: string | null
-          name?: string
-          phone?: string | null
-          postal_code?: string | null
-          siret?: string | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Relationships: []
-      }
       blog_posts: {
         Row: {
-          agency_id: string | null
           author_id: string | null
           category: string | null
           content: string
@@ -81,7 +32,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          agency_id?: string | null
           author_id?: string | null
           category?: string | null
           content: string
@@ -97,7 +47,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          agency_id?: string | null
           author_id?: string | null
           category?: string | null
           content?: string
@@ -114,13 +63,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "blog_posts_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "blog_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
@@ -129,117 +71,231 @@ export type Database = {
           },
         ]
       }
-      contractors: {
+      bookings: {
         Row: {
-          active: boolean | null
-          address: string | null
-          agency_id: string
-          company_name: string
-          contact_name: string
+          client_email: string
+          client_name: string
+          client_phone: string | null
           created_at: string | null
-          email: string
+          deposit_amount: number | null
+          deposit_paid: boolean | null
+          end_date: string
           id: string
-          phone: string
-          rating: number | null
-          siret: string | null
-          specialty: string
+          nights: number
+          notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_reference: string | null
+          property_id: string
+          prospect_id: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["booking_status"] | null
+          total_price: number
           updated_at: string | null
         }
         Insert: {
-          active?: boolean | null
-          address?: string | null
-          agency_id: string
-          company_name: string
-          contact_name: string
+          client_email: string
+          client_name: string
+          client_phone?: string | null
           created_at?: string | null
-          email: string
+          deposit_amount?: number | null
+          deposit_paid?: boolean | null
+          end_date: string
           id?: string
-          phone: string
-          rating?: number | null
-          siret?: string | null
-          specialty: string
+          nights: number
+          notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_reference?: string | null
+          property_id: string
+          prospect_id?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_price: number
           updated_at?: string | null
         }
         Update: {
-          active?: boolean | null
-          address?: string | null
-          agency_id?: string
-          company_name?: string
-          contact_name?: string
+          client_email?: string
+          client_name?: string
+          client_phone?: string | null
           created_at?: string | null
-          email?: string
+          deposit_amount?: number | null
+          deposit_paid?: boolean | null
+          end_date?: string
           id?: string
-          phone?: string
-          rating?: number | null
-          siret?: string | null
-          specialty?: string
+          nights?: number
+          notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_reference?: string | null
+          property_id?: string
+          prospect_id?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_price?: number
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "contractors_agency_id_fkey"
-            columns: ["agency_id"]
+            foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
             isOneToOne: false
-            referencedRelation: "agencies"
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          amount: number
+          clauses: string | null
+          contract_type: Database["public"]["Enums"]["contract_type"]
+          created_at: string | null
+          created_by: string | null
+          deposit_amount: number | null
+          end_date: string | null
+          file_url: string | null
+          id: string
+          owner_id: string | null
+          property_id: string
+          reference: string
+          signed_at: string | null
+          signed_by_owner: boolean | null
+          signed_by_tenant: boolean | null
+          start_date: string
+          status: Database["public"]["Enums"]["contract_status"] | null
+          tenant_id: string | null
+          terms: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          clauses?: string | null
+          contract_type: Database["public"]["Enums"]["contract_type"]
+          created_at?: string | null
+          created_by?: string | null
+          deposit_amount?: number | null
+          end_date?: string | null
+          file_url?: string | null
+          id?: string
+          owner_id?: string | null
+          property_id: string
+          reference: string
+          signed_at?: string | null
+          signed_by_owner?: boolean | null
+          signed_by_tenant?: boolean | null
+          start_date: string
+          status?: Database["public"]["Enums"]["contract_status"] | null
+          tenant_id?: string | null
+          terms?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          clauses?: string | null
+          contract_type?: Database["public"]["Enums"]["contract_type"]
+          created_at?: string | null
+          created_by?: string | null
+          deposit_amount?: number | null
+          end_date?: string | null
+          file_url?: string | null
+          id?: string
+          owner_id?: string | null
+          property_id?: string
+          reference?: string
+          signed_at?: string | null
+          signed_by_owner?: boolean | null
+          signed_by_tenant?: boolean | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["contract_status"] | null
+          tenant_id?: string | null
+          terms?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
       documents: {
         Row: {
-          agency_id: string
+          contract_id: string | null
           created_at: string | null
           file_size: number | null
           file_url: string
           id: string
           intervention_id: string | null
-          mandate_id: string | null
           mime_type: string | null
           name: string
           property_id: string | null
           type: string
           updated_at: string | null
           uploaded_by: string | null
-          version: number | null
         }
         Insert: {
-          agency_id: string
+          contract_id?: string | null
           created_at?: string | null
           file_size?: number | null
           file_url: string
           id?: string
           intervention_id?: string | null
-          mandate_id?: string | null
           mime_type?: string | null
           name: string
           property_id?: string | null
           type: string
           updated_at?: string | null
           uploaded_by?: string | null
-          version?: number | null
         }
         Update: {
-          agency_id?: string
+          contract_id?: string | null
           created_at?: string | null
           file_size?: number | null
           file_url?: string
           id?: string
           intervention_id?: string | null
-          mandate_id?: string | null
           mime_type?: string | null
           name?: string
           property_id?: string | null
           type?: string
           updated_at?: string | null
           uploaded_by?: string | null
-          version?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "documents_agency_id_fkey"
-            columns: ["agency_id"]
+            foreignKeyName: "documents_contract_id_fkey"
+            columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "agencies"
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
           {
@@ -247,13 +303,6 @@ export type Database = {
             columns: ["intervention_id"]
             isOneToOne: false
             referencedRelation: "interventions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "mandates"
             referencedColumns: ["id"]
           },
           {
@@ -275,7 +324,6 @@ export type Database = {
       faq_items: {
         Row: {
           active: boolean | null
-          agency_id: string | null
           answer: string
           category: string | null
           created_at: string | null
@@ -286,7 +334,6 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
-          agency_id?: string | null
           answer: string
           category?: string | null
           created_at?: string | null
@@ -297,7 +344,6 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
-          agency_id?: string | null
           answer?: string
           category?: string | null
           created_at?: string | null
@@ -306,89 +352,73 @@ export type Database = {
           question?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "faq_items_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       interventions: {
         Row: {
           actual_cost: number | null
-          agency_id: string
+          agent_comment: string | null
           completed_date: string | null
-          contractor_id: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
           estimated_cost: number | null
           id: string
-          photos: string[] | null
-          priority: string | null
+          intervention_type: Database["public"]["Enums"]["intervention_type"]
+          photos_after: string[] | null
+          photos_before: string[] | null
           property_id: string
+          provider_comment: string | null
+          provider_id: string | null
           scheduled_date: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["intervention_status"] | null
           title: string
           updated_at: string | null
           validated_by: string | null
         }
         Insert: {
           actual_cost?: number | null
-          agency_id: string
+          agent_comment?: string | null
           completed_date?: string | null
-          contractor_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           estimated_cost?: number | null
           id?: string
-          photos?: string[] | null
-          priority?: string | null
+          intervention_type: Database["public"]["Enums"]["intervention_type"]
+          photos_after?: string[] | null
+          photos_before?: string[] | null
           property_id: string
+          provider_comment?: string | null
+          provider_id?: string | null
           scheduled_date?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["intervention_status"] | null
           title: string
           updated_at?: string | null
           validated_by?: string | null
         }
         Update: {
           actual_cost?: number | null
-          agency_id?: string
+          agent_comment?: string | null
           completed_date?: string | null
-          contractor_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           estimated_cost?: number | null
           id?: string
-          photos?: string[] | null
-          priority?: string | null
+          intervention_type?: Database["public"]["Enums"]["intervention_type"]
+          photos_after?: string[] | null
+          photos_before?: string[] | null
           property_id?: string
+          provider_comment?: string | null
+          provider_id?: string | null
           scheduled_date?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["intervention_status"] | null
           title?: string
           updated_at?: string | null
           validated_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "interventions_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "interventions_contractor_id_fkey"
-            columns: ["contractor_id"]
-            isOneToOne: false
-            referencedRelation: "contractors"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "interventions_created_by_fkey"
             columns: ["created_by"]
@@ -404,86 +434,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "interventions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "interventions_validated_by_fkey"
             columns: ["validated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mandates: {
-        Row: {
-          agency_id: string
-          commission_amount: number | null
-          commission_rate: number | null
-          created_at: string | null
-          documents: string[] | null
-          end_date: string | null
-          id: string
-          is_active: boolean | null
-          mandate_type: Database["public"]["Enums"]["mandate_type"]
-          owner_id: string
-          property_id: string
-          reference: string
-          start_date: string
-          terms: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          agency_id: string
-          commission_amount?: number | null
-          commission_rate?: number | null
-          created_at?: string | null
-          documents?: string[] | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          mandate_type: Database["public"]["Enums"]["mandate_type"]
-          owner_id: string
-          property_id: string
-          reference: string
-          start_date: string
-          terms?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          agency_id?: string
-          commission_amount?: number | null
-          commission_rate?: number | null
-          created_at?: string | null
-          documents?: string[] | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          mandate_type?: Database["public"]["Enums"]["mandate_type"]
-          owner_id?: string
-          property_id?: string
-          reference?: string
-          start_date?: string
-          terms?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mandates_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mandates_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "owners"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mandates_property_id_fkey"
-            columns: ["property_id"]
-            isOneToOne: false
-            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -494,10 +455,9 @@ export type Database = {
           id: string
           link: string | null
           message: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
           read: boolean | null
-          sent_via: string[] | null
           title: string
-          type: string
           user_id: string
         }
         Insert: {
@@ -505,10 +465,9 @@ export type Database = {
           id?: string
           link?: string | null
           message: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
           read?: boolean | null
-          sent_via?: string[] | null
           title: string
-          type: string
           user_id: string
         }
         Update: {
@@ -516,10 +475,9 @@ export type Database = {
           id?: string
           link?: string | null
           message?: string
+          notification_type?: Database["public"]["Enums"]["notification_type"]
           read?: boolean | null
-          sent_via?: string[] | null
           title?: string
-          type?: string
           user_id?: string
         }
         Relationships: [
@@ -535,12 +493,12 @@ export type Database = {
       owners: {
         Row: {
           address: string | null
-          agency_id: string
           city: string | null
           created_at: string | null
           email: string
           first_name: string
           id: string
+          id_card_number: string | null
           last_name: string
           notes: string | null
           phone: string | null
@@ -550,12 +508,12 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          agency_id: string
           city?: string | null
           created_at?: string | null
           email: string
           first_name: string
           id?: string
+          id_card_number?: string | null
           last_name: string
           notes?: string | null
           phone?: string | null
@@ -565,12 +523,12 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          agency_id?: string
           city?: string | null
           created_at?: string | null
           email?: string
           first_name?: string
           id?: string
+          id_card_number?: string | null
           last_name?: string
           notes?: string | null
           phone?: string | null
@@ -580,84 +538,73 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "owners_agency_id_fkey"
-            columns: ["agency_id"]
+            foreignKeyName: "owners_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "agencies"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       payments: {
         Row: {
-          agency_id: string
           amount: number
           created_at: string | null
           description: string | null
           id: string
           is_validated: boolean | null
-          mandate_id: string | null
           owner_id: string | null
           payment_date: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          photo_justificatif: string | null
           property_id: string | null
           receipt_url: string | null
           reference: string | null
+          tenant_id: string | null
           updated_at: string | null
           validated_at: string | null
           validated_by: string | null
         }
         Insert: {
-          agency_id: string
           amount: number
           created_at?: string | null
           description?: string | null
           id?: string
           is_validated?: boolean | null
-          mandate_id?: string | null
           owner_id?: string | null
           payment_date: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          photo_justificatif?: string | null
           property_id?: string | null
           receipt_url?: string | null
           reference?: string | null
+          tenant_id?: string | null
           updated_at?: string | null
           validated_at?: string | null
           validated_by?: string | null
         }
         Update: {
-          agency_id?: string
           amount?: number
           created_at?: string | null
           description?: string | null
           id?: string
           is_validated?: boolean | null
-          mandate_id?: string | null
           owner_id?: string | null
           payment_date?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          photo_justificatif?: string | null
           property_id?: string | null
           receipt_url?: string | null
           reference?: string | null
+          tenant_id?: string | null
           updated_at?: string | null
           validated_at?: string | null
           validated_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "payments_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "mandates"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "payments_owner_id_fkey"
             columns: ["owner_id"]
@@ -673,6 +620,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_validated_by_fkey"
             columns: ["validated_by"]
             isOneToOne: false
@@ -683,8 +637,8 @@ export type Database = {
       }
       profiles: {
         Row: {
-          agency_id: string | null
           created_at: string | null
+          email: string | null
           first_name: string | null
           id: string
           is_active: boolean | null
@@ -694,8 +648,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          agency_id?: string | null
           created_at?: string | null
+          email?: string | null
           first_name?: string | null
           id: string
           is_active?: boolean | null
@@ -705,8 +659,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          agency_id?: string | null
           created_at?: string | null
+          email?: string | null
           first_name?: string | null
           id?: string
           is_active?: boolean | null
@@ -715,168 +669,237 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       properties: {
         Row: {
           address: string
-          agency_id: string
           bathrooms: number | null
           bedrooms: number | null
           charges: number | null
           city: string
+          commune: string | null
           created_at: string | null
           description: string | null
+          equipments: Json | null
+          featured: boolean | null
           features: Json | null
           floor: number | null
           id: string
           latitude: number | null
           longitude: number | null
+          owner_id: string | null
           photos: string[] | null
           postal_code: string | null
           price: number | null
           property_type: Database["public"]["Enums"]["property_type"]
+          published: boolean | null
+          quartier: string | null
           reference: string
           rental_price: number | null
           rooms: number | null
           status: Database["public"]["Enums"]["property_status"] | null
           surface_area: number | null
           title: string
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
           updated_at: string | null
+          videos: string[] | null
         }
         Insert: {
           address: string
-          agency_id: string
           bathrooms?: number | null
           bedrooms?: number | null
           charges?: number | null
           city: string
+          commune?: string | null
           created_at?: string | null
           description?: string | null
+          equipments?: Json | null
+          featured?: boolean | null
           features?: Json | null
           floor?: number | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          owner_id?: string | null
           photos?: string[] | null
           postal_code?: string | null
           price?: number | null
           property_type: Database["public"]["Enums"]["property_type"]
+          published?: boolean | null
+          quartier?: string | null
           reference: string
           rental_price?: number | null
           rooms?: number | null
           status?: Database["public"]["Enums"]["property_status"] | null
           surface_area?: number | null
           title: string
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
+          videos?: string[] | null
         }
         Update: {
           address?: string
-          agency_id?: string
           bathrooms?: number | null
           bedrooms?: number | null
           charges?: number | null
           city?: string
+          commune?: string | null
           created_at?: string | null
           description?: string | null
+          equipments?: Json | null
+          featured?: boolean | null
           features?: Json | null
           floor?: number | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          owner_id?: string | null
           photos?: string[] | null
           postal_code?: string | null
           price?: number | null
           property_type?: Database["public"]["Enums"]["property_type"]
+          published?: boolean | null
+          quartier?: string | null
           reference?: string
           rental_price?: number | null
           rooms?: number | null
           status?: Database["public"]["Enums"]["property_status"] | null
           surface_area?: number | null
           title?: string
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
+          videos?: string[] | null
         }
         Relationships: [
           {
-            foreignKeyName: "properties_agency_id_fkey"
-            columns: ["agency_id"]
+            foreignKeyName: "properties_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "agencies"
+            referencedRelation: "owners"
             referencedColumns: ["id"]
           },
         ]
       }
       prospects: {
         Row: {
-          agency_id: string
           assigned_to: string | null
           budget: number | null
           created_at: string | null
+          demand_type: Database["public"]["Enums"]["demand_type"]
           email: string
           first_name: string
           id: string
-          interest_type: string | null
           last_contact_date: string | null
           last_name: string
+          message: string | null
           notes: string | null
           phone: string | null
-          source: string | null
-          status: string | null
+          property_id: string | null
+          status: Database["public"]["Enums"]["prospect_status"] | null
           updated_at: string | null
         }
         Insert: {
-          agency_id: string
           assigned_to?: string | null
           budget?: number | null
           created_at?: string | null
+          demand_type: Database["public"]["Enums"]["demand_type"]
           email: string
           first_name: string
           id?: string
-          interest_type?: string | null
           last_contact_date?: string | null
           last_name: string
+          message?: string | null
           notes?: string | null
           phone?: string | null
-          source?: string | null
-          status?: string | null
+          property_id?: string | null
+          status?: Database["public"]["Enums"]["prospect_status"] | null
           updated_at?: string | null
         }
         Update: {
-          agency_id?: string
           assigned_to?: string | null
           budget?: number | null
           created_at?: string | null
+          demand_type?: Database["public"]["Enums"]["demand_type"]
           email?: string
           first_name?: string
           id?: string
-          interest_type?: string | null
           last_contact_date?: string | null
           last_name?: string
+          message?: string | null
           notes?: string | null
           phone?: string | null
-          source?: string | null
-          status?: string | null
+          property_id?: string | null
+          status?: Database["public"]["Enums"]["prospect_status"] | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "prospects_agency_id_fkey"
-            columns: ["agency_id"]
+            foreignKeyName: "prospects_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
-            referencedRelation: "agencies"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "prospects_assigned_to_fkey"
-            columns: ["assigned_to"]
+            foreignKeyName: "prospects_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      providers: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          company_name: string
+          contact_name: string
+          created_at: string | null
+          email: string
+          id: string
+          phone: string
+          rating: number | null
+          siret: string | null
+          specialty: Database["public"]["Enums"]["intervention_type"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          company_name: string
+          contact_name: string
+          created_at?: string | null
+          email: string
+          id?: string
+          phone: string
+          rating?: number | null
+          siret?: string | null
+          specialty: Database["public"]["Enums"]["intervention_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          company_name?: string
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          phone?: string
+          rating?: number | null
+          siret?: string | null
+          specialty?: Database["public"]["Enums"]["intervention_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "providers_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -885,7 +908,6 @@ export type Database = {
       }
       reports: {
         Row: {
-          agency_id: string
           created_at: string | null
           file_url: string | null
           generated_at: string | null
@@ -894,12 +916,12 @@ export type Database = {
           owner_id: string
           period_end: string
           period_start: string
+          report_type: Database["public"]["Enums"]["report_type"]
+          sent_at: string | null
           total_expenses: number | null
           total_revenue: number | null
-          type: string
         }
         Insert: {
-          agency_id: string
           created_at?: string | null
           file_url?: string | null
           generated_at?: string | null
@@ -908,12 +930,12 @@ export type Database = {
           owner_id: string
           period_end: string
           period_start: string
+          report_type: Database["public"]["Enums"]["report_type"]
+          sent_at?: string | null
           total_expenses?: number | null
           total_revenue?: number | null
-          type: string
         }
         Update: {
-          agency_id?: string
           created_at?: string | null
           file_url?: string | null
           generated_at?: string | null
@@ -922,30 +944,23 @@ export type Database = {
           owner_id?: string
           period_end?: string
           period_start?: string
+          report_type?: Database["public"]["Enums"]["report_type"]
+          sent_at?: string | null
           total_expenses?: number | null
           total_revenue?: number | null
-          type?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "reports_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "reports_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "owners"
             referencedColumns: ["id"]
           },
         ]
       }
       tenants: {
         Row: {
-          agency_id: string
           contract_end_date: string | null
           contract_start_date: string | null
           created_at: string | null
@@ -956,13 +971,13 @@ export type Database = {
           id_card_number: string | null
           last_name: string
           monthly_rent: number | null
+          notes: string | null
           phone: string | null
           property_id: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
-          agency_id: string
           contract_end_date?: string | null
           contract_start_date?: string | null
           created_at?: string | null
@@ -973,13 +988,13 @@ export type Database = {
           id_card_number?: string | null
           last_name: string
           monthly_rent?: number | null
+          notes?: string | null
           phone?: string | null
           property_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
-          agency_id?: string
           contract_end_date?: string | null
           contract_start_date?: string | null
           created_at?: string | null
@@ -990,19 +1005,13 @@ export type Database = {
           id_card_number?: string | null
           last_name?: string
           monthly_rent?: number | null
+          notes?: string | null
           phone?: string | null
           property_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "tenants_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "tenants_property_id_fkey"
             columns: ["property_id"]
@@ -1012,38 +1021,44 @@ export type Database = {
           },
         ]
       }
-      visit_bookings: {
+      visits: {
         Row: {
+          assigned_to: string | null
           created_at: string | null
           id: string
           message: string | null
           preferred_date: string
           property_id: string
-          status: string | null
+          prospect_id: string | null
+          status: Database["public"]["Enums"]["visit_status"] | null
           updated_at: string | null
           visitor_email: string
           visitor_name: string
           visitor_phone: string | null
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string | null
           id?: string
           message?: string | null
           preferred_date: string
           property_id: string
-          status?: string | null
+          prospect_id?: string | null
+          status?: Database["public"]["Enums"]["visit_status"] | null
           updated_at?: string | null
           visitor_email: string
           visitor_name: string
           visitor_phone?: string | null
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string | null
           id?: string
           message?: string | null
           preferred_date?: string
           property_id?: string
-          status?: string | null
+          prospect_id?: string | null
+          status?: Database["public"]["Enums"]["visit_status"] | null
           updated_at?: string | null
           visitor_email?: string
           visitor_name?: string
@@ -1051,10 +1066,24 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "visit_bookings_property_id_fkey"
+            foreignKeyName: "visits_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
             referencedColumns: ["id"]
           },
         ]
@@ -1067,29 +1096,68 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      mandate_type: "gestion" | "location" | "vente" | "gestion_complete"
+      booking_status: "en_attente" | "confirmee" | "annulee" | "terminee"
+      contract_status: "brouillon" | "en_cours" | "termine" | "resilie"
+      contract_type: "location" | "vente" | "gestion"
+      demand_type: "visite" | "information" | "reservation"
+      intervention_status:
+        | "planifiee"
+        | "en_cours"
+        | "terminee"
+        | "validee"
+        | "annulee"
+      intervention_type:
+        | "plomberie"
+        | "peinture"
+        | "climatisation"
+        | "maconnerie"
+        | "nettoyage"
+        | "electricite"
+        | "jardinage"
+        | "serrurerie"
+        | "autre"
+      notification_type:
+        | "visite"
+        | "reservation"
+        | "prospect"
+        | "intervention"
+        | "paiement"
+        | "rapport"
+        | "contrat"
       payment_method:
-        | "mobile_money"
-        | "carte_bancaire"
-        | "virement"
-        | "cheque"
         | "especes"
-      property_status: "disponible" | "loue" | "vendu" | "travaux" | "reserve"
+        | "mobile_money"
+        | "carte"
+        | "cheque"
+        | "virement"
+      payment_type: "loyer" | "acompte" | "reservation" | "caution" | "frais"
+      property_status: "disponible" | "loue" | "vendu" | "reserve"
       property_type:
         | "appartement"
         | "maison"
-        | "studio"
-        | "duplex"
         | "villa"
         | "terrain"
-        | "commerce"
         | "bureau"
+        | "commerce"
+        | "immeuble"
+        | "studio"
+      prospect_status:
+        | "nouveau"
+        | "contacte"
+        | "qualifie"
+        | "negocie"
+        | "converti"
+        | "perdu"
+      report_type: "mensuel" | "trimestriel" | "semestriel" | "annuel"
+      transaction_type: "vente" | "location"
       user_role:
         | "admin"
+        | "agent"
         | "secretary"
-        | "commercial"
         | "accountant"
-        | "proprietaire"
+        | "provider"
+        | "owner"
+      visit_status: "en_attente" | "confirmee" | "effectuee" | "annulee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1217,32 +1285,75 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      mandate_type: ["gestion", "location", "vente", "gestion_complete"],
-      payment_method: [
-        "mobile_money",
-        "carte_bancaire",
-        "virement",
-        "cheque",
-        "especes",
+      booking_status: ["en_attente", "confirmee", "annulee", "terminee"],
+      contract_status: ["brouillon", "en_cours", "termine", "resilie"],
+      contract_type: ["location", "vente", "gestion"],
+      demand_type: ["visite", "information", "reservation"],
+      intervention_status: [
+        "planifiee",
+        "en_cours",
+        "terminee",
+        "validee",
+        "annulee",
       ],
-      property_status: ["disponible", "loue", "vendu", "travaux", "reserve"],
+      intervention_type: [
+        "plomberie",
+        "peinture",
+        "climatisation",
+        "maconnerie",
+        "nettoyage",
+        "electricite",
+        "jardinage",
+        "serrurerie",
+        "autre",
+      ],
+      notification_type: [
+        "visite",
+        "reservation",
+        "prospect",
+        "intervention",
+        "paiement",
+        "rapport",
+        "contrat",
+      ],
+      payment_method: [
+        "especes",
+        "mobile_money",
+        "carte",
+        "cheque",
+        "virement",
+      ],
+      payment_type: ["loyer", "acompte", "reservation", "caution", "frais"],
+      property_status: ["disponible", "loue", "vendu", "reserve"],
       property_type: [
         "appartement",
         "maison",
-        "studio",
-        "duplex",
         "villa",
         "terrain",
-        "commerce",
         "bureau",
+        "commerce",
+        "immeuble",
+        "studio",
       ],
+      prospect_status: [
+        "nouveau",
+        "contacte",
+        "qualifie",
+        "negocie",
+        "converti",
+        "perdu",
+      ],
+      report_type: ["mensuel", "trimestriel", "semestriel", "annuel"],
+      transaction_type: ["vente", "location"],
       user_role: [
         "admin",
+        "agent",
         "secretary",
-        "commercial",
         "accountant",
-        "proprietaire",
+        "provider",
+        "owner",
       ],
+      visit_status: ["en_attente", "confirmee", "effectuee", "annulee"],
     },
   },
 } as const
