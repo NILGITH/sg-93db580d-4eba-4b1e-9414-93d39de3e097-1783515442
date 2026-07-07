@@ -13,17 +13,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import type { Database } from "@/integrations/supabase/types";
 
-type Notification = {
-  id: string;
-  user_id: string;
-  type: string;
-  title: string;
-  message: string;
-  link: string | null;
-  is_read: boolean;
-  created_at: string;
-};
+type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 
 export function NotificationBell() {
   const router = useRouter();
@@ -72,7 +64,7 @@ export function NotificationBell() {
       if (error) throw error;
 
       setNotifications(data || []);
-      setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
+      setUnreadCount(data?.filter((n) => !n.read).length || 0);
     } catch (error) {
       console.error("Erreur chargement notifications:", error);
     }
@@ -82,7 +74,7 @@ export function NotificationBell() {
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ is_read: true })
+        .update({ read: true })
         .eq("id", notificationId);
 
       if (error) throw error;
@@ -99,9 +91,9 @@ export function NotificationBell() {
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ is_read: true })
+        .update({ read: true })
         .eq("user_id", user.id)
-        .eq("is_read", false);
+        .eq("read", false);
 
       if (error) throw error;
 
@@ -167,14 +159,14 @@ export function NotificationBell() {
               <DropdownMenuItem
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`cursor-pointer p-3 ${!notification.is_read ? "bg-accent/10" : ""}`}
+                className={`cursor-pointer p-3 ${!notification.read ? "bg-accent/10" : ""}`}
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-start justify-between gap-2">
-                    <p className={`text-sm ${!notification.is_read ? "font-semibold" : ""}`}>
+                    <p className={`text-sm ${!notification.read ? "font-semibold" : ""}`}>
                       {notification.title}
                     </p>
-                    {!notification.is_read && (
+                    {!notification.read && (
                       <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0 mt-1" />
                     )}
                   </div>

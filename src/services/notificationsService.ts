@@ -55,7 +55,7 @@ export async function notifyNewVisit(visitId: string, propertyRef: string, visit
   if (users) {
     const notifications = users.map((user) => ({
       user_id: user.id,
-      type: "visite",
+      notification_type: "visite" as const,
       title: "Nouvelle demande de visite",
       message: `${visitorName} souhaite visiter le bien ${propertyRef}`,
       link: "/visits",
@@ -75,7 +75,7 @@ export async function notifyNewBooking(bookingId: string, propertyRef: string, c
   if (users) {
     const notifications = users.map((user) => ({
       user_id: user.id,
-      type: "reservation",
+      notification_type: "reservation" as const,
       title: "Nouvelle réservation",
       message: `${clientName} a réservé le bien ${propertyRef}`,
       link: "/bookings",
@@ -95,7 +95,7 @@ export async function notifyNewProspect(prospectId: string, prospectName: string
   if (users) {
     const notifications = users.map((user) => ({
       user_id: user.id,
-      type: "prospect",
+      notification_type: "prospect" as const,
       title: "Nouveau prospect",
       message: `${prospectName} a envoyé une demande de ${demandType}`,
       link: "/crm",
@@ -115,7 +115,7 @@ export async function notifyInterventionCompleted(interventionId: string, proper
   if (users) {
     const notifications = users.map((user) => ({
       user_id: user.id,
-      type: "intervention",
+      notification_type: "intervention" as const,
       title: "Intervention terminée",
       message: `${providerName} a terminé l'intervention sur ${propertyRef}`,
       link: "/interventions",
@@ -135,7 +135,7 @@ export async function notifyPaymentReceived(paymentId: string, amount: number, p
   if (users) {
     const notifications = users.map((user) => ({
       user_id: user.id,
-      type: "paiement",
+      notification_type: "paiement" as const,
       title: "Nouveau paiement",
       message: `Paiement de ${amount} FCFA reçu pour ${propertyRef}`,
       link: "/payments",
@@ -149,7 +149,7 @@ export async function notifyReportGenerated(reportId: string, ownerId: string, p
   // Notification pour le propriétaire
   await supabase.from("notifications").insert({
     user_id: ownerId,
-    type: "rapport",
+    notification_type: "rapport" as const,
     title: "Rapport disponible",
     message: `Votre rapport de gestion ${period} est disponible`,
     link: "/reports",

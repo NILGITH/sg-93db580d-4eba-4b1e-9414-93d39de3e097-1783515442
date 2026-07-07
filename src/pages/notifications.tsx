@@ -63,7 +63,7 @@ export default function NotificationsPage() {
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ is_read: true })
+        .update({ read: true })
         .eq("id", notificationId);
 
       if (error) throw error;
@@ -84,9 +84,9 @@ export default function NotificationsPage() {
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ is_read: true })
+        .update({ read: true })
         .eq("user_id", user.id)
-        .eq("is_read", false);
+        .eq("read", false);
 
       if (error) throw error;
 
@@ -127,7 +127,7 @@ export default function NotificationsPage() {
   }
 
   function handleNotificationClick(notification: Notification) {
-    if (!notification.is_read) {
+    if (!notification.read) {
       markAsRead(notification.id);
     }
     if (notification.link) {
@@ -160,9 +160,9 @@ export default function NotificationsPage() {
   }
 
   const filteredNotifications =
-    filterRead === "unread" ? notifications.filter((n) => !n.is_read) : notifications;
+    filterRead === "unread" ? notifications.filter((n) => !n.read) : notifications;
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -236,7 +236,7 @@ export default function NotificationsPage() {
               <Card
                 key={notification.id}
                 className={`cursor-pointer hover:shadow-md transition-shadow ${
-                  !notification.is_read ? "bg-accent/5 border-accent/20" : ""
+                  !notification.read ? "bg-accent/5 border-accent/20" : ""
                 }`}
                 onClick={() => handleNotificationClick(notification)}
               >
@@ -248,10 +248,10 @@ export default function NotificationsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className={`font-medium ${!notification.is_read ? "font-semibold" : ""}`}>
+                          <h3 className={`font-medium ${!notification.read ? "font-semibold" : ""}`}>
                             {notification.title}
                           </h3>
-                          {!notification.is_read && (
+                          {!notification.read && (
                             <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0 mt-2" />
                           )}
                         </div>
@@ -263,7 +263,7 @@ export default function NotificationsPage() {
                     </div>
 
                     <div className="flex gap-1">
-                      {!notification.is_read && (
+                      {!notification.read && (
                         <Button
                           size="sm"
                           variant="outline"
