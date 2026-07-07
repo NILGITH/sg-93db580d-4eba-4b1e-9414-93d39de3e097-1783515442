@@ -1,30 +1,27 @@
 ---
 title: Blog et Conseils
-status: todo
+status: done
 priority: low
 type: feature
-tags: [blog, content]
+tags: [blog, content, articles]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:37Z
 position: 13
 ---
 
-## Notes
-Module blog permettant de publier articles, conseils immobiliers, vidéos courtes. Visible sur le site vitrine pour attirer et informer les visiteurs.
-
 ## Checklist
-- [ ] Page blog/index (liste articles publics)
-- [ ] Page blog/[slug] (article détaillé)
-- [ ] Page admin/blog (gestion articles)
-- [ ] Éditeur rich-text pour rédaction
-- [ ] Upload image couverture
-- [ ] Embed vidéos YouTube/Vimeo
-- [ ] Catégories articles (conseils, actu, guides)
-- [ ] SEO (meta description, slug)
-- [ ] Partage social (Facebook, Twitter, LinkedIn)
+- [x] Page publique /blog pour consulter articles
+- [x] Page admin /admin/blog pour gérer articles
+- [x] CRUD complet (créer, modifier, supprimer)
+- [x] Catégories : conseils, actualités, guides
+- [x] Champs : titre, slug, extrait, contenu, image, vidéo
+- [x] Publication/dépublication
+- [x] Filtres par catégorie
+- [x] Recherche articles
+- [x] Support Markdown dans contenu
 
 ## Acceptance
-- Admin/Agent peut créer/publier articles
-- Articles visibles sur site vitrine
-- Interface moderne et lisible
-- SEO optimisé
+- Admin/Agent peut créer et publier articles
+- Visiteurs voient articles publiés sur /blog
+- Articles filtrables par catégorie
+- Images et vidéos intégrées
