@@ -123,12 +123,12 @@ export const mockStats = {
 };
 
 export const mockRevenueData = [
-  { month: "Jan", revenus: 2800000 },
-  { month: "Fév", revenus: 3100000 },
-  { month: "Mar", revenus: 2900000 },
-  { month: "Avr", revenus: 3400000 },
-  { month: "Mai", revenus: 3000000 },
-  { month: "Jui", revenus: 3200000 },
+  { month: "Jan", revenue: 2800000 },
+  { month: "Fév", revenue: 3100000 },
+  { month: "Mar", revenue: 2900000 },
+  { month: "Avr", revenue: 3400000 },
+  { month: "Mai", revenue: 3000000 },
+  { month: "Jui", revenue: 3200000 },
 ];
 
 export const mockPropertyTypeData = [
