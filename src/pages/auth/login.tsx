@@ -88,33 +88,41 @@ export default function Login() {
         password,
       });
 
-      // Vérifier si mode démo
-      const isDemoLogin = localStorage.getItem("demo_user");
+      // Vérifier si mode démo activé
+      const isDemoMode = localStorage.getItem("demo_mode_active") === "true";
 
-      toast({
-        title: isDemoLogin ? "🎭 Mode Démo Activé" : "Connexion réussie",
-        description: isDemoLogin
-          ? `Bienvenue ${profile.first_name} - Données mockées`
-          : `Bienvenue ${profile.first_name} ${profile.last_name}`,
-      });
+      if (isDemoMode) {
+        toast({
+          title: "🎭 Mode Démo Activé",
+          description: `Bienvenue ${profile.first_name} - Connexion Supabase indisponible, utilisation de données mockées pour la démo`,
+          duration: 6000,
+        });
+      } else {
+        toast({
+          title: "✅ Connexion réussie",
+          description: `Bienvenue ${profile.first_name} ${profile.last_name}`,
+        });
+      }
 
       // Redirection selon le rôle
-      switch (profile.role) {
-        case "admin":
-        case "agent":
-        case "secretary":
-        case "accountant":
-          router.push("/dashboard");
-          break;
-        case "provider":
-          router.push("/provider/missions");
-          break;
-        case "owner":
-          router.push("/owner");
-          break;
-        default:
-          router.push("/dashboard");
-      }
+      setTimeout(() => {
+        switch (profile.role) {
+          case "admin":
+          case "agent":
+          case "secretary":
+          case "accountant":
+            router.push("/dashboard");
+            break;
+          case "provider":
+            router.push("/provider/missions");
+            break;
+          case "owner":
+            router.push("/owner");
+            break;
+          default:
+            router.push("/dashboard");
+        }
+      }, 1000);
     } catch (error: any) {
       const isNetworkError =
         error.message?.includes("fetch") ||
@@ -122,16 +130,17 @@ export default function Login() {
         error.message?.includes("Failed to fetch");
 
       if (isNetworkError) {
+        setNetworkError(true);
         toast({
           title: "⚠️ Erreur de connexion réseau",
           description:
             "Impossible de joindre le serveur Supabase. Utilisez les credentials de test pour activer le mode démo (admin@immo360.com / Admin123!)",
           variant: "destructive",
-          duration: 8000,
+          duration: 10000,
         });
       } else {
         toast({
-          title: "Erreur de connexion",
+          title: "❌ Erreur de connexion",
           description:
             error.message || "Identifiants incorrects. Vérifiez votre email et mot de passe.",
           variant: "destructive",

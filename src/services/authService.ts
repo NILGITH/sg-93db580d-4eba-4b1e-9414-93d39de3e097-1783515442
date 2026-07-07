@@ -57,23 +57,30 @@ export const authService = {
 
       return { user: authData.user, profile };
     } catch (error: any) {
-      // Mode démo : si erreur réseau et credentials valides
-      if (
-        error.message?.includes("fetch") &&
-        isInDemoMode() &&
+      // Mode démo : si erreur réseau ET credentials valides
+      const isNetworkError =
+        error.message?.includes("fetch") ||
+        error.message?.includes("network") ||
+        error.message?.includes("Failed to fetch");
+
+      const isValidDemoCredentials =
         credentials.password === "Admin123!" &&
         (credentials.email === "admin@immo360.com" ||
-          credentials.email === "agent1@immo360.com")
-      ) {
+          credentials.email === "agent1@immo360.com");
+
+      // Si erreur réseau + credentials valides → activer mode démo SANS erreur
+      if (isNetworkError && isValidDemoCredentials && isInDemoMode()) {
         const profile = getMockProfile(credentials.email);
-        // Stocker en localStorage pour persister la session démo
         localStorage.setItem("demo_user", JSON.stringify(profile));
+        localStorage.setItem("demo_mode_active", "true");
+        
         return {
           user: { id: profile.id, email: profile.email } as any,
           profile,
         };
       }
 
+      // Sinon, propager l'erreur
       throw error;
     }
   },
@@ -132,7 +139,7 @@ export const authService = {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) throw new Error("No user");
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -144,7 +151,9 @@ export const authService = {
     } catch (error) {
       // Vérifier session démo
       const demoUser = localStorage.getItem("demo_user");
-      if (demoUser && isInDemoMode()) {
+      const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
+      
+      if (demoUser && demoModeActive && isInDemoMode()) {
         const profile = JSON.parse(demoUser);
         return {
           user: { id: profile.id, email: profile.email } as any,
