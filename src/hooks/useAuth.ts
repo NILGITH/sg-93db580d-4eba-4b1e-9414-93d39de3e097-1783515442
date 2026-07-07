@@ -4,12 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type Agency = Database["public"]["Tables"]["agencies"]["Row"];
 
 export interface AuthUser {
   user: User | null;
   profile: Profile | null;
-  agency: Agency | null;
   loading: boolean;
   error: string | null;
 }
@@ -17,7 +15,6 @@ export interface AuthUser {
 export function useAuth(): AuthUser {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [agency, setAgency] = useState<Agency | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +33,7 @@ export function useAuth(): AuthUser {
         if (currentUser) {
           const { data: profileData, error: profileError } = await supabase
             .from("profiles")
-            .select("*, agencies(*)")
+            .select("*")
             .eq("id", currentUser.id)
             .single();
 
@@ -44,7 +41,6 @@ export function useAuth(): AuthUser {
           
           if (!mounted) return;
           setProfile(profileData);
-          setAgency(profileData.agencies as Agency);
         }
       } catch (err) {
         if (!mounted) return;
@@ -64,18 +60,16 @@ export function useAuth(): AuthUser {
         
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("*, agencies(*)")
+          .select("*")
           .eq("id", session.user.id)
           .single();
 
         if (profileData && mounted) {
           setProfile(profileData);
-          setAgency(profileData.agencies as Agency);
         }
       } else {
         setUser(null);
         setProfile(null);
-        setAgency(null);
       }
     });
 
@@ -85,5 +79,5 @@ export function useAuth(): AuthUser {
     };
   }, []);
 
-  return { user, profile, agency, loading, error };
+  return { user, profile, loading, error };
 }

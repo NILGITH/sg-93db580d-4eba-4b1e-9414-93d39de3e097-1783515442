@@ -14,10 +14,9 @@ type UserProfile = {
   id: string;
   first_name: string;
   last_name: string;
+  email: string;
   role: string;
-  agencies: {
-    name: string;
-  } | null;
+  is_active: boolean;
   created_at: string;
 };
 
@@ -61,7 +60,7 @@ export default function AdminUsers() {
   async function loadUsers() {
     const { data } = await supabase
       .from("profiles")
-      .select("*, agencies(name)")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (data) {
@@ -112,12 +111,12 @@ export default function AdminUsers() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les rôles</SelectItem>
-              <SelectItem value="super_admin">Super Admin</SelectItem>
-              <SelectItem value="admin_agency">Admin Agence</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="agent">Agent</SelectItem>
               <SelectItem value="secretary">Secrétaire</SelectItem>
-              <SelectItem value="commercial">Commercial</SelectItem>
               <SelectItem value="accountant">Comptable</SelectItem>
-              <SelectItem value="proprietaire">Propriétaire</SelectItem>
+              <SelectItem value="provider">Prestataire</SelectItem>
+              <SelectItem value="owner">Propriétaire</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -135,15 +134,20 @@ export default function AdminUsers() {
                       <h3 className="font-semibold">
                         {user.first_name} {user.last_name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Agence: {user.agencies?.name || "N/A"}
+                        Créé le {new Date(user.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <StatusBadge variant="default">
-                    {user.role.replace("_", " ")}
-                  </StatusBadge>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge variant={user.is_active ? "available" : "default"}>
+                      {user.is_active ? "Actif" : "Inactif"}
+                    </StatusBadge>
+                    <StatusBadge variant="default">
+                      {user.role}
+                    </StatusBadge>
+                  </div>
                 </div>
               </CardContent>
             </Card>

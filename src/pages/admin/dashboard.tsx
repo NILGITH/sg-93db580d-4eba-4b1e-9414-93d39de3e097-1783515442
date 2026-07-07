@@ -4,14 +4,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Home, DollarSign, Activity } from "lucide-react";
+import { Users, Home, DollarSign, Activity } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminDashboard() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({
-    agencies: 0,
     users: 0,
     properties: 0,
     totalPayments: 0,
@@ -36,8 +35,7 @@ export default function AdminDashboard() {
 
   async function loadStats() {
     try {
-      const [agenciesResult, usersResult, propertiesResult, paymentsResult, interventionsResult] = await Promise.all([
-        supabase.from("agencies").select("id", { count: "exact", head: true }),
+      const [usersResult, propertiesResult, paymentsResult, interventionsResult] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("properties").select("id", { count: "exact", head: true }),
         supabase.from("payments").select("amount"),
@@ -47,7 +45,6 @@ export default function AdminDashboard() {
       const totalPayments = paymentsResult.data?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
 
       setStats({
-        agencies: agenciesResult.count || 0,
         users: usersResult.count || 0,
         properties: propertiesResult.count || 0,
         totalPayments,
@@ -84,19 +81,7 @@ export default function AdminDashboard() {
       </header>
 
       <main className="container mx-auto px-6 py-8 space-y-8">
-        {/* Stats Overview */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Agences</CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-accent tabular-nums">{stats.agencies}</div>
-              <p className="text-xs text-muted-foreground">Total agences actives</p>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
@@ -144,18 +129,11 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-serif">Actions Rapides</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
-            <Link href="/admin/agencies">
-              <Button variant="outline" className="w-full justify-start">
-                <Building2 className="mr-2 h-4 w-4" />
-                Gérer les agences
-              </Button>
-            </Link>
+          <CardContent className="grid gap-4 md:grid-cols-2">
             <Link href="/admin/users">
               <Button variant="outline" className="w-full justify-start">
                 <Users className="mr-2 h-4 w-4" />

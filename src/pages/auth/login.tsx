@@ -36,7 +36,7 @@ export default function LoginPage() {
           .eq("id", data.user.id)
           .single();
 
-        if (profile?.role === "proprietaire") {
+        if (profile?.role === "owner") {
           router.push("/owner");
         } else {
           router.push("/dashboard");

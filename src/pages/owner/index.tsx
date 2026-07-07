@@ -4,20 +4,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, FileText, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { Building2, Home, DollarSign, TrendingUp } from "lucide-react";
 
 export default function OwnerPortalPage() {
   const router = useRouter();
   const { user, profile, loading: authLoading } = useAuth();
   const [properties, setProperties] = useState<any[]>([]);
-  const [mandates, setMandates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/auth/login");
     }
-    if (profile && profile.role !== "proprietaire") {
+    if (profile && profile.role !== "owner") {
       router.push("/dashboard");
     }
   }, [user, profile, authLoading, router]);
@@ -31,18 +30,20 @@ export default function OwnerPortalPage() {
   async function loadOwnerData() {
     if (!user?.id) return;
     try {
-      const mandatesData = await supabase
-        .from("mandates")
-        .select("*, properties(*)")
-        .eq("owner_id", user.id);
+      const { data: ownerData } = await supabase
+        .from("owners")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
 
-      setMandates(mandatesData.data ?? []);
-      
-      const propertiesFromMandates = mandatesData.data
-        ?.map((m) => m.properties)
-        .filter((p) => p != null) ?? [];
-      
-      setProperties(propertiesFromMandates);
+      if (ownerData) {
+        const { data: propertiesData } = await supabase
+          .from("properties")
+          .select("*")
+          .eq("owner_id", ownerData.id);
+
+        setProperties(propertiesData ?? []);
+      }
     } catch (error) {
       console.error("Error loading owner data:", error);
     } finally {
@@ -62,10 +63,10 @@ export default function OwnerPortalPage() {
     return null;
   }
 
-  const totalRevenue = properties.reduce((sum, p) => sum + (p.price || 0), 0);
-  const activeProperties = properties.filter((p) => p.status === "loue").length;
+  const totalValue = properties.reduce((sum, p) => sum + (p.price || 0), 0);
+  const rentedProperties = properties.filter((p) => p.status === "loue").length;
   const occupancyRate =
-    properties.length > 0 ? Math.round((activeProperties / properties.length) * 100) : 0;
+    properties.length > 0 ? Math.round((rentedProperties / properties.length) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -107,7 +108,7 @@ export default function OwnerPortalPage() {
                 {properties.length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {activeProperties} actuellement loués
+                {rentedProperties} actuellement loués
               </p>
             </CardContent>
           </Card>
@@ -115,30 +116,15 @@ export default function OwnerPortalPage() {
           <Card className="border-border/50 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Mandats Actifs
-              </CardTitle>
-              <FileText className="w-5 h-5 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground tabular-nums">
-                {mandates.filter((m) => m.status === "actif").length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">En cours de validité</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50 shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Revenus Locatifs
+                Valeur du Patrimoine
               </CardTitle>
               <DollarSign className="w-5 h-5 text-accent" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-accent tabular-nums">
-                {totalRevenue.toLocaleString()} €
+                {totalValue.toLocaleString()} €
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Total mensuel estimé</p>
+              <p className="text-xs text-muted-foreground mt-1">Valeur totale estimée</p>
             </CardContent>
           </Card>
 
@@ -154,33 +140,51 @@ export default function OwnerPortalPage() {
               <p className="text-xs text-muted-foreground mt-1">Performance du portefeuille</p>
             </CardContent>
           </Card>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle className="font-serif">Mes Biens</CardTitle>
-              <CardDescription>Liste de vos propriétés en gestion</CardDescription>
+          <Card className="border-border/50 shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Biens Disponibles
+              </CardTitle>
+              <Home className="w-5 h-5 text-primary" />
             </CardHeader>
             <CardContent>
-              {properties.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucun bien enregistré</p>
-              ) : (
-                <div className="space-y-4">
-                  {properties.slice(0, 5).map((property) => (
-                    <div
-                      key={property.id}
-                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/50"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Home className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{property.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {property.address}, {property.city}
-                        </p>
-                      </div>
+              <div className="text-3xl font-bold text-foreground tabular-nums">
+                {properties.filter((p) => p.status === "disponible").length}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Prêts à louer</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle className="font-serif">Mes Biens</CardTitle>
+            <CardDescription>Liste de vos propriétés en gestion</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {properties.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">Aucun bien enregistré</p>
+            ) : (
+              <div className="space-y-4">
+                {properties.map((property) => (
+                  <div
+                    key={property.id}
+                    className="flex items-center gap-4 p-3 rounded-lg bg-muted/50"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Home className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{property.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {property.address}, {property.city}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-accent tabular-nums">
+                        {property.price?.toLocaleString()} €
+                      </p>
                       <StatusBadge
                         variant={
                           property.status === "loue"
@@ -193,51 +197,12 @@ export default function OwnerPortalPage() {
                         {property.status}
                       </StatusBadge>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle className="font-serif">Mes Mandats</CardTitle>
-              <CardDescription>Contrats de gestion en cours</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {mandates.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">Aucun mandat actif</p>
-              ) : (
-                <div className="space-y-4">
-                  {mandates.slice(0, 5).map((mandate) => (
-                    <div
-                      key={mandate.id}
-                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/50"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-accent" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">
-                          Mandat de {mandate.type} - {mandate.properties?.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Expire le {new Date(mandate.end_date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <StatusBadge
-                        variant={mandate.status === "actif" ? "available" : "default"}
-                      >
-                        {mandate.status}
-                      </StatusBadge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
