@@ -1012,6 +1012,53 @@ export type Database = {
           },
         ]
       }
+      visit_bookings: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          preferred_date: string
+          property_id: string
+          status: string | null
+          updated_at: string | null
+          visitor_email: string
+          visitor_name: string
+          visitor_phone: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          preferred_date: string
+          property_id: string
+          status?: string | null
+          updated_at?: string | null
+          visitor_email: string
+          visitor_name: string
+          visitor_phone?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          preferred_date?: string
+          property_id?: string
+          status?: string | null
+          updated_at?: string | null
+          visitor_email?: string
+          visitor_name?: string
+          visitor_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
