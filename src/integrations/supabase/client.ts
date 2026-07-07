@@ -2,7 +2,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-// Hardcoded for reliability in development
+// Hardcoded for reliability
 const SUPABASE_URL = "https://qfswgjvyxiuumepepuml.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmc3dnanZ5eGl1dW1lcGVwdW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5OTg3MDgsImV4cCI6MjA1MTU3NDcwOH0.Dy9fZ_EUW0IcNqVEX3vPO5W9FbILiEVFJc5lI8kvOOE";
 
@@ -10,5 +10,32 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+  global: {
+    fetch: async (url, options = {}) => {
+      // Ajouter retry logic pour contourner les problèmes réseau
+      const maxRetries = 3;
+      let lastError;
+
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const response = await fetch(url, {
+            ...options,
+            // Augmenter le timeout
+            signal: AbortSignal.timeout(30000), // 30 secondes
+          });
+          return response;
+        } catch (error: any) {
+          lastError = error;
+          // Attendre avant de retry (exponential backoff)
+          if (i < maxRetries - 1) {
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+          }
+        }
+      }
+
+      throw lastError;
+    },
   },
 });
