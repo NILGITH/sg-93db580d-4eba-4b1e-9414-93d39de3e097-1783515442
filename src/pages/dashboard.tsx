@@ -35,7 +35,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { toast } = useToast();
   const [stats, setStats] = useState<DashboardStats>({
     totalProperties: 0,
@@ -47,6 +47,19 @@ export default function Dashboard() {
     activeContracts: 0,
     newProspects: 0,
   });
+
+  async function handleSignOut() {
+    try {
+      await supabase.auth.signOut();
+      router.push("/auth/login");
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de se déconnecter",
+        variant: "destructive",
+      });
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -71,8 +84,8 @@ export default function Dashboard() {
       ] = await Promise.all([
         supabase.from("properties").select("*", { count: "exact" }),
         supabase.from("payments").select("amount", { count: "exact" }),
-        supabase.from("visits").select("*", { count: "exact" }).eq("status", "programmee"),
-        supabase.from("contracts").select("*", { count: "exact" }).eq("status", "actif"),
+        supabase.from("visits").select("*", { count: "exact" }).eq("status", "confirmee"),
+        supabase.from("contracts").select("*", { count: "exact" }).eq("status", "en_cours"),
         supabase.from("prospects").select("*", { count: "exact" }).eq("status", "nouveau"),
       ]);
 
@@ -135,7 +148,7 @@ export default function Dashboard() {
                   {profile.role === "provider" && "Prestataire"}
                 </Badge>
               </div>
-              <Button variant="outline" size="sm" onClick={signOut}>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Déconnexion
               </Button>
