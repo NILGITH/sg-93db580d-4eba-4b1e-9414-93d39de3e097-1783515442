@@ -5,41 +5,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Mail, Lock, User, Phone } from "lucide-react";
-
-type UserRole = "admin" | "secretary" | "commercial" | "accountant" | "proprietaire";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2, UserPlus, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const { profile } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
     firstName: "",
     lastName: "",
     phone: "",
-    role: "commercial" as UserRole,
+    role: "agent" as "admin" | "agent" | "secretary" | "accountant" | "provider" | "owner",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+
+  if (profile && profile.role !== "admin") {
+    router.push("/dashboard");
+    return null;
+  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      setLoading(false);
-      return;
-    }
 
     try {
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -52,185 +48,188 @@ export default function SignupPage() {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (authError) throw authError;
 
-      if (authData.user) {
-        setSuccess(true);
-        setTimeout(() => router.push("/auth/login"), 2000);
+      if (!authData.user) {
+        throw new Error("Erreur lors de la création du compte");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Échec de l'inscription");
+
+      const { error: profileError } = await supabase.from("users").insert({
+        id: authData.user.id,
+        email: formData.email,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone,
+        role: formData.role,
+      });
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Utilisateur créé avec succès",
+        description: `${formData.firstName} ${formData.lastName} peut maintenant se connecter.`,
+      });
+
+      router.push("/admin/users");
+    } catch (error: any) {
+      toast({
+        title: "Erreur lors de la création",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted via-background to-secondary/20 p-4">
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-serif text-primary">Inscription réussie !</CardTitle>
-            <CardDescription>
-              Vérifiez votre email pour confirmer votre compte. Redirection...
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted via-background to-secondary/20 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-border/50">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="text-3xl font-serif text-primary">IMMO360</CardTitle>
-          <CardDescription className="text-base">
-            Créez votre compte professionnel
-          </CardDescription>
-        </CardHeader>
-        
-        <form onSubmit={handleSignup}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+    <div className="min-h-screen bg-muted/30 py-8">
+      <div className="container max-w-2xl">
+        <Button
+          variant="ghost"
+          className="mb-6"
+          onClick={() => router.push("/admin/users")}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour aux utilisateurs
+        </Button>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-accent/10 w-12 h-12 rounded-lg flex items-center justify-center">
+                <UserPlus className="w-6 h-6 text-accent" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-serif">Créer un utilisateur</CardTitle>
+                <CardDescription>
+                  Ajouter un membre de l'équipe ou un propriétaire
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+
+          <form onSubmit={handleSignup}>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Prénom *</Label>
                   <Input
                     id="firstName"
                     placeholder="Jean"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="pl-10"
                     required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Nom *</Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Dupont"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    required
+                    disabled={loading}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName">Nom</Label>
-                <Input
-                  id="lastName"
-                  placeholder="Dupont"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email professionnel</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="vous@immo360.com"
+                  placeholder="jean.dupont@exemple.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Téléphone</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="space-y-2">
+                <Label htmlFor="phone">Téléphone</Label>
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="+33 6 12 34 56 78"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="pl-10"
+                  disabled={loading}
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="role">Rôle</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
-              >
-                <SelectTrigger id="role">
-                  <SelectValue placeholder="Sélectionnez un rôle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Administrateur</SelectItem>
-                  <SelectItem value="secretary">Secrétaire</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="accountant">Comptable</SelectItem>
-                  <SelectItem value="proprietaire">Propriétaire</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Rôle *</Label>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => setFormData({ ...formData, role: value as any })}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Administrateur</SelectItem>
+                    <SelectItem value="agent">Agent Immobilier</SelectItem>
+                    <SelectItem value="secretary">Secrétaire</SelectItem>
+                    <SelectItem value="accountant">Comptable</SelectItem>
+                    <SelectItem value="provider">Prestataire</SelectItem>
+                    <SelectItem value="owner">Propriétaire</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {formData.role === "admin" && "Accès complet à toute l'application"}
+                  {formData.role === "agent" && "Gestion des biens, visites, locations, ventes"}
+                  {formData.role === "secretary" && "Gestion des rendez-vous, prospects, contrats"}
+                  {formData.role === "accountant" && "Gestion des paiements, loyers, rapports financiers"}
+                  {formData.role === "provider" && "Accès aux missions et interventions affectées"}
+                  {formData.role === "owner" && "Espace personnel : biens, loyers, interventions"}
+                </p>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe temporaire *</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="pl-10"
                   required
+                  disabled={loading}
                   minLength={6}
                 />
+                <p className="text-xs text-muted-foreground">
+                  L'utilisateur devra changer ce mot de passe à sa première connexion
+                </p>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="pl-10"
-                  required
-                />
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => router.push("/admin/users")}
+                  disabled={loading}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                  disabled={loading}
+                >
+                  {loading ? "Création en cours..." : "Créer l'utilisateur"}
+                </Button>
               </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-              disabled={loading}
-            >
-              {loading ? "Création du compte..." : "Créer mon compte"}
-            </Button>
-
-            <p className="text-sm text-muted-foreground text-center">
-              Vous avez déjà un compte ?{" "}
-              <Link href="/auth/login" className="text-primary hover:text-primary/80 font-medium">
-                Se connecter
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+            </CardContent>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }

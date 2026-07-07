@@ -6,117 +6,139 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, Lock, Mail } from "lucide-react";
+import { Building2, LogIn } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) throw signInError;
+      if (authError) throw authError;
 
-      if (data.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
-
-        if (profile?.role === "owner") {
-          router.push("/owner");
-        } else {
-          router.push("/dashboard");
-        }
+      if (!authData.user) {
+        throw new Error("Authentification échouée");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Échec de la connexion");
+
+      const { data: profile, error: profileError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Profil utilisateur introuvable");
+      }
+
+      toast({
+        title: "Connexion réussie",
+        description: `Bienvenue ${profile.first_name} ${profile.last_name}`,
+      });
+
+      switch (profile.role) {
+        case "admin":
+        case "agent":
+        case "secretary":
+        case "accountant":
+          router.push("/dashboard");
+          break;
+        case "provider":
+          router.push("/provider/missions");
+          break;
+        case "owner":
+          router.push("/owner");
+          break;
+        default:
+          router.push("/dashboard");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur de connexion",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted via-background to-secondary/20 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-border/50">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="text-3xl font-serif text-primary">IMMO360</CardTitle>
-          <CardDescription className="text-base">
-            Connectez-vous à votre espace professionnel
-          </CardDescription>
-        </CardHeader>
-        
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/95 to-primary/90 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl">
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          <CardHeader className="space-y-4 text-center">
+            <div className="mx-auto bg-accent/10 w-16 h-16 rounded-full flex items-center justify-center">
+              <Building2 className="w-10 h-10 text-accent" />
+            </div>
+            <div>
+              <CardTitle className="text-3xl font-serif text-primary">IMMO360</CardTitle>
+              <CardDescription className="text-base mt-2">
+                Gestion Immobilière Professionnelle
+              </CardDescription>
+            </div>
+          </CardHeader>
 
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email professionnel</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="vous@agence.fr"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="votre@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
             </div>
-          </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            <Button
+              type="submit"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
               disabled={loading}
             >
-              {loading ? "Connexion..." : "Se connecter"}
+              {loading ? (
+                "Connexion en cours..."
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Se connecter
+                </>
+              )}
             </Button>
+          </CardContent>
 
-            <p className="text-sm text-muted-foreground text-center">
-              Pas encore de compte ?{" "}
-              <Link href="/auth/signup" className="text-primary hover:text-primary/80 font-medium">
-                Créer un compte
-              </Link>
+          <CardFooter className="flex flex-col space-y-2">
+            <p className="text-sm text-center text-muted-foreground">
+              Vous êtes propriétaire ?{" "}
+              <span className="text-accent font-medium">
+                Vos identifiants vous ont été envoyés par email
+              </span>
             </p>
           </CardFooter>
         </form>
