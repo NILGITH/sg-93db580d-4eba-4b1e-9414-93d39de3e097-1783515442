@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,52 +22,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      console.log("🔐 Tentative de connexion pour:", email);
-
-      // Vérifier que le client Supabase est initialisé
-      if (!supabase) {
-        throw new Error("Client Supabase non initialisé. Vérifiez vos variables d'environnement.");
-      }
-
-      // Tentative de connexion
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password,
+      const { user, profile } = await authService.login({
+        email,
+        password,
       });
-
-      console.log("📊 Réponse auth:", { authData, authError });
-
-      if (authError) {
-        console.error("❌ Erreur d'authentification:", authError);
-        throw new Error(authError.message);
-      }
-
-      if (!authData.user) {
-        throw new Error("Authentification échouée - aucun utilisateur retourné");
-      }
-
-      console.log("✅ Authentification réussie, utilisateur:", authData.user.id);
-
-      // Récupérer le profil
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", authData.user.id)
-        .maybeSingle();
-
-      console.log("📊 Réponse profil:", { profile, profileError });
-
-      if (profileError) {
-        console.error("❌ Erreur récupération profil:", profileError);
-        throw new Error(`Erreur profil: ${profileError.message}`);
-      }
-
-      if (!profile) {
-        console.warn("⚠️ Aucun profil trouvé pour l'utilisateur");
-        throw new Error("Profil utilisateur introuvable. Veuillez contacter l'administrateur.");
-      }
-
-      console.log("✅ Profil récupéré:", profile);
 
       toast({
         title: "Connexion réussie",
@@ -91,10 +50,9 @@ export default function LoginPage() {
           router.push("/dashboard");
       }
     } catch (error: any) {
-      console.error("❌ Erreur globale:", error);
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Impossible de se connecter. Vérifiez vos identifiants.",
+        description: error.message || "Identifiants incorrects",
         variant: "destructive",
       });
     } finally {

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, UserPlus, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -28,74 +29,24 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      console.log("🔐 Création compte pour:", formData.email);
-
-      // Vérifier que le client Supabase est initialisé
-      if (!supabase) {
-        throw new Error("Client Supabase non initialisé");
-      }
-
-      // Créer le compte auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email.trim(),
+      await authService.signup({
+        email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-            role: formData.role,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      console.log("📊 Réponse signup:", { authData, authError });
-
-      if (authError) {
-        console.error("❌ Erreur signup:", authError);
-        throw new Error(authError.message);
-      }
-
-      if (!authData.user) {
-        throw new Error("Erreur lors de la création du compte");
-      }
-
-      console.log("✅ Compte créé, utilisateur:", authData.user.id);
-
-      // Créer explicitement le profil
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: authData.user.id,
-        email: formData.email.trim(),
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: formData.phone || null,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
         role: formData.role,
-        is_active: true,
       });
-
-      if (profileError) {
-        console.error("❌ Erreur création profil:", profileError);
-        // Ne pas bloquer si le profil existe déjà (trigger a peut-être fonctionné)
-        if (!profileError.message.includes("duplicate")) {
-          throw new Error(`Erreur profil: ${profileError.message}`);
-        }
-      }
-
-      console.log("✅ Profil créé avec succès");
 
       toast({
         title: "Compte créé avec succès ! 🎉",
-        description: `${formData.firstName} ${formData.lastName} peut maintenant se connecter.`,
+        description: "Vous pouvez maintenant vous connecter.",
       });
 
-      // Rediriger vers login après 2 secondes
       setTimeout(() => {
         router.push("/auth/login");
       }, 2000);
-
     } catch (error: any) {
-      console.error("❌ Erreur globale signup:", error);
       toast({
         title: "Erreur lors de la création",
         description: error.message || "Impossible de créer le compte",
