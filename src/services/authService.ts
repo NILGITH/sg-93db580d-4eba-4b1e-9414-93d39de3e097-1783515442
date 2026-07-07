@@ -118,8 +118,9 @@ export const authService = {
   },
 
   async logout() {
-    // Nettoyer session démo
+    // Nettoyer toutes les données de session démo
     localStorage.removeItem("demo_user");
+    localStorage.removeItem("demo_mode_active");
 
     try {
       const { error } = await supabase.auth.signOut();

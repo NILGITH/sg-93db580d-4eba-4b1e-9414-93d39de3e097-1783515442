@@ -99,7 +99,10 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Ne pas rediriger si en mode démo
+    const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
+    
+    if (!loading && !user && !demoModeActive) {
       router.push("/auth/login");
     }
   }, [user, loading, router]);
