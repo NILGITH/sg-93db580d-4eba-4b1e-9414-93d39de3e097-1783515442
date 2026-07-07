@@ -38,7 +38,6 @@ export default function AdminBlogPage() {
     content: "",
     category: "conseils",
     cover_image_url: "",
-    video_url: "",
     published: false,
   });
 
@@ -89,7 +88,6 @@ export default function AdminBlogPage() {
       content: "",
       category: "conseils",
       cover_image_url: "",
-      video_url: "",
       published: false,
     });
     setShowDialog(true);
@@ -104,7 +102,6 @@ export default function AdminBlogPage() {
       content: post.content,
       category: post.category,
       cover_image_url: post.cover_image_url,
-      video_url: post.video_url,
       published: post.published,
     });
     setShowDialog(true);
@@ -124,7 +121,6 @@ export default function AdminBlogPage() {
             content: formData.content,
             category: formData.category,
             cover_image_url: formData.cover_image_url,
-            video_url: formData.video_url,
             published: formData.published,
             published_at: formData.published && !editingPost.published ? new Date().toISOString() : editingPost.published_at,
           })
@@ -144,7 +140,6 @@ export default function AdminBlogPage() {
           content: formData.content,
           category: formData.category || "conseils",
           cover_image_url: formData.cover_image_url,
-          video_url: formData.video_url,
           published: formData.published,
           published_at: formData.published ? new Date().toISOString() : null,
           author_id: user?.id,
@@ -412,28 +407,15 @@ export default function AdminBlogPage() {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cover_image_url">Image de couverture (URL)</Label>
-                  <Input
-                    id="cover_image_url"
-                    type="url"
-                    value={formData.cover_image_url || ""}
-                    onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="video_url">Vidéo (URL)</Label>
-                  <Input
-                    id="video_url"
-                    type="url"
-                    value={formData.video_url || ""}
-                    onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                    placeholder="https://youtube.com/..."
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="cover_image_url">Image de couverture (URL)</Label>
+                <Input
+                  id="cover_image_url"
+                  type="url"
+                  value={formData.cover_image_url || ""}
+                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                  placeholder="https://..."
+                />
               </div>
 
               <div className="flex items-center space-x-2">
