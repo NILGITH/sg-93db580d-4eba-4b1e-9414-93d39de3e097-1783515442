@@ -10,7 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
-import { Eye, EyeOff, Lock, Mail, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Loader2, AlertCircle, ExternalLink, Info } from "lucide-react";
+import { isInDemoMode } from "@/lib/mock-data";
 
 export default function Login() {
   const router = useRouter();
@@ -23,6 +24,12 @@ export default function Login() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [networkError, setNetworkError] = useState(false);
+  const [showDemoWarning, setShowDemoWarning] = useState(false);
+
+  useEffect(() => {
+    // Afficher warning mode démo si applicable
+    setShowDemoWarning(isInDemoMode());
+  }, []);
 
   function validateEmail(value: string) {
     if (!value) {
@@ -81,9 +88,14 @@ export default function Login() {
         password,
       });
 
+      // Vérifier si mode démo
+      const isDemoLogin = localStorage.getItem("demo_user");
+
       toast({
-        title: "✅ Connexion réussie",
-        description: `Bienvenue ${profile.first_name} ${profile.last_name}`,
+        title: isDemoLogin ? "🎭 Mode Démo Activé" : "Connexion réussie",
+        description: isDemoLogin
+          ? `Bienvenue ${profile.first_name} - Données mockées`
+          : `Bienvenue ${profile.first_name} ${profile.last_name}`,
       });
 
       // Redirection selon le rôle
@@ -104,32 +116,24 @@ export default function Login() {
           router.push("/dashboard");
       }
     } catch (error: any) {
-      console.error("Erreur login:", error);
-      
-      // Détecter les erreurs réseau
-      if (
-        error.message?.includes("Failed to fetch") ||
-        error.message?.includes("fetch failed") ||
-        error.message?.includes("NetworkError") ||
-        error.message?.includes("ERR_FAILED")
-      ) {
-        setNetworkError(true);
+      const isNetworkError =
+        error.message?.includes("fetch") ||
+        error.message?.includes("network") ||
+        error.message?.includes("Failed to fetch");
+
+      if (isNetworkError) {
         toast({
-          title: "⚠️ Problème de connexion",
-          description: "Le serveur de développement ne peut pas atteindre Supabase. Déployez sur Vercel pour une connexion stable.",
+          title: "⚠️ Erreur de connexion réseau",
+          description:
+            "Impossible de joindre le serveur Supabase. Utilisez les credentials de test pour activer le mode démo (admin@immo360.com / Admin123!)",
           variant: "destructive",
           duration: 8000,
         });
-      } else if (error.message?.includes("Invalid login credentials")) {
-        toast({
-          title: "❌ Identifiants incorrects",
-          description: "Email ou mot de passe invalide",
-          variant: "destructive",
-        });
       } else {
         toast({
-          title: "❌ Erreur de connexion",
-          description: error.message || "Une erreur est survenue",
+          title: "Erreur de connexion",
+          description:
+            error.message || "Identifiants incorrects. Vérifiez votre email et mot de passe.",
           variant: "destructive",
         });
       }

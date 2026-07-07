@@ -1,40 +1,42 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getMockProfile, isInDemoMode } from "@/lib/mock-data";
 
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface SignupData {
+export interface SignupCredentials {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  phone?: string;
+  phone: string;
   role: "admin" | "agent" | "secretary" | "accountant" | "provider" | "owner";
 }
 
 export const authService = {
   async login(credentials: LoginCredentials) {
     try {
-      // Authentification Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: credentials.email.trim(),
-        password: credentials.password,
-      });
+      // Tentative de connexion Supabase
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: credentials.email.trim(),
+          password: credentials.password,
+        });
 
       if (authError) throw authError;
       if (!authData.user) throw new Error("Authentification échouée");
 
-      // Récupérer ou créer le profil
+      // Récupérer le profil
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", authData.user.id)
         .maybeSingle();
 
-      // Si le profil n'existe pas, le créer automatiquement
       if (!profile) {
+        // Créer le profil si manquant
         const { data: newProfile, error: createError } = await supabase
           .from("profiles")
           .insert({
@@ -55,75 +57,100 @@ export const authService = {
 
       return { user: authData.user, profile };
     } catch (error: any) {
+      // Mode démo : si erreur réseau et credentials valides
+      if (
+        error.message?.includes("fetch") &&
+        isInDemoMode() &&
+        credentials.password === "Admin123!" &&
+        (credentials.email === "admin@immo360.com" ||
+          credentials.email === "agent1@immo360.com")
+      ) {
+        const profile = getMockProfile(credentials.email);
+        // Stocker en localStorage pour persister la session démo
+        localStorage.setItem("demo_user", JSON.stringify(profile));
+        return {
+          user: { id: profile.id, email: profile.email } as any,
+          profile,
+        };
+      }
+
       throw error;
     }
   },
 
-  async signup(data: SignupData) {
+  async signup(credentials: SignupCredentials) {
     try {
-      // 1. Créer le compte auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email.trim(),
-        password: data.password,
+        email: credentials.email.trim(),
+        password: credentials.password,
         options: {
           data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            phone: data.phone,
-            role: data.role,
+            first_name: credentials.firstName,
+            last_name: credentials.lastName,
+            phone: credentials.phone,
+            role: credentials.role,
           },
         },
       });
 
       if (authError) throw authError;
-      if (!authData.user) throw new Error("Erreur création compte");
+      if (!authData.user) throw new Error("Inscription échouée");
 
-      // 2. Créer le profil immédiatement
+      // Créer le profil
       const { error: profileError } = await supabase.from("profiles").insert({
         id: authData.user.id,
-        email: data.email.trim(),
-        first_name: data.firstName,
-        last_name: data.lastName,
-        phone: data.phone || null,
-        role: data.role,
+        email: credentials.email.trim(),
+        first_name: credentials.firstName,
+        last_name: credentials.lastName,
+        phone: credentials.phone,
+        role: credentials.role,
         is_active: true,
       });
 
-      // Ignorer l'erreur si le profil existe déjà (trigger a fonctionné)
-      if (profileError && !profileError.message.includes("duplicate")) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
       return { user: authData.user };
     } catch (error: any) {
-      console.error("Erreur signup:", error);
       throw error;
     }
   },
 
   async logout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Nettoyer session démo
+    localStorage.removeItem("demo_user");
+
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error) {
+      console.error("Erreur logout:", error);
+    }
   },
 
   async getCurrentUser() {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) throw authError;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
 
-      if (profileError) throw profileError;
-
       return { user, profile };
     } catch (error) {
-      console.error("Erreur getCurrentUser:", error);
+      // Vérifier session démo
+      const demoUser = localStorage.getItem("demo_user");
+      if (demoUser && isInDemoMode()) {
+        const profile = JSON.parse(demoUser);
+        return {
+          user: { id: profile.id, email: profile.email } as any,
+          profile,
+        };
+      }
       return null;
     }
   },
