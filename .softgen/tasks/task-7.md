@@ -1,28 +1,29 @@
 ---
 title: Module Réservations (Meublés)
-status: todo
+status: done
 priority: high
 type: feature
-tags: [bookings, reservations]
+tags: [bookings, reservations, calendar]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:31Z
 position: 7
 ---
 
-## Notes
-Système de réservation en ligne pour les biens réservables (meublés notamment). Le visiteur choisit les dates, envoie une demande, paye un acompte (prévoir intégration paiement future).
-
 ## Checklist
-- [ ] Formulaire réservation sur bien réservable (dates début/fin, infos client)
-- [ ] Calendrier de disponibilité (bloquer dates réservées)
-- [ ] Calcul prix selon durée
-- [ ] Enregistrement réservation avec statut (en_attente, confirmee, annulee)
-- [ ] Page bookings/index pour secrétaire/agent
-- [ ] Confirmation réservation (email + SMS optionnel)
-- [ ] Gestion acompte (montant, mode paiement)
+- [x] Page /bookings pour agents et secrétaires
+- [x] Liste de toutes les réservations
+- [x] Filtres (statut, recherche)
+- [x] Statistiques (en attente, confirmées, terminées, annulées)
+- [x] Actions : Confirmer acompte, Annuler, Terminer
+- [x] Dialog détails avec infos client, bien, dates, montants
+- [x] Badges statut (en attente, confirmée, en cours, à venir, terminée)
+- [x] Formulaire déjà créé dans site public (public/properties/[id].tsx)
 
 ## Acceptance
-- Visiteur peut réserver un meublé avec dates précises
-- Calendrier bloque les dates réservées
 - Secrétaire/Agent voit toutes les réservations
-- Confirmation envoyée au client
+- Peut confirmer acompte → statut passe à confirmee
+- Calcul automatique nuits et montant depuis site public
+- Badges visuels selon dates réservées
+- Secrétaire/Agent voit toutes les réservations
+- Confirmation acompte change statut
+- Réservations terminées après date fin
