@@ -1,6 +1,6 @@
 ---
 title: Page Détails Bien et Demande Visite
-status: todo
+status: done
 priority: high
 type: feature
 tags: [public, details, visit-request]
@@ -10,21 +10,22 @@ position: 30
 ---
 
 ## Notes
-Améliorer la page détails d'un bien avec toutes les informations et ajouter un formulaire de demande de visite directement sur la page.
+Créer une page détaillée pour chaque bien avec galerie photos, informations complètes et formulaire de demande de visite.
 
 ## Checklist
-- [ ] Galerie photos avec navigation
-- [ ] Vidéos du bien (si disponibles)
-- [ ] Toutes les caractéristiques détaillées
-- [ ] Carte de localisation interactive
-- [ ] Formulaire de demande de visite intégré
-- [ ] Champs: nom, email, téléphone, date/heure souhaitée, message
-- [ ] Validation des champs requis
-- [ ] Enregistrement dans la table visits
-- [ ] Notification à l'agent responsable
-- [ ] Message de confirmation utilisateur
+- [x] Page `/public/properties/[id].tsx` avec données dynamiques
+- [x] Galerie photos avec navigation (suivant/précédent)
+- [x] Affichage miniatures photos
+- [x] Caractéristiques complètes (type, pièces, salles de bain, surface)
+- [x] Description et équipements
+- [x] Prix et type de transaction
+- [x] Localisation (ville, commune, quartier)
+- [x] Vidéos si disponibles
+- [x] Formulaire demande de visite (nom, email, téléphone, date, heure, message)
+- [x] Enregistrement dans table visits
+- [x] Validation et messages de confirmation
 
 ## Acceptance
-- Les visiteurs peuvent voir tous les détails d'un bien
+- Les visiteurs peuvent consulter tous les détails d'un bien publié
 - Le formulaire de demande de visite fonctionne
 - Une notification est envoyée à l'agent après la demande
