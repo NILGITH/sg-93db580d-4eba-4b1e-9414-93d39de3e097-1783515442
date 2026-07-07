@@ -1,5 +1,13 @@
 # 🔐 COMPTES DE TEST IMMO360
 
+## ⚠️ IMPORTANT - Création des comptes
+
+**Les comptes de test DOIVENT être créés manuellement** via l'interface d'inscription `/auth/signup` avec les informations ci-dessous.
+
+Les profils ont été pré-créés dans la base de données pour les relations de données, mais **vous devez créer les comptes auth** pour pouvoir vous connecter.
+
+---
+
 ## Instructions d'utilisation
 
 Pour chaque compte ci-dessous, **créez le compte via l'interface `/auth/signup`** avec l'email, le mot de passe et le rôle indiqués.
@@ -115,8 +123,7 @@ Rôle: Propriétaire
 2. **Remplissez le formulaire** avec les informations ci-dessus
 3. **Choisissez** le rôle correspondant (pas besoin de sélectionner d'agence)
 4. **Cliquez** sur "Créer mon compte"
-5. **Vérifiez** votre email Supabase pour confirmer le compte
-6. **Connectez-vous** via `/auth/login`
+5. **Connectez-vous** via `/auth/login` (la confirmation email peut être ignorée en mode dev)
 
 ---
 
@@ -138,6 +145,7 @@ Rôle: Propriétaire
 - **Ne les utilisez JAMAIS en production**
 - Les mots de passe sont intentionnellement simples pour faciliter les tests
 - Tous les comptes sont automatiquement liés à l'agence unique "IMMO360"
+- **Vous DEVEZ créer chaque compte via `/auth/signup`** avant de pouvoir vous connecter
 
 ---
 
@@ -150,10 +158,10 @@ Rôle: Propriétaire
 → Vérifiez l'email et le mot de passe (respectez les majuscules)
 
 **Problème : "Access denied"**
-→ Vérifiez que vous avez confirmé votre email via le lien Supabase
+→ Le profil n'a pas été créé automatiquement, réessayez l'inscription
 
 **Problème : "Profile not found"**
-→ Le profil n'a pas été créé automatiquement, vérifiez que le trigger PostgreSQL est actif
+→ Le profil existe dans la base mais pas le compte auth, créez-le via `/auth/signup`
 
 ---
 
