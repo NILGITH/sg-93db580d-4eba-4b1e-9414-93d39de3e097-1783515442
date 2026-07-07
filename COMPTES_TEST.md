@@ -4,134 +4,127 @@
 
 **Les comptes de test DOIVENT être créés manuellement** via l'interface d'inscription `/auth/signup` avec les informations ci-dessous.
 
-Les profils ont été pré-créés dans la base de données pour les relations de données, mais **vous devez créer les comptes auth** pour pouvoir vous connecter.
+Les profils seront créés automatiquement lors de l'inscription.
 
 ---
 
-## 🎉 DONNÉES DE TEST DISPONIBLES
-
-**✅ 20 biens immobiliers** ont déjà été créés et sont visibles sur le site vitrine `/public` :
-- Locations à Dakar (appartements, villas, studios, bureaux, commerces)
-- Ventes à Dakar (maisons, terrains, appartements neufs, immeubles)
-- Résidences meublées à Saly et Thiès
-- Prix réalistes en FCFA
-- Photos réelles générées
-- Localisation GPS précise
-
-**Une fois les 5 comptes créés**, les données additionnelles seront ajoutées automatiquement :
-- Prospects et demandes de visite
-- Réservations
-- Paiements et contrats
-- Interventions et rapports
-
----
-
-## Instructions d'utilisation
+## 📋 Instructions d'utilisation
 
 Pour chaque compte ci-dessous, **créez le compte via l'interface `/auth/signup`** avec l'email, le mot de passe et le rôle indiqués.
-
-**Note :** L'application est maintenant conçue pour **UNE seule agence** (IMMO360). Plus besoin de sélectionner une agence lors de l'inscription.
 
 ---
 
 ## 👤 Comptes disponibles
 
-### 1. 🔴 ADMINISTRATEUR (Admin)
-**Accès :** Gestion complète de l'agence + administration système
-
+### 1. 🔴 ADMINISTRATEUR
 ```
 Email: admin@immo360.com
 Mot de passe: Admin123!
+Prénom: Admin
+Nom: Système
+Téléphone: +22997000001
 Rôle: Administrateur
 ```
 
-**Permissions :**
-- Gestion des utilisateurs
-- Gestion des biens
-- Gestion des mandats
-- Affectation des missions
-- Validation des travaux
-- Suivi des paiements
-- Consultation des rapports
-- Communication propriétaires
-- Accès à `/admin/*` (paramètres système)
+### 2. 🟢 AGENT IMMOBILIER 1
+```
+Email: agent1@immo360.com
+Mot de passe: Agent123!
+Prénom: Kofi
+Nom: Mensah
+Téléphone: +22997000002
+Rôle: Agent
+```
 
----
+### 3. 🟢 AGENT IMMOBILIER 2
+```
+Email: agent2@immo360.com
+Mot de passe: Agent123!
+Prénom: Amina
+Nom: Diallo
+Téléphone: +22997000003
+Rôle: Agent
+```
 
-### 2. 🟡 SECRÉTAIRE
-**Accès :** Gestion administrative et documentaire
-
+### 4. 🟡 SECRÉTAIRE
 ```
 Email: secretaire@immo360.com
 Mot de passe: Secret123!
+Prénom: Sophie
+Nom: Koffi
+Téléphone: +22997000004
 Rôle: Secrétaire
 ```
 
-**Permissions :**
-- Gestion des rendez-vous
-- Préparation des dossiers
-- Gestion des contrats
-- Gestion documentaire
-- Accueil des prospects
-- Organisation des visites
-
----
-
-### 3. 🟢 COMMERCIAL
-**Accès :** Gestion commerciale et prospects
-
-```
-Email: commercial@immo360.com
-Mot de passe: Commercial123!
-Rôle: Commercial
-```
-
-**Permissions :**
-- Gestion des prospects
-- Pipeline commercial (CRM)
-- Suivi des visites
-- Suivi des réservations
-- Suivi des ventes
-- Relances clients
-
----
-
-### 4. 🔵 COMPTABLE
-**Accès :** Gestion financière et comptable
-
+### 5. 🔵 COMPTABLE
 ```
 Email: comptable@immo360.com
 Mot de passe: Comptable123!
+Prénom: Jean
+Nom: Kouassi
+Téléphone: +22997000005
 Rôle: Comptable
 ```
 
-**Permissions :**
-- Encaissements
-- Décaissements
-- Gestion des loyers
-- Suivi des impayés
-- Génération quittances
-- Export comptable
-- Tableaux financiers
-
----
-
-### 5. 🟣 PROPRIÉTAIRE (Mandant)
-**Accès :** Portail propriétaire uniquement
-
+### 6. 🟣 PRESTATAIRE - Plombier
 ```
-Email: proprietaire@immo360.com
+Email: plombier@immo360.com
+Mot de passe: Presta123!
+Prénom: Yao
+Nom: Ahomadegbe
+Téléphone: +22997000006
+Rôle: Prestataire
+```
+
+### 7. 🟣 PRESTATAIRE - Peintre
+```
+Email: peintre@immo360.com
+Mot de passe: Presta123!
+Prénom: Marie
+Nom: Assogba
+Téléphone: +22997000007
+Rôle: Prestataire
+```
+
+### 8. 🟣 PRESTATAIRE - Électricien
+```
+Email: electricien@immo360.com
+Mot de passe: Presta123!
+Prénom: Paul
+Nom: Tossou
+Téléphone: +22997000008
+Rôle: Prestataire
+```
+
+### 9. 🟠 PROPRIÉTAIRE 1
+```
+Email: proprietaire1@gmail.com
 Mot de passe: Proprio123!
+Prénom: Serge
+Nom: Adjanohoun
+Téléphone: +22997000009
 Rôle: Propriétaire
 ```
 
-**Permissions :**
-- Consultation de SES biens
-- Consultation de SES mandats
-- Suivi des interventions
-- Consultation des paiements
-- Téléchargement des rapports
-- Accès au portail `/owner`
+### 10. 🟠 PROPRIÉTAIRE 2
+```
+Email: proprietaire2@gmail.com
+Mot de passe: Proprio123!
+Prénom: Fatou
+Nom: Kone
+Téléphone: +22997000010
+Rôle: Propriétaire
+```
+
+### 11. 🟠 PROPRIÉTAIRE 3
+```
+Email: proprietaire3@gmail.com
+Mot de passe: Proprio123!
+Prénom: Ibrahim
+Nom: Sow
+Téléphone: +22997000011
+Rôle: Propriétaire
+```
 
 ---
 
@@ -139,21 +132,25 @@ Rôle: Propriétaire
 
 1. **Allez sur** `/auth/signup`
 2. **Remplissez le formulaire** avec les informations ci-dessus
-3. **Choisissez** le rôle correspondant (pas besoin de sélectionner d'agence)
+3. **Choisissez** le rôle correspondant
 4. **Cliquez** sur "Créer mon compte"
-5. **Connectez-vous** via `/auth/login` (la confirmation email peut être ignorée en mode dev)
+5. **Connectez-vous** immédiatement via `/auth/login`
+
+**Note :** Le profil est créé automatiquement lors de l'inscription. Vous pouvez vous connecter immédiatement après.
 
 ---
 
-## 📊 Tableau récapitulatif
+## 📊 Données de test disponibles
 
-| Rôle | Email | Mot de passe | Portail principal |
-|------|-------|--------------|-------------------|
-| Administrateur | admin@immo360.com | Admin123! | `/dashboard` + `/admin/*` |
-| Secrétaire | secretaire@immo360.com | Secret123! | `/dashboard` |
-| Commercial | commercial@immo360.com | Commercial123! | `/crm` |
-| Comptable | comptable@immo360.com | Comptable123! | `/payments` |
-| Propriétaire | proprietaire@immo360.com | Proprio123! | `/owner` |
+**✅ 8 biens immobiliers** ont été créés et sont visibles :
+- Dans le catalogue public `/public/catalogue` (4 biens publiés)
+- Dans la gestion des biens `/properties` (8 biens au total)
+
+**Caractéristiques des biens :**
+- Appartements, villas, studios, terrains, bureaux, commerces
+- Prix réalistes en FCFA
+- Photos générées automatiquement
+- Localisations : Cotonou, Abomey-Calavi, Porto-Novo
 
 ---
 
@@ -162,7 +159,6 @@ Rôle: Propriétaire
 - Ces comptes sont **uniquement pour les tests**
 - **Ne les utilisez JAMAIS en production**
 - Les mots de passe sont intentionnellement simples pour faciliter les tests
-- Tous les comptes sont automatiquement liés à l'agence unique "IMMO360"
 - **Vous DEVEZ créer chaque compte via `/auth/signup`** avant de pouvoir vous connecter
 
 ---
@@ -175,14 +171,5 @@ Rôle: Propriétaire
 **Problème : "Invalid credentials"**
 → Vérifiez l'email et le mot de passe (respectez les majuscules)
 
-**Problème : "Access denied"**
-→ Le profil n'a pas été créé automatiquement, réessayez l'inscription
-
-**Problème : "Profile not found"**
-→ Le profil existe dans la base mais pas le compte auth, créez-le via `/auth/signup`
-
----
-
-## 📞 Support
-
-Pour toute question ou problème, consultez la documentation ou contactez l'équipe technique.
+**Problème : "Profil utilisateur introuvable"**
+→ Le trigger de création automatique a échoué. Contactez le support technique.
