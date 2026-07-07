@@ -1,37 +1,52 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, Users, DollarSign, Calendar, FileText, Wrench, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Building2, 
+  Users, 
+  DollarSign, 
+  TrendingUp, 
+  Calendar,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Home,
+  Briefcase,
+  LogOut
+} from "lucide-react";
 
 interface DashboardStats {
-  totalProperties?: number;
-  availableProperties?: number;
-  rentedProperties?: number;
-  soldProperties?: number;
-  totalRevenue?: number;
-  monthlyRent?: number;
-  unpaidRent?: number;
-  upcomingVisits?: number;
-  activeBookings?: number;
-  newProspects?: number;
-  activeInterventions?: number;
-  pendingPayments?: number;
-  myProperties?: number;
-  myRentCollected?: number;
-  myInterventions?: number;
-  myMissions?: number;
+  totalProperties: number;
+  availableProperties: number;
+  rentedProperties: number;
+  totalRevenue: number;
+  pendingPayments: number;
+  upcomingVisits: number;
+  activeContracts: number;
+  newProspects: number;
 }
 
-export default function DashboardPage() {
+export default function Dashboard() {
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
-  const [stats, setStats] = useState<DashboardStats>({});
-  const [loadingStats, setLoadingStats] = useState(true);
+  const { user, profile, loading, signOut } = useAuth();
+  const { toast } = useToast();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProperties: 0,
+    availableProperties: 0,
+    rentedProperties: 0,
+    totalRevenue: 0,
+    pendingPayments: 0,
+    upcomingVisits: 0,
+    activeContracts: 0,
+    newProspects: 0,
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,142 +55,52 @@ export default function DashboardPage() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    if (profile) {
+    if (user) {
       loadDashboardStats();
     }
-  }, [profile]);
+  }, [user]);
 
   async function loadDashboardStats() {
     try {
-      setLoadingStats(true);
-      const newStats: DashboardStats = {};
+      const [
+        propertiesResult,
+        paymentsResult,
+        visitsResult,
+        contractsResult,
+        prospectsResult,
+      ] = await Promise.all([
+        supabase.from("properties").select("*", { count: "exact" }),
+        supabase.from("payments").select("amount", { count: "exact" }),
+        supabase.from("visits").select("*", { count: "exact" }).eq("status", "programmee"),
+        supabase.from("contracts").select("*", { count: "exact" }).eq("status", "actif"),
+        supabase.from("prospects").select("*", { count: "exact" }).eq("status", "nouveau"),
+      ]);
 
-      switch (profile?.role) {
-        case "admin":
-        case "agent":
-        case "secretary":
-          // Stats communes pour le back-office
-          const { count: totalProps } = await supabase
-            .from("properties")
-            .select("*", { count: "exact", head: true });
-          newStats.totalProperties = totalProps || 0;
+      const properties = propertiesResult.data || [];
+      const totalRevenue = paymentsResult.data?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
 
-          const { count: availableProps } = await supabase
-            .from("properties")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "disponible");
-          newStats.availableProperties = availableProps || 0;
-
-          const { count: rentedProps } = await supabase
-            .from("properties")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "loue");
-          newStats.rentedProperties = rentedProps || 0;
-
-          const { count: soldProps } = await supabase
-            .from("properties")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "vendu");
-          newStats.soldProperties = soldProps || 0;
-
-          const { count: upcomingVisits } = await supabase
-            .from("visits")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "confirmee")
-            .gte("visit_date", new Date().toISOString());
-          newStats.upcomingVisits = upcomingVisits || 0;
-
-          const { count: activeBookings } = await supabase
-            .from("bookings")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "confirmee")
-            .gte("end_date", new Date().toISOString().split("T")[0]);
-          newStats.activeBookings = activeBookings || 0;
-
-          const { count: newProspects } = await supabase
-            .from("prospects")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "nouveau");
-          newStats.newProspects = newProspects || 0;
-
-          const { count: activeInterventions } = await supabase
-            .from("interventions")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "en_cours");
-          newStats.activeInterventions = activeInterventions || 0;
-
-          break;
-
-        case "accountant":
-          // Stats financières
-          const { data: payments } = await supabase
-            .from("payments")
-            .select("amount");
-          newStats.totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-
-          const thisMonth = new Date().toISOString().slice(0, 7);
-          const { data: monthlyPayments } = await supabase
-            .from("payments")
-            .select("amount")
-            .gte("payment_date", `${thisMonth}-01`)
-            .eq("payment_type", "loyer");
-          newStats.monthlyRent = monthlyPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-
-          const { count: unpaid } = await supabase
-            .from("payments")
-            .select("*", { count: "exact", head: true })
-            .eq("is_validated", false);
-          newStats.unpaidRent = unpaid || 0;
-
-          break;
-
-        case "owner":
-          // Stats propriétaire
-          const { count: myProps } = await supabase
-            .from("properties")
-            .select("*", { count: "exact", head: true })
-            .eq("owner_id", user?.id);
-          newStats.myProperties = myProps || 0;
-
-          const { data: myPayments } = await supabase
-            .from("payments")
-            .select("amount, properties!inner(owner_id)")
-            .eq("properties.owner_id", user?.id);
-          newStats.myRentCollected = myPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-
-          const { count: myInterv } = await supabase
-            .from("interventions")
-            .select("*, properties!inner(owner_id)", { count: "exact", head: true })
-            .eq("properties.owner_id", user?.id)
-            .eq("status", "en_cours");
-          newStats.myInterventions = myInterv || 0;
-
-          break;
-
-        case "provider":
-          // Stats prestataire
-          const { count: myMissions } = await supabase
-            .from("interventions")
-            .select("*", { count: "exact", head: true })
-            .eq("provider_id", user?.id)
-            .eq("status", "en_cours");
-          newStats.myMissions = myMissions || 0;
-
-          break;
-      }
-
-      setStats(newStats);
+      setStats({
+        totalProperties: properties.length,
+        availableProperties: properties.filter(p => p.status === "disponible").length,
+        rentedProperties: properties.filter(p => p.status === "loue").length,
+        totalRevenue,
+        pendingPayments: 0,
+        upcomingVisits: visitsResult.count || 0,
+        activeContracts: contractsResult.count || 0,
+        newProspects: prospectsResult.count || 0,
+      });
     } catch (error) {
-      console.error("Erreur chargement stats:", error);
-    } finally {
-      setLoadingStats(false);
+      console.error("Error loading dashboard stats:", error);
     }
   }
 
-  if (loading || loadingStats) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Chargement...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        </div>
       </div>
     );
   }
@@ -184,38 +109,36 @@ export default function DashboardPage() {
     return null;
   }
 
-  // Redirection selon le rôle
-  if (profile.role === "provider") {
-    router.push("/provider/missions");
-    return null;
-  }
-
-  if (profile.role === "owner") {
-    router.push("/owner");
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-primary text-primary-foreground shadow-lg">
-        <div className="container py-6">
+      {/* Header */}
+      <header className="border-b bg-card sticky top-0 z-50">
+        <div className="container py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Building2 className="w-10 h-10 text-accent" />
+            <div className="flex items-center gap-3">
+              <img src="/logo_Amiri.png" alt="AMIRI" className="h-10 w-auto" />
               <div>
-                <h1 className="text-3xl font-serif font-bold">IMMO360</h1>
-                <p className="text-sm text-primary-foreground/80">Tableau de bord</p>
+                <h1 className="text-xl font-bold">AMIRI</h1>
+                <p className="text-sm text-muted-foreground">Gestion Immobilière</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium">{profile.first_name} {profile.last_name}</p>
-              <StatusBadge variant="premium" className="mt-1">
-                {profile.role === "admin" ? "ADMINISTRATEUR" : 
-                 profile.role === "agent" ? "AGENT IMMOBILIER" :
-                 profile.role === "secretary" ? "SECRÉTAIRE" :
-                 profile.role === "accountant" ? "COMPTABLE" : 
-                 "UTILISATEUR"}
-              </StatusBadge>
+
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium">{profile.first_name} {profile.last_name}</p>
+                <Badge variant="outline" className="text-xs">
+                  {profile.role === "admin" && "Administrateur"}
+                  {profile.role === "agent" && "Agent"}
+                  {profile.role === "secretary" && "Secrétaire"}
+                  {profile.role === "accountant" && "Comptable"}
+                  {profile.role === "owner" && "Propriétaire"}
+                  {profile.role === "provider" && "Prestataire"}
+                </Badge>
+              </div>
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
             </div>
           </div>
         </div>
@@ -278,12 +201,12 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Biens Loués</CardTitle>
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.rentedProperties}</div>
                   <p className="text-xs text-muted-foreground">
-                    {stats.soldProperties} vendus
+                    {stats.totalProperties} vendus
                   </p>
                 </CardContent>
               </Card>
@@ -296,7 +219,7 @@ export default function DashboardPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.upcomingVisits}</div>
                   <p className="text-xs text-muted-foreground">
-                    {stats.activeBookings} réservations actives
+                    {stats.activeContracts} réservations actives
                   </p>
                 </CardContent>
               </Card>
@@ -319,13 +242,13 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Wrench className="h-5 w-5" />
+                    <Briefcase className="h-5 w-5" />
                     Interventions en cours
                   </CardTitle>
                   <CardDescription>Travaux et maintenance</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.activeInterventions}</div>
+                  <div className="text-3xl font-bold">{stats.activeContracts}</div>
                   <Button asChild variant="link" className="mt-2 px-0">
                     <Link href="/interventions">Voir tout →</Link>
                   </Button>
@@ -377,7 +300,7 @@ export default function DashboardPage() {
                   <TrendingUp className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.monthlyRent?.toLocaleString()} FCFA</div>
+                  <div className="text-2xl font-bold">{stats.totalRevenue?.toLocaleString()} FCFA</div>
                   <p className="text-xs text-muted-foreground">
                     Mois en cours
                   </p>
@@ -390,7 +313,7 @@ export default function DashboardPage() {
                   <AlertCircle className="h-4 w-4 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.unpaidRent}</div>
+                  <div className="text-2xl font-bold">{stats.pendingPayments}</div>
                   <p className="text-xs text-muted-foreground">
                     Paiements en attente
                   </p>

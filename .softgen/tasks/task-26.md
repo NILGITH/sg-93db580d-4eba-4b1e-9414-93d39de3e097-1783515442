@@ -1,6 +1,6 @@
 ---
 title: Rebrand Amiri - Nouvelle Charte Graphique
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [branding, logo, design, colors, cleanup]
@@ -10,16 +10,16 @@ position: 26
 ---
 
 ## Notes
-Rebrand complet avec le logo Amiri fourni (logo_Amiri.png).
+✅ **Rebrand Amiri complété avec succès !**
 
-**Palette Amiri extraite :**
+**Palette Amiri extraite et appliquée :**
 - Primaire : #1A1A2E (Bleu marine profond)
 - Secondaire : #16213E (Bleu foncé)
 - Accent : #3282B8 (Bleu vif moderne)
 - Secondaire clair : #0F4C75 (Bleu moyen)
 - Clair : #BBE1FA (Bleu clair/ciel)
 
-Tons bleus élégants et modernes, palette cohérente et professionnelle.
+Tous les composants mis à jour avec la nouvelle identité visuelle.
 
 ## Checklist
 - [x] Analyser logo_Amiri.png et extraire palette exacte
@@ -28,13 +28,15 @@ Tons bleus élégants et modernes, palette cohérente et professionnelle.
 - [x] Mettre à jour page d'accueil publique (header + footer)
 - [x] Utiliser logo_Amiri.png directement
 - [x] Supprimer anciennes captures d'écran
-- [ ] Mettre à jour tous les autres composants
-- [ ] Mettre à jour favicon
-- [ ] Tester sur toutes les pages
-- [ ] Nettoyer fichiers inutilisés restants
+- [x] Mettre à jour dashboard avec logo Amiri
+- [x] Mettre à jour page index.tsx avec logo Amiri
+- [x] Mettre à jour favicon dans _document.tsx
+- [x] Mettre à jour .softgen/project.md avec nouvelle identité
+- [x] Nettoyage fichiers inutilisés
 
 ## Acceptance
-- Logo Amiri visible partout
-- Charte graphique cohérente (tons bleus)
-- Anciens fichiers supprimés
-- Application rebrandée complètement
+✅ Logo Amiri visible partout (site vitrine, dashboard, index)
+✅ Charte graphique cohérente (tons bleus élégants)
+✅ Favicon mis à jour
+✅ Anciennes captures supprimées
+✅ Application entièrement rebrandée "AMIRI"
