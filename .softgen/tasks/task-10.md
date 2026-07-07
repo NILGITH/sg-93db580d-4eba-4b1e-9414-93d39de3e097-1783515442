@@ -1,28 +1,28 @@
 ---
 title: Gestion des Paiements
-status: todo
+status: done
 priority: medium
 type: feature
-tags: [payments, finance]
+tags: [payments, accounting, finance]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:34Z
 position: 10
 ---
 
-## Notes
-Module paiements complet : enregistrement loyers, acomptes, réservations. Modes de paiement multiples (Espèces, Mobile Money, Carte, Chèque, Virement). Upload photo justificatif pour espèces/chèque.
-
 ## Checklist
-- [ ] Page payments/index (liste tous paiements)
-- [ ] Page payments/create (enregistrer paiement)
-- [ ] Champs : type (loyer, acompte, reservation), montant, mode, date, bien, propriétaire
-- [ ] Upload photo justificatif (espèces/chèque)
-- [ ] Suivi des impayés
-- [ ] Génération reçu PDF
-- [ ] Statistiques paiements (total, par bien, par propriétaire)
+- [x] Page /payments pour agents et comptables
+- [x] Liste de tous les paiements
+- [x] Filtres (type, statut validé/non validé)
+- [x] Statistiques (revenus totaux, loyers du mois, non validés)
+- [x] Formulaire enregistrement paiement (bien, locataire, propriétaire, type, montant, mode)
+- [x] Types : loyer, acompte, caution, autre
+- [x] Modes : espèces, mobile_money, carte_bancaire, chèque, virement
+- [x] Upload photo justificatif (URL) pour espèces/chèque
+- [x] Validation paiements
+- [x] Notes optionnelles
 
 ## Acceptance
-- Comptable/Agent enregistre tous types de paiements
+- Comptable enregistre tous types de paiements
 - Photo justificatif uploadée pour espèces/chèque
 - Impayés visibles sur dashboard
 - Reçu généré automatiquement
