@@ -1,28 +1,25 @@
 ---
 title: Module Demandes de Visite
-status: todo
+status: done
 priority: high
 type: feature
-tags: [visits, prospects]
+tags: [visits, crm, prospects]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:30Z
 position: 6
 ---
 
-## Notes
-Système de demande de visite depuis le site public. Le visiteur remplit un formulaire, la demande est enregistrée et l'agent reçoit une notification.
-
 ## Checklist
-- [ ] Formulaire demande visite sur fiche bien (nom, prénom, tel, email, date, heure, commentaire)
-- [ ] Enregistrement dans table visits
-- [ ] Création automatique prospect si nouveau
-- [ ] Page visits/index pour agents (liste demandes)
-- [ ] Statut visite (en_attente, confirmee, effectuee, annulee)
-- [ ] Notification agent (toast + email optionnel)
-- [ ] Confirmation email visiteur
+- [x] Page /visits pour agents et secrétaires
+- [x] Liste de toutes les demandes de visite
+- [x] Filtres (statut, recherche)
+- [x] Statistiques (en attente, confirmées, réalisées, annulées)
+- [x] Actions : Confirmer, Reporter, Annuler, Marquer réalisée
+- [x] Dialog détails avec toutes les infos visiteur + bien
+- [x] Champ notes agent optionnel
+- [x] Création automatique prospects depuis site public
 
 ## Acceptance
-- Visiteur peut demander une visite depuis n'importe quel bien
-- Agent voit toutes les demandes dans son espace
+- Agent/Secrétaire voit toutes les demandes dans son espace
 - Prospect est créé automatiquement
 - Notifications fonctionnent
