@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getProperties, createProperty, updateProperty, deleteProperty } from "@/services/propertiesService";
 import { FileUpload } from "@/components/FileUpload";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Building2, Search, Plus, Edit, Trash2, MapPin, Home, DollarSign, Eye, EyeOff, Upload, X } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -536,7 +537,6 @@ export default function PropertiesPage() {
                       <FileUpload
                         bucket="properties"
                         accept="image/*"
-                        maxFiles={10}
                         multiple
                         onUploadComplete={(urls) => setFormData({ ...formData, photos: urls })}
                         existingFiles={formData.photos || []}

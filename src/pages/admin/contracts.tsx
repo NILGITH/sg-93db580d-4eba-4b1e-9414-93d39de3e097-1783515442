@@ -183,13 +183,13 @@ export default function ContractsPage() {
             reference: formData.reference,
             start_date: formData.start_date,
             end_date: formData.end_date,
-            monthly_rent: formData.monthly_rent,
-            deposit: formData.deposit,
-            payment_terms: formData.payment_terms,
-            special_clauses: formData.special_clauses,
-            contract_file_url: uploadedContract || editingContract.contract_file_url,
-            owner_signed: formData.owner_signed,
-            tenant_signed: formData.tenant_signed,
+            amount: formData.amount,
+            deposit_amount: formData.deposit_amount,
+            terms: formData.terms,
+            clauses: formData.clauses,
+            file_url: uploadedContract || editingContract.file_url,
+            signed_by_owner: formData.signed_by_owner,
+            signed_by_tenant: formData.signed_by_tenant,
             status: formData.status,
           })
           .eq("id", editingContract.id);
@@ -209,13 +209,13 @@ export default function ContractsPage() {
           reference: formData.reference,
           start_date: formData.start_date,
           end_date: formData.end_date,
-          monthly_rent: formData.monthly_rent || 0,
-          deposit: formData.deposit || 0,
-          payment_terms: formData.payment_terms,
-          special_clauses: formData.special_clauses,
-          contract_file_url: uploadedContract,
-          owner_signed: false,
-          tenant_signed: false,
+          amount: formData.amount || 0,
+          deposit_amount: formData.deposit_amount || 0,
+          terms: formData.terms,
+          clauses: formData.clauses,
+          file_url: uploadedContract,
+          signed_by_owner: false,
+          signed_by_tenant: false,
           status: "brouillon",
         });
 
@@ -239,21 +239,21 @@ export default function ContractsPage() {
     }
   }
 
-  async function downloadContractPDF(contract: ContractWithRelations) {
+  async function downloadContractPDF(contract: Contract) {
     try {
-      const pdf = await generateContractPDF({
+      const pdf = generateContractPDF({
         contractNumber: contract.reference,
         contractType: contract.contract_type,
+        date: new Date().toLocaleDateString("fr-FR"),
         propertyRef: contract.properties?.reference || "",
-        propertyAddress: contract.properties?.address || "",
-        ownerName: `${contract.owners?.first_name} ${contract.owners?.last_name}`,
+        propertyTitle: contract.properties?.title || "",
+        ownerName: contract.owners ? `${contract.owners.first_name} ${contract.owners.last_name}` : "",
         tenantName: contract.tenants ? `${contract.tenants.first_name} ${contract.tenants.last_name}` : "",
-        startDate: contract.start_date,
-        endDate: contract.end_date || "",
-        monthlyRent: contract.monthly_rent,
-        deposit: contract.deposit,
-        paymentTerms: contract.payment_terms || "",
-        specialClauses: contract.special_clauses || "",
+        startDate: new Date(contract.start_date).toLocaleDateString("fr-FR"),
+        endDate: contract.end_date ? new Date(contract.end_date).toLocaleDateString("fr-FR") : "",
+        monthlyRent: contract.amount,
+        deposit: contract.deposit_amount || 0,
+        terms: contract.terms || "",
       });
 
       pdf.save(`Contrat_${contract.reference}.pdf`);
@@ -514,10 +514,21 @@ export default function ContractsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => openEditDialog(contract)}
+                                onClick={() => downloadContractPDF(contract)}
                               >
-                                <Edit className="w-3 h-3" />
+                                <FileText className="w-3 h-3 mr-1" />
+                                PDF
                               </Button>
+                              {contract.file_url && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(contract.file_url || "", "_blank")}
+                                >
+                                  <Download className="w-3 h-3 mr-1" />
+                                  Signé
+                                </Button>
+                              )}
                               <Button
                                 size="sm"
                                 variant="destructive"
@@ -759,9 +770,8 @@ export default function ContractsPage() {
               <FileUpload
                 bucket="contracts"
                 accept=".pdf"
-                maxFiles={1}
                 onUploadComplete={(urls) => setUploadedContract(urls[0])}
-                existingFiles={uploadedContract ? [uploadedContract] : editingContract?.contract_file_url ? [editingContract.contract_file_url] : []}
+                existingFiles={uploadedContract ? [uploadedContract] : editingContract?.file_url ? [editingContract.file_url] : []}
               />
               <p className="text-xs text-muted-foreground">
                 PDF du contrat signé (max 10MB)

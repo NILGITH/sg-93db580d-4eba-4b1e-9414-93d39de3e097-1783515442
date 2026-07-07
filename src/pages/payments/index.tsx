@@ -158,10 +158,10 @@ export default function PaymentsPage() {
     }
   }
 
-  function handleKkiapaySuccess(transactionId: string) {
+  function handleKkiapaySuccess(result: KkiapayPaymentResult) {
     toast({
       title: "Paiement réussi",
-      description: `Transaction ${transactionId} confirmée`,
+      description: `Transaction ${result.transactionId} confirmée`,
     });
     // Le paiement sera enregistré automatiquement via webhook
     setShowCreateDialog(false);
@@ -561,7 +561,6 @@ export default function PaymentsPage() {
                     <FileUpload
                       bucket="payments"
                       accept="image/*,.pdf"
-                      maxFiles={1}
                       onUploadComplete={(urls) => setUploadedReceipt(urls[0])}
                       existingFiles={uploadedReceipt ? [uploadedReceipt] : []}
                     />
