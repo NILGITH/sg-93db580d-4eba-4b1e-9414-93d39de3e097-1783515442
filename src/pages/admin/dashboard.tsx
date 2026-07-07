@@ -10,6 +10,13 @@ import Link from "next/link";
 export default function AdminDashboard() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+  const [stats, setStats] = useState({
+    agencies: 0,
+    users: 0,
+    properties: 0,
+    totalPayments: 0,
+    activeInterventions: 0
+  });
 
   useEffect(() => {
     if (!authLoading) {
@@ -21,29 +28,11 @@ export default function AdminDashboard() {
     }
   }, [user, profile, authLoading, router]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Chargement...</p>
-      </div>
-    );
-  }
-
-  if (!profile || profile.role !== "admin") {
-    return null;
-  }
-
-  const [stats, setStats] = useState({
-    agencies: 0,
-    users: 0,
-    properties: 0,
-    totalPayments: 0,
-    activeInterventions: 0
-  });
-
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (profile && profile.role === "admin") {
+      loadStats();
+    }
+  }, [profile]);
 
   async function loadStats() {
     try {
@@ -67,6 +56,18 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error loading stats:", error);
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "admin") {
+    return null;
   }
 
   return (
