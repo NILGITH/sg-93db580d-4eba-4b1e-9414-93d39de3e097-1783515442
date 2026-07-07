@@ -99,8 +99,13 @@ export default function InterventionsPage() {
     e.preventDefault();
     try {
       const { error } = await supabase.from("interventions").insert({
-        ...formData,
+        property_id: formData.property_id,
+        provider_id: formData.provider_id,
+        intervention_type: formData.intervention_type as InterventionType,
+        description: formData.description,
+        scheduled_date: formData.scheduled_date,
         estimated_cost: formData.estimated_cost || 0,
+        status: "planifiee",
       });
 
       if (error) throw error;
@@ -598,11 +603,11 @@ export default function InterventionsPage() {
                   </div>
                 )}
 
-                {selectedIntervention.provider_notes && (
+                {selectedIntervention.notes && (
                   <div>
                     <p className="text-sm font-medium mb-1">Notes du prestataire</p>
                     <div className="bg-muted/50 p-3 rounded-lg">
-                      <p className="text-sm text-muted-foreground">{selectedIntervention.provider_notes}</p>
+                      <p className="text-sm text-muted-foreground">{selectedIntervention.notes}</p>
                     </div>
                   </div>
                 )}
