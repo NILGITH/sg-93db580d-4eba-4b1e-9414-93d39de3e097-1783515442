@@ -1,28 +1,32 @@
 ---
 title: Système de Notifications
-status: todo
+status: done
 priority: medium
 type: feature
-tags: [notifications, realtime]
+tags: [notifications, realtime, alerts]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:39Z
 position: 15
 ---
 
-## Notes
-Système de notifications temps réel : nouvelle demande visite, réservation, prospect, intervention terminée, paiement, rapport disponible. Toast + email optionnel.
-
 ## Checklist
-- [ ] Table notifications avec statut (non_lue, lue)
-- [ ] Composant NotificationBell (badge count non lues)
-- [ ] Panel notifications (dropdown avec liste)
-- [ ] Trigger notifications automatiques (visite, réservation, paiement, etc.)
-- [ ] Notifications temps réel (Supabase Realtime)
-- [ ] Marquer comme lu/toutes lues
-- [ ] Email notifications (optionnel via webhook)
+- [x] Composant NotificationBell (badge compteur, dropdown)
+- [x] Page /notifications (liste complète, filtres)
+- [x] Service notificationsService avec helpers
+- [x] Notifications automatiques pour :
+  - Nouvelle demande de visite
+  - Nouvelle réservation
+  - Nouveau prospect
+  - Intervention terminée
+  - Paiement enregistré
+  - Rapport disponible
+- [x] Marquer comme lu/non lu
+- [x] Suppression notifications
+- [x] Temps relatif d'affichage
+- [x] Realtime avec Supabase subscriptions
 
 ## Acceptance
-- Utilisateur reçoit notifications temps réel
-- Badge affiche count non lues
-- Panel liste toutes les notifications
-- Marquage lu fonctionne
+- Badge affiche nombre de notifications non lues
+- Notifications arrivent en temps réel
+- Clic sur notification marque lu et redirige
+- Centre de notifications accessible via /notifications

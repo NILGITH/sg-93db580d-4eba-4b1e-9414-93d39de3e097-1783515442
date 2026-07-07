@@ -39,15 +39,121 @@ export async function getUnreadCount(userId: string) {
   return count || 0;
 }
 
-export async function createNotification(notification: NotificationInsert) {
-  const { data, error } = await supabase
-    .from("notifications")
-    .insert(notification)
-    .select()
-    .single();
-
+export async function createNotification(data: NotificationInsert) {
+  const { error } = await supabase.from("notifications").insert(data);
+  
   if (error) throw error;
-  return data as Notification;
+}
+
+export async function notifyNewVisit(visitId: string, propertyRef: string, visitorName: string) {
+  // Notification pour les agents et secrétaires
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("role", ["admin", "agent", "secretary"]);
+
+  if (users) {
+    const notifications = users.map((user) => ({
+      user_id: user.id,
+      type: "visite",
+      title: "Nouvelle demande de visite",
+      message: `${visitorName} souhaite visiter le bien ${propertyRef}`,
+      link: "/visits",
+    }));
+
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+export async function notifyNewBooking(bookingId: string, propertyRef: string, clientName: string) {
+  // Notification pour les agents et secrétaires
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("role", ["admin", "agent", "secretary"]);
+
+  if (users) {
+    const notifications = users.map((user) => ({
+      user_id: user.id,
+      type: "reservation",
+      title: "Nouvelle réservation",
+      message: `${clientName} a réservé le bien ${propertyRef}`,
+      link: "/bookings",
+    }));
+
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+export async function notifyNewProspect(prospectId: string, prospectName: string, demandType: string) {
+  // Notification pour les agents et secrétaires
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("role", ["admin", "agent", "secretary"]);
+
+  if (users) {
+    const notifications = users.map((user) => ({
+      user_id: user.id,
+      type: "prospect",
+      title: "Nouveau prospect",
+      message: `${prospectName} a envoyé une demande de ${demandType}`,
+      link: "/crm",
+    }));
+
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+export async function notifyInterventionCompleted(interventionId: string, propertyRef: string, providerName: string) {
+  // Notification pour les agents
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("role", ["admin", "agent"]);
+
+  if (users) {
+    const notifications = users.map((user) => ({
+      user_id: user.id,
+      type: "intervention",
+      title: "Intervention terminée",
+      message: `${providerName} a terminé l'intervention sur ${propertyRef}`,
+      link: "/interventions",
+    }));
+
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+export async function notifyPaymentReceived(paymentId: string, amount: number, propertyRef: string) {
+  // Notification pour les comptables et admins
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("role", ["admin", "accountant"]);
+
+  if (users) {
+    const notifications = users.map((user) => ({
+      user_id: user.id,
+      type: "paiement",
+      title: "Nouveau paiement",
+      message: `Paiement de ${amount} FCFA reçu pour ${propertyRef}`,
+      link: "/payments",
+    }));
+
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+export async function notifyReportGenerated(reportId: string, ownerId: string, period: string) {
+  // Notification pour le propriétaire
+  await supabase.from("notifications").insert({
+    user_id: ownerId,
+    type: "rapport",
+    title: "Rapport disponible",
+    message: `Votre rapport de gestion ${period} est disponible`,
+    link: "/reports",
+  });
 }
 
 export async function markAsRead(id: string) {
