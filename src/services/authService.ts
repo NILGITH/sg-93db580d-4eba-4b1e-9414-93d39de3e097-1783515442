@@ -17,8 +17,26 @@ export interface SignupCredentials {
 
 export const authService = {
   async login(credentials: LoginCredentials) {
+    // NOUVEAU : Vérifier mode démo AVANT d'appeler Supabase
+    const isValidDemoCredentials =
+      credentials.password === "Admin123!" &&
+      (credentials.email === "admin@immo360.com" ||
+        credentials.email === "agent1@immo360.com");
+
+    // Si credentials de démo valides ET environnement de développement → activer mode démo directement
+    if (isValidDemoCredentials && isInDemoMode()) {
+      const profile = getMockProfile(credentials.email);
+      localStorage.setItem("demo_user", JSON.stringify(profile));
+      localStorage.setItem("demo_mode_active", "true");
+      
+      return {
+        user: { id: profile.id, email: profile.email } as any,
+        profile,
+      };
+    }
+
+    // Sinon, tentative de connexion Supabase normale
     try {
-      // Tentative de connexion Supabase
       const { data: authData, error: authError } =
         await supabase.auth.signInWithPassword({
           email: credentials.email.trim(),
@@ -57,30 +75,7 @@ export const authService = {
 
       return { user: authData.user, profile };
     } catch (error: any) {
-      // Mode démo : si erreur réseau ET credentials valides
-      const isNetworkError =
-        error.message?.includes("fetch") ||
-        error.message?.includes("network") ||
-        error.message?.includes("Failed to fetch");
-
-      const isValidDemoCredentials =
-        credentials.password === "Admin123!" &&
-        (credentials.email === "admin@immo360.com" ||
-          credentials.email === "agent1@immo360.com");
-
-      // Si erreur réseau + credentials valides → activer mode démo SANS erreur
-      if (isNetworkError && isValidDemoCredentials && isInDemoMode()) {
-        const profile = getMockProfile(credentials.email);
-        localStorage.setItem("demo_user", JSON.stringify(profile));
-        localStorage.setItem("demo_mode_active", "true");
-        
-        return {
-          user: { id: profile.id, email: profile.email } as any,
-          profile,
-        };
-      }
-
-      // Sinon, propager l'erreur
+      // Propager l'erreur (credentials invalides ou autre problème)
       throw error;
     }
   },

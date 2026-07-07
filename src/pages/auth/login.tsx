@@ -24,12 +24,6 @@ export default function Login() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [networkError, setNetworkError] = useState(false);
-  const [showDemoWarning, setShowDemoWarning] = useState(false);
-
-  useEffect(() => {
-    // Afficher warning mode démo si applicable
-    setShowDemoWarning(isInDemoMode());
-  }, []);
 
   function validateEmail(value: string) {
     if (!value) {
@@ -94,8 +88,8 @@ export default function Login() {
       if (isDemoMode) {
         toast({
           title: "🎭 Mode Démo Activé",
-          description: `Bienvenue ${profile.first_name} - Connexion Supabase indisponible, utilisation de données mockées pour la démo`,
-          duration: 6000,
+          description: `Bienvenue ${profile.first_name} ! Application en mode démonstration avec données mockées.`,
+          duration: 5000,
         });
       } else {
         toast({
@@ -122,7 +116,7 @@ export default function Login() {
           default:
             router.push("/dashboard");
         }
-      }, 1000);
+      }, 500);
     } catch (error: any) {
       const isNetworkError =
         error.message?.includes("fetch") ||
@@ -132,17 +126,15 @@ export default function Login() {
       if (isNetworkError) {
         setNetworkError(true);
         toast({
-          title: "⚠️ Erreur de connexion réseau",
-          description:
-            "Impossible de joindre le serveur Supabase. Utilisez les credentials de test pour activer le mode démo (admin@immo360.com / Admin123!)",
+          title: "⚠️ Problème de connexion",
+          description: "Utilisez les boutons 'Test Admin' ou 'Test Agent' pour activer le mode démo avec données mockées.",
           variant: "destructive",
-          duration: 10000,
+          duration: 8000,
         });
       } else {
         toast({
           title: "❌ Erreur de connexion",
-          description:
-            error.message || "Identifiants incorrects. Vérifiez votre email et mot de passe.",
+          description: error.message || "Identifiants incorrects. Vérifiez votre email et mot de passe.",
           variant: "destructive",
         });
       }
@@ -183,13 +175,10 @@ export default function Login() {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-sm">
-                    <p className="font-semibold mb-2">Problème de connexion détecté</p>
-                    <p className="mb-2">Le serveur de développement ne peut pas atteindre Supabase.</p>
+                    <p className="font-semibold mb-2">💡 Mode Démo Disponible</p>
+                    <p className="mb-2">Connexion Supabase indisponible en développement.</p>
                     <p className="text-xs">
-                      Solution : Déployez l'application sur Vercel où la connexion est stable.{" "}
-                      <Link href="https://vercel.com" target="_blank" className="underline inline-flex items-center gap-1">
-                        Déployer maintenant <ExternalLink className="w-3 h-3" />
-                      </Link>
+                      <strong>Solution :</strong> Cliquez sur <strong>"Test Admin"</strong> ou <strong>"Test Agent"</strong> ci-dessous pour activer le mode démo avec données mockées. Vous pourrez explorer toute l'application !
                     </p>
                   </AlertDescription>
                 </Alert>
