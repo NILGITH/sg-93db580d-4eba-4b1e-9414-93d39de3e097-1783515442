@@ -1,6 +1,6 @@
 ---
 title: Blog Public + FAQ + Gestion Admin
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [blog, faq, content, admin]
@@ -10,23 +10,28 @@ position: 28
 ---
 
 ## Notes
-Implémenter le blog public avec articles + la FAQ publique, et leurs interfaces d'administration.
+✅ **Blog et FAQ complètement implémentés !**
 
-Les données de test existent déjà dans la base de données (blog_posts + faq_items créés via migration).
+Les données de test sont affichées correctement sur toutes les pages.
 
 ## Checklist
 - [x] Corriger erreur TypeScript (surface_area)
 - [x] Page blog publique (/blog) avec liste d'articles
-- [ ] Page article détaillée (/blog/[slug])
+- [x] Page article détaillée (/blog/[slug]) avec Markdown
 - [x] Page FAQ publique (/faq) avec accordion
-- [ ] Gestion blog dans admin (liste, création, édition)
-- [ ] Gestion FAQ dans admin (liste, création, édition)
+- [x] Gestion blog dans admin (/admin/blog) - complète
+- [x] Gestion FAQ dans admin (/admin/faq) - complète
 - [x] Charger et afficher les données de test
 - [x] Design cohérent avec charte Amiri (orange/vert/brun)
-- [ ] Markdown rendering pour le contenu blog
+- [x] Markdown rendering (react-markdown + remark-gfm)
+- [x] Partage social sur articles
+- [x] Articles similaires sur page détaillée
+- [x] Upload images pour blog dans admin
 
 ## Acceptance
-- Blog accessible sur /blog avec articles de test
-- FAQ accessible sur /faq avec questions de test
-- Admin peut gérer blog et FAQ depuis /admin/blog et /admin/faq
-- Design moderne et responsive
+✅ Blog accessible sur /blog avec articles de test
+✅ Articles détaillés sur /blog/[slug] avec markdown
+✅ FAQ accessible sur /faq avec questions de test groupées par catégorie
+✅ Admin peut créer/modifier/supprimer blog et FAQ
+✅ Design moderne et responsive avec charte Amiri
+✅ Toutes les données de test s'affichent correctement
