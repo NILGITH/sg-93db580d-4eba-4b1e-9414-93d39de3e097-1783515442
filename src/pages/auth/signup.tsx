@@ -9,12 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, UserPlus, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { profile } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,18 +23,21 @@ export default function SignupPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  if (profile && profile.role !== "admin") {
-    router.push("/dashboard");
-    return null;
-  }
-
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
+      console.log("🔐 Création compte pour:", formData.email);
+
+      // Vérifier que le client Supabase est initialisé
+      if (!supabase) {
+        throw new Error("Client Supabase non initialisé");
+      }
+
+      // Créer le compte auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
         options: {
           data: {
@@ -45,36 +46,59 @@ export default function SignupPage() {
             phone: formData.phone,
             role: formData.role,
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
-      if (authError) throw authError;
+      console.log("📊 Réponse signup:", { authData, authError });
+
+      if (authError) {
+        console.error("❌ Erreur signup:", authError);
+        throw new Error(authError.message);
+      }
 
       if (!authData.user) {
         throw new Error("Erreur lors de la création du compte");
       }
 
+      console.log("✅ Compte créé, utilisateur:", authData.user.id);
+
+      // Créer explicitement le profil
       const { error: profileError } = await supabase.from("profiles").insert({
         id: authData.user.id,
-        email: formData.email,
+        email: formData.email.trim(),
         first_name: formData.firstName,
         last_name: formData.lastName,
-        phone: formData.phone,
+        phone: formData.phone || null,
         role: formData.role,
+        is_active: true,
       });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("❌ Erreur création profil:", profileError);
+        // Ne pas bloquer si le profil existe déjà (trigger a peut-être fonctionné)
+        if (!profileError.message.includes("duplicate")) {
+          throw new Error(`Erreur profil: ${profileError.message}`);
+        }
+      }
+
+      console.log("✅ Profil créé avec succès");
 
       toast({
-        title: "Utilisateur créé avec succès",
+        title: "Compte créé avec succès ! 🎉",
         description: `${formData.firstName} ${formData.lastName} peut maintenant se connecter.`,
       });
 
-      router.push("/admin/users");
+      // Rediriger vers login après 2 secondes
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 2000);
+
     } catch (error: any) {
+      console.error("❌ Erreur globale signup:", error);
       toast({
         title: "Erreur lors de la création",
-        description: error.message,
+        description: error.message || "Impossible de créer le compte",
         variant: "destructive",
       });
     } finally {
@@ -88,10 +112,10 @@ export default function SignupPage() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => router.push("/admin/users")}
+          onClick={() => router.push("/auth/login")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour aux utilisateurs
+          Retour à la connexion
         </Button>
 
         <Card className="shadow-lg">
@@ -101,9 +125,9 @@ export default function SignupPage() {
                 <UserPlus className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-serif">Créer un utilisateur</CardTitle>
+                <CardTitle className="text-2xl font-serif">Créer un compte</CardTitle>
                 <CardDescription>
-                  Ajouter un membre de l'équipe ou un propriétaire
+                  Rejoignez IMMO360 pour gérer vos biens immobiliers
                 </CardDescription>
               </div>
             </div>
@@ -155,7 +179,7 @@ export default function SignupPage() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+33 6 12 34 56 78"
+                  placeholder="+229 XX XX XX XX"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={loading}
@@ -192,7 +216,7 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe temporaire *</Label>
+                <Label htmlFor="password">Mot de passe *</Label>
                 <Input
                   id="password"
                   type="password"
@@ -204,7 +228,7 @@ export default function SignupPage() {
                   minLength={6}
                 />
                 <p className="text-xs text-muted-foreground">
-                  L'utilisateur devra changer ce mot de passe à sa première connexion
+                  Minimum 6 caractères
                 </p>
               </div>
 
@@ -213,7 +237,7 @@ export default function SignupPage() {
                   type="button"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => router.push("/admin/users")}
+                  onClick={() => router.push("/auth/login")}
                   disabled={loading}
                 >
                   Annuler
@@ -223,7 +247,7 @@ export default function SignupPage() {
                   className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   disabled={loading}
                 >
-                  {loading ? "Création en cours..." : "Créer l'utilisateur"}
+                  {loading ? "Création en cours..." : "Créer mon compte"}
                 </Button>
               </div>
             </CardContent>

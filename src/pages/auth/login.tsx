@@ -21,32 +21,59 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      console.log("🔐 Tentative de connexion pour:", email);
 
-      if (authError) throw authError;
-
-      if (!authData.user) {
-        throw new Error("Authentification échouée");
+      // Vérifier que le client Supabase est initialisé
+      if (!supabase) {
+        throw new Error("Client Supabase non initialisé. Vérifiez vos variables d'environnement.");
       }
 
+      // Tentative de connexion
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
+
+      console.log("📊 Réponse auth:", { authData, authError });
+
+      if (authError) {
+        console.error("❌ Erreur d'authentification:", authError);
+        throw new Error(authError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error("Authentification échouée - aucun utilisateur retourné");
+      }
+
+      console.log("✅ Authentification réussie, utilisateur:", authData.user.id);
+
+      // Récupérer le profil
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", authData.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError || !profile) {
-        throw new Error("Profil utilisateur introuvable");
+      console.log("📊 Réponse profil:", { profile, profileError });
+
+      if (profileError) {
+        console.error("❌ Erreur récupération profil:", profileError);
+        throw new Error(`Erreur profil: ${profileError.message}`);
       }
+
+      if (!profile) {
+        console.warn("⚠️ Aucun profil trouvé pour l'utilisateur");
+        throw new Error("Profil utilisateur introuvable. Veuillez contacter l'administrateur.");
+      }
+
+      console.log("✅ Profil récupéré:", profile);
 
       toast({
         title: "Connexion réussie",
         description: `Bienvenue ${profile.first_name} ${profile.last_name}`,
       });
 
+      // Redirection selon le rôle
       switch (profile.role) {
         case "admin":
         case "agent":
@@ -64,9 +91,10 @@ export default function LoginPage() {
           router.push("/dashboard");
       }
     } catch (error: any) {
+      console.error("❌ Erreur globale:", error);
       toast({
         title: "Erreur de connexion",
-        description: error.message,
+        description: error.message || "Impossible de se connecter. Vérifiez vos identifiants.",
         variant: "destructive",
       });
     } finally {
@@ -133,13 +161,21 @@ export default function LoginPage() {
             </Button>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-2">
+          <CardFooter className="flex flex-col space-y-4">
             <p className="text-sm text-center text-muted-foreground">
               Vous êtes propriétaire ?{" "}
               <span className="text-accent font-medium">
                 Vos identifiants vous ont été envoyés par email
               </span>
             </p>
+            
+            <div className="w-full pt-4 border-t">
+              <Link href="/auth/signup">
+                <Button variant="outline" className="w-full" type="button">
+                  Créer un compte de test
+                </Button>
+              </Link>
+            </div>
           </CardFooter>
         </form>
       </Card>
