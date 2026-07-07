@@ -2,40 +2,25 @@
 
 ## Instructions d'utilisation
 
-Pour chaque compte ci-dessous, **créez le compte via l'interface `/auth/signup`** avec l'email et le mot de passe indiqués, puis sélectionnez "Agence IMMO360 Demo" et le rôle correspondant.
+Pour chaque compte ci-dessous, **créez le compte via l'interface `/auth/signup`** avec l'email, le mot de passe et le rôle indiqués.
+
+**Note :** L'application est maintenant conçue pour **UNE seule agence** (IMMO360). Plus besoin de sélectionner une agence lors de l'inscription.
 
 ---
 
 ## 👤 Comptes disponibles
 
-### 1. 🔴 SUPER ADMIN (Administrateur Plateforme)
-**Accès :** Gestion globale, toutes les agences, paramètres système
+### 1. 🔴 ADMINISTRATEUR (Admin)
+**Accès :** Gestion complète de l'agence + administration système
 
 ```
 Email: admin@immo360.com
 Mot de passe: Admin123!
-Rôle: Super Admin
+Rôle: Administrateur
 ```
 
 **Permissions :**
-- Gestion des agences
-- Gestion des utilisateurs globaux
-- Statistiques plateforme
-- Paramètres système
-- Accès à `/admin/*`
-
----
-
-### 2. 🟠 GÉRANT D'AGENCE (Admin Agency)
-**Accès :** Gestion complète de son agence
-
-```
-Email: gerant@immo360.com
-Mot de passe: Gerant123!
-Rôle: Administrateur Agence
-```
-
-**Permissions :**
+- Gestion des utilisateurs
 - Gestion des biens
 - Gestion des mandats
 - Affectation des missions
@@ -43,10 +28,11 @@ Rôle: Administrateur Agence
 - Suivi des paiements
 - Consultation des rapports
 - Communication propriétaires
+- Accès à `/admin/*` (paramètres système)
 
 ---
 
-### 3. 🟡 SECRÉTAIRE
+### 2. 🟡 SECRÉTAIRE
 **Accès :** Gestion administrative et documentaire
 
 ```
@@ -65,7 +51,7 @@ Rôle: Secrétaire
 
 ---
 
-### 4. 🟢 COMMERCIAL
+### 3. 🟢 COMMERCIAL
 **Accès :** Gestion commerciale et prospects
 
 ```
@@ -84,7 +70,7 @@ Rôle: Commercial
 
 ---
 
-### 5. 🔵 COMPTABLE
+### 4. 🔵 COMPTABLE
 **Accès :** Gestion financière et comptable
 
 ```
@@ -104,7 +90,7 @@ Rôle: Comptable
 
 ---
 
-### 6. 🟣 PROPRIÉTAIRE (Mandant)
+### 5. 🟣 PROPRIÉTAIRE (Mandant)
 **Accès :** Portail propriétaire uniquement
 
 ```
@@ -127,11 +113,10 @@ Rôle: Propriétaire
 
 1. **Allez sur** `/auth/signup`
 2. **Remplissez le formulaire** avec les informations ci-dessus
-3. **Sélectionnez** "Agence IMMO360 Demo" dans la liste des agences
-4. **Choisissez** le rôle correspondant
-5. **Cliquez** sur "Créer un compte"
-6. **Vérifiez** votre email Supabase pour confirmer le compte
-7. **Connectez-vous** via `/auth/login`
+3. **Choisissez** le rôle correspondant (pas besoin de sélectionner d'agence)
+4. **Cliquez** sur "Créer mon compte"
+5. **Vérifiez** votre email Supabase pour confirmer le compte
+6. **Connectez-vous** via `/auth/login`
 
 ---
 
@@ -139,8 +124,7 @@ Rôle: Propriétaire
 
 | Rôle | Email | Mot de passe | Portail principal |
 |------|-------|--------------|-------------------|
-| Super Admin | admin@immo360.com | Admin123! | `/admin/dashboard` |
-| Gérant | gerant@immo360.com | Gerant123! | `/dashboard` |
+| Administrateur | admin@immo360.com | Admin123! | `/dashboard` + `/admin/*` |
 | Secrétaire | secretaire@immo360.com | Secret123! | `/dashboard` |
 | Commercial | commercial@immo360.com | Commercial123! | `/crm` |
 | Comptable | comptable@immo360.com | Comptable123! | `/payments` |
@@ -153,7 +137,7 @@ Rôle: Propriétaire
 - Ces comptes sont **uniquement pour les tests**
 - **Ne les utilisez JAMAIS en production**
 - Les mots de passe sont intentionnellement simples pour faciliter les tests
-- Tous les comptes sont liés à l'agence "Agence IMMO360 Demo"
+- Tous les comptes sont automatiquement liés à l'agence unique "IMMO360"
 
 ---
 
@@ -169,7 +153,7 @@ Rôle: Propriétaire
 → Vérifiez que vous avez confirmé votre email via le lien Supabase
 
 **Problème : "Profile not found"**
-→ Le profil n'a pas été créé automatiquement, contactez l'administrateur
+→ Le profil n'a pas été créé automatiquement, vérifiez que le trigger PostgreSQL est actif
 
 ---
 

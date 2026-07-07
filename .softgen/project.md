@@ -1,7 +1,7 @@
-# IMMO360 — Plateforme SaaS de Gestion Immobilière Multi-Agences
+# IMMO360 — Plateforme de Gestion Immobilière
 
 ## Vision
-Digitaliser l'ensemble des activités immobilières dans une plateforme collaborative SaaS offrant visibilité temps réel, transparence totale et automatisation intelligente. Destinée aux agences immobilières, administrateurs de biens et sociétés de gestion locative.
+Application web unique de gestion immobilière destinée à une agence immobilière, offrant un site vitrine premium, un système de réservation de visites, et des outils de gestion métier complets.
 
 Valeurs fondamentales : Transparence • Traçabilité • Collaboration • Automatisation
 
@@ -31,10 +31,10 @@ Direction : Espacement généreux, hiérarchie claire, accents dorés sur élém
 ## Features Implémentées (MVP V1)
 
 **Infrastructure & Auth**
-- Auth multi-agences avec Supabase Auth
-- RBAC 6 rôles (super_admin, admin_agency, secretary, commercial, accountant, proprietaire)
-- RLS strict avec isolation multi-agences
-- Base de données PostgreSQL (15 tables)
+- Auth avec Supabase Auth (application unique, une seule agence)
+- RBAC 5 rôles (admin, secretary, commercial, accountant, proprietaire)
+- RLS strict avec isolation par utilisateur
+- Base de données PostgreSQL (15 tables + visit_bookings)
 
 **Modules Core**
 - Dashboard décisionnel multi-rôles avec KPI temps réel
@@ -52,12 +52,13 @@ Direction : Espacement généreux, hiérarchie claire, accents dorés sur élém
 - Vitrine professionnelle (landing page premium avec Hero, Services, Tarifs, Contact)
 - Portail Agence (dashboard + tous modules métier)
 - Portail Propriétaire (/owner) — voit uniquement SES biens/mandats
-- Catalogue Public (/public) — recherche biens disponibles
-- Administration Plateforme (/admin/*) — gestion agences, users, settings (super_admin only)
+- Catalogue Public (/public) — recherche biens disponibles avec réservation de visites
+- Administration (/admin/*) — gestion utilisateurs, paramètres système (admin only)
 
 ## Features V2 (À venir)
 - Blog + CMS (structure DB prête)
 - FAQ dynamique (structure DB prête)
+- Améliorer système de réservation de visites (confirmation email, notifications)
 - Rapports PDF automatiques (génération mensuelle/trimestrielle)
 - Notifications multi-canaux (SMS, WhatsApp)
 - PWA (offline mode)

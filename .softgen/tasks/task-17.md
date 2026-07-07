@@ -19,15 +19,18 @@ Objectif : Site web premium avec :
 - Gestion immobilière interne
 
 ## Checklist
-- [ ] Supprimer champ agency_id des tables (utiliser une seule agence implicite)
-- [ ] Simplifier les rôles (retirer super_admin, admin_agency → admin)
-- [ ] Retirer la table agencies de la navigation
-- [ ] Simplifier le formulaire d'inscription (pas de sélection d'agence)
-- [ ] Améliorer le site public avec réservation de visites
-- [ ] Simplifier l'administration (retirer /admin/agencies)
-- [ ] Mettre à jour le project.md
+- [x] Supprimer champ agency_id des tables (utiliser une seule agence implicite)
+- [x] Simplifier les rôles (retirer super_admin, admin_agency → admin)
+- [x] Retirer la table agencies de la navigation
+- [x] Simplifier le formulaire d'inscription (pas de sélection d'agence)
+- [x] Améliorer le site public avec réservation de visites
+- [x] Simplifier l'administration (retirer /admin/agencies)
+- [x] Mettre à jour le project.md
 
 ## Acceptance
-- Une seule agence implicite
-- Inscription simplifiée (pas de choix d'agence)
-- Site public avec réservation fonctionnelle
+- ✅ Une seule agence implicite "IMMO360"
+- ✅ Inscription simplifiée (pas de choix d'agence)
+- ✅ Site public avec réservation fonctionnelle (table visit_bookings créée)
+- ✅ RLS policies recréées sans récursion
+- ✅ Types Supabase régénérés
+- ✅ Toutes les pages admin corrigées (admin au lieu de super_admin)
