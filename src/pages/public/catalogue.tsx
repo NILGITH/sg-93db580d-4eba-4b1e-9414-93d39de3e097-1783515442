@@ -170,7 +170,7 @@ export default function PublicCataloguePage() {
                   <label className="text-sm font-medium">Transaction</label>
                   <Select
                     value={filters.transaction_type}
-                    onValueChange={(value) => setFilters({ ...filters, transaction_type: value })}
+                    onValueChange={(value) => setFilters({ ...filters, transaction_type: value as TransactionType | "all" })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -187,7 +187,7 @@ export default function PublicCataloguePage() {
                   <label className="text-sm font-medium">Type de bien</label>
                   <Select
                     value={filters.property_type}
-                    onValueChange={(value) => setFilters({ ...filters, property_type: value })}
+                    onValueChange={(value) => setFilters({ ...filters, property_type: value as PropertyType | "all" })}
                   >
                     <SelectTrigger>
                       <SelectValue />
