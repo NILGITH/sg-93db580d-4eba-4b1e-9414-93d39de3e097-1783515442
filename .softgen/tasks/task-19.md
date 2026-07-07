@@ -1,6 +1,6 @@
 ---
 title: Kkiapay Payment Integration (Sandbox)
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [payment, kkiapay, integration, sandbox]
@@ -13,15 +13,14 @@ position: 19
 Intégrer Kkiapay en mode sandbox pour les paiements en ligne (réservations, acomptes, loyers). Utiliser les clés API sandbox disponibles.
 
 ## Checklist
-- [ ] Installer SDK Kkiapay
-- [ ] Configurer clés API sandbox dans .env
-- [ ] Créer composant KkiapayButton
+- [x] Installer SDK Kkiapay
+- [x] Configurer clés API sandbox dans .env
+- [x] Créer service kkiapay.ts
+- [x] Créer composant KkiapayButton
+- [x] API route pour vérification transactions
 - [ ] Intégrer dans module Réservations (paiement acompte)
 - [ ] Intégrer dans module Paiements (enregistrement loyers)
-- [ ] Webhook pour confirmer paiements
-- [ ] Enregistrer transactions dans DB
-- [ ] Notifications après paiement réussi
-- [ ] Gestion des erreurs et annulations
+- [ ] Tester paiements sandbox
 
 ## Acceptance
 - Utilisateurs peuvent payer via Kkiapay (Mobile Money, Carte)

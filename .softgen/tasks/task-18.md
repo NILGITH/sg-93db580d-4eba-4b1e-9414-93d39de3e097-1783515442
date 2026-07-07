@@ -13,16 +13,16 @@ position: 18
 Remplacer tous les champs URL par de vrais uploads de fichiers via Supabase Storage. Créer des buckets pour chaque type de fichier et des composants d'upload réutilisables.
 
 ## Checklist
-- [ ] Créer buckets Supabase Storage (properties, documents, interventions, payments, contracts, blog)
-- [ ] Créer composant FileUpload réutilisable
-- [ ] Créer composant ImageUpload pour photos
+- [x] Créer buckets Supabase Storage (properties, documents, interventions, payments, contracts, blog)
+- [x] Créer composant FileUpload réutilisable
+- [x] Créer service storage.ts avec toutes les fonctions
+- [x] Migration SQL avec RLS policies
 - [ ] Mettre à jour module Properties (photos/vidéos)
 - [ ] Mettre à jour module Interventions (photos avant/après)
 - [ ] Mettre à jour module Documents (fichiers)
 - [ ] Mettre à jour module Payments (justificatifs)
 - [ ] Mettre à jour module Contracts (PDF signés)
 - [ ] Mettre à jour module Blog (images de couverture)
-- [ ] Gérer les permissions de buckets (RLS)
 
 ## Acceptance
 - Utilisateurs peuvent uploader des fichiers réels

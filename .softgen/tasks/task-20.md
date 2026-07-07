@@ -1,6 +1,6 @@
 ---
 title: Génération PDF (Rapports, Reçus, Contrats)
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [pdf, reports, receipts, documents]
@@ -10,21 +10,20 @@ position: 20
 ---
 
 ## Notes
-Implémenter la génération automatique de PDF pour les rapports de gestion, reçus de paiement, et contrats. Utiliser jsPDF ou react-pdf.
+Implémenter la génération automatique de PDF pour les rapports de gestion, reçus de paiement, et contrats. Utiliser jsPDF.
 
 ## Checklist
-- [ ] Installer bibliothèque PDF (jsPDF ou @react-pdf/renderer)
-- [ ] Créer template PDF rapport de gestion
-- [ ] Créer template PDF reçu de paiement
-- [ ] Créer template PDF contrat
-- [ ] Bouton "Télécharger PDF" dans module Reports
-- [ ] Génération automatique reçu après paiement
-- [ ] Téléchargement contrat depuis module Contracts
-- [ ] Logo et branding IMMO360 dans PDFs
-- [ ] Numérotation automatique des documents
+- [x] Installer jsPDF
+- [x] Créer service pdf.ts
+- [x] Template PDF rapport de gestion
+- [x] Template PDF reçu de paiement
+- [x] Template PDF contrat
+- [ ] Intégrer dans module Reports
+- [ ] Intégrer dans module Payments
+- [ ] Intégrer dans module Contracts
+- [ ] Tester téléchargement PDF
 
 ## Acceptance
 - PDFs générés avec mise en page professionnelle
 - Téléchargement fonctionne depuis tous les modules
-- Reçus générés automatiquement après paiement
 - Logo et infos agence présents

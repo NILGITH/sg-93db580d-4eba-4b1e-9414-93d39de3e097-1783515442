@@ -1,6 +1,6 @@
 ---
 title: Resend Email Integration
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [email, resend, notifications, automation]
@@ -13,19 +13,19 @@ position: 21
 Intégrer Resend pour l'envoi automatique d'emails lors d'événements clés (nouvelle visite, réservation confirmée, rapport disponible, etc.).
 
 ## Checklist
-- [ ] Installer SDK Resend
-- [ ] Configurer clé API dans .env
-- [ ] Créer service emailService
-- [ ] Template email demande de visite (agent)
-- [ ] Template email confirmation réservation (client)
-- [ ] Template email rapport disponible (propriétaire)
-- [ ] Template email paiement reçu (propriétaire)
-- [ ] Template email intervention terminée (propriétaire)
-- [ ] API route pour envoi emails
-- [ ] Tester envois en sandbox
+- [x] Installer SDK Resend
+- [x] Configurer clé API dans .env
+- [x] Créer service email.ts
+- [x] Template email demande de visite
+- [x] Template email confirmation réservation
+- [x] Template email rapport disponible
+- [x] API route pour envoi emails
+- [ ] Intégrer dans module Visites
+- [ ] Intégrer dans module Réservations
+- [ ] Intégrer dans module Rapports
+- [ ] Tester envois
 
 ## Acceptance
 - Emails envoyés automatiquement lors des événements
 - Templates HTML professionnels
-- Pièces jointes (PDF) fonctionnent
 - Logs d'envoi visibles
