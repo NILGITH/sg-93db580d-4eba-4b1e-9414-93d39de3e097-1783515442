@@ -45,6 +45,7 @@ export default function InterventionsPage() {
   const [formData, setFormData] = useState<Partial<InterventionInsert>>({
     property_id: "",
     provider_id: "",
+    title: "",
     intervention_type: "plomberie",
     description: "",
     scheduled_date: "",
@@ -101,6 +102,7 @@ export default function InterventionsPage() {
       const { error } = await supabase.from("interventions").insert({
         property_id: formData.property_id,
         provider_id: formData.provider_id,
+        title: formData.title,
         intervention_type: formData.intervention_type as InterventionType,
         description: formData.description,
         scheduled_date: formData.scheduled_date,
@@ -119,6 +121,7 @@ export default function InterventionsPage() {
       setFormData({
         property_id: "",
         provider_id: "",
+        title: "",
         intervention_type: "plomberie",
         description: "",
         scheduled_date: "",
@@ -415,6 +418,36 @@ export default function InterventionsPage() {
             <form onSubmit={createIntervention} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="title">Titre *</Label>
+                  <Input
+                    id="title"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Ex: Réparation fuite salle de bain"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="intervention_type">Type *</Label>
+                  <Select
+                    value={formData.intervention_type}
+                    onValueChange={(value) => setFormData({ ...formData, intervention_type: value as InterventionType })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INTERVENTION_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="property_id">Bien *</Label>
                   <Select
                     value={formData.property_id}
@@ -448,25 +481,6 @@ export default function InterventionsPage() {
                       {providers.map((provider) => (
                         <SelectItem key={provider.id} value={provider.id}>
                           {provider.company_name} ({provider.specialty})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="intervention_type">Type *</Label>
-                  <Select
-                    value={formData.intervention_type}
-                    onValueChange={(value) => setFormData({ ...formData, intervention_type: value as InterventionType })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {INTERVENTION_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -603,11 +617,11 @@ export default function InterventionsPage() {
                   </div>
                 )}
 
-                {selectedIntervention.notes && (
+                {selectedIntervention.provider_comment && (
                   <div>
                     <p className="text-sm font-medium mb-1">Notes du prestataire</p>
                     <div className="bg-muted/50 p-3 rounded-lg">
-                      <p className="text-sm text-muted-foreground">{selectedIntervention.notes}</p>
+                      <p className="text-sm text-muted-foreground">{selectedIntervention.provider_comment}</p>
                     </div>
                   </div>
                 )}

@@ -123,7 +123,7 @@ export default function ProviderMissionsPage() {
           completed_date: new Date().toISOString(),
           photos_before: photosBeforeArray,
           photos_after: photosAfterArray,
-          notes: providerNotes,
+          provider_comment: providerNotes,
           actual_cost: actualCost || selectedMission.estimated_cost,
         })
         .eq("id", selectedMission.id);
@@ -476,10 +476,10 @@ export default function ProviderMissionsPage() {
                       </div>
                     )}
 
-                    {selectedMission.notes && (
+                    {selectedMission.provider_comment && (
                       <div>
                         <p className="text-sm font-medium mb-1">Mes commentaires</p>
-                        <p className="text-sm text-muted-foreground">{selectedMission.notes}</p>
+                        <p className="text-sm text-muted-foreground">{selectedMission.provider_comment}</p>
                       </div>
                     )}
                   </div>
