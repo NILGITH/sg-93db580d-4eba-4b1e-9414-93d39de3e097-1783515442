@@ -8,11 +8,11 @@ type PropertyUpdate = Database["public"]["Tables"]["properties"]["Update"];
 export async function getProperties() {
   const { data, error } = await supabase
     .from("properties")
-    .select("*, owners(first_name, last_name)")
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data;
+  return data as Property[];
 }
 
 export async function getPublishedProperties() {

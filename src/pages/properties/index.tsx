@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Building2, Home, Plus, Search, MapPin, Edit, Trash2, Eye, EyeOff, Upload, X } from "lucide-react";
-import { getAllProperties, createProperty, updateProperty, deleteProperty } from "@/services/propertiesService";
+import { getProperties, createProperty, updateProperty, deleteProperty } from "@/services/propertiesService";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,20 +36,21 @@ export default function PropertiesPage() {
   
   const [formData, setFormData] = useState<Partial<PropertyInsert>>({
     reference: "",
+    title: "",
     property_type: "appartement",
-    property_status: "disponible",
+    status: "disponible",
     transaction_type: "location",
     address: "",
     city: "",
-    district: "",
-    neighborhood: "",
+    commune: "",
+    quartier: "",
     latitude: null,
     longitude: null,
     rooms: 0,
-    surface: 0,
+    surface_area: 0,
     price: 0,
     description: "",
-    equipment: [],
+    equipments: [],
     photos: [],
     videos: [],
     published: false,
@@ -73,7 +74,7 @@ export default function PropertiesPage() {
   async function loadProperties() {
     try {
       setLoading(true);
-      const data = await getAllProperties();
+      const data = await getProperties();
       setProperties(data);
     } catch (error) {
       toast({
@@ -96,20 +97,21 @@ export default function PropertiesPage() {
       setEditingProperty(null);
       setFormData({
         reference: "",
+        title: "",
         property_type: "appartement",
-        property_status: "disponible",
+        status: "disponible",
         transaction_type: "location",
         address: "",
         city: "",
-        district: "",
-        neighborhood: "",
+        commune: "",
+        quartier: "",
         latitude: null,
         longitude: null,
         rooms: 0,
-        surface: 0,
+        surface_area: 0,
         price: 0,
         description: "",
-        equipment: [],
+        equipments: [],
         photos: [],
         videos: [],
         published: false,
@@ -230,7 +232,7 @@ export default function PropertiesPage() {
       property.city?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === "all" || property.property_type === filterType;
-    const matchesStatus = filterStatus === "all" || property.property_status === filterStatus;
+    const matchesStatus = filterStatus === "all" || property.status === filterStatus;
     
     return matchesSearch && matchesType && matchesStatus;
   });
@@ -338,6 +340,17 @@ export default function PropertiesPage() {
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="title">Titre *</Label>
+                      <Input
+                        id="title"
+                        required
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="Bel appartement 3 pièces"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="property_type">Type *</Label>
                       <Select
                         value={formData.property_type}
@@ -357,10 +370,10 @@ export default function PropertiesPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="property_status">Statut *</Label>
+                      <Label htmlFor="status">Statut *</Label>
                       <Select
-                        value={formData.property_status}
-                        onValueChange={(value) => setFormData({ ...formData, property_status: value as any })}
+                        value={formData.status}
+                        onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -421,20 +434,20 @@ export default function PropertiesPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="district">Commune</Label>
+                        <Label htmlFor="commune">Commune</Label>
                         <Input
-                          id="district"
-                          value={formData.district || ""}
-                          onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                          id="commune"
+                          value={formData.commune || ""}
+                          onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="neighborhood">Quartier</Label>
+                        <Label htmlFor="quartier">Quartier</Label>
                         <Input
-                          id="neighborhood"
-                          value={formData.neighborhood || ""}
-                          onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                          id="quartier"
+                          value={formData.quartier || ""}
+                          onChange={(e) => setFormData({ ...formData, quartier: e.target.value })}
                         />
                       </div>
 
@@ -479,13 +492,13 @@ export default function PropertiesPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="surface">Surface (m²) *</Label>
+                        <Label htmlFor="surface_area">Surface (m²) *</Label>
                         <Input
-                          id="surface"
+                          id="surface_area"
                           type="number"
                           required
-                          value={formData.surface || 0}
-                          onChange={(e) => setFormData({ ...formData, surface: parseFloat(e.target.value) || 0 })}
+                          value={formData.surface_area || 0}
+                          onChange={(e) => setFormData({ ...formData, surface_area: parseFloat(e.target.value) || 0 })}
                         />
                       </div>
 
@@ -627,8 +640,8 @@ export default function PropertiesPage() {
                     </div>
                   )}
                   <div className="absolute top-2 right-2 flex gap-2">
-                    <StatusBadge variant={property.property_status === "disponible" ? "success" : "default"}>
-                      {property.property_status}
+                    <StatusBadge variant={property.status === "disponible" ? "available" : "default"}>
+                      {property.status}
                     </StatusBadge>
                     {property.published && (
                       <StatusBadge variant="premium">
@@ -659,7 +672,7 @@ export default function PropertiesPage() {
                     <span>•</span>
                     <span>{property.rooms} pièces</span>
                     <span>•</span>
-                    <span>{property.surface} m²</span>
+                    <span>{property.surface_area} m²</span>
                   </div>
                   
                   <div className="flex gap-2">
