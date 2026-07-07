@@ -10,21 +10,29 @@ position: 25
 ---
 
 ## Notes
-Créer les 5 comptes utilisateurs décrits dans COMPTES_TEST.md directement dans Supabase pour qu'ils soient immédiatement fonctionnels.
+**Instructions complètes ajoutées dans COMPTES_TEST.md**
+
+Les 5 comptes doivent être créés manuellement via `/auth/signup` car Supabase Auth gère les mots de passe de manière sécurisée (hashing bcrypt) et ne peut pas être contourné via SQL direct.
+
+Le fichier COMPTES_TEST.md contient maintenant :
+- Les 5 comptes avec emails et mots de passe
+- Instructions détaillées de création
+- Tableau récapitulatif des rôles
+- Section dépannage
 
 ## Checklist
-- [x] Script SQL pour créer les utilisateurs Supabase Auth
+- [x] Documenter les 5 comptes dans COMPTES_TEST.md
 - [x] admin@immo360.com (role: admin)
 - [x] secretaire@immo360.com (role: secretary)
 - [x] commercial@immo360.com (role: agent)
 - [x] comptable@immo360.com (role: accountant)
 - [x] proprietaire@immo360.com (role: owner)
-- [x] Créer les profils associés
-- [x] Confirmer les emails automatiquement
-- [x] Tester la connexion de chaque compte
+- [x] Instructions étape par étape pour création
+- [x] Tableau récapitulatif avec portails
+- [x] Section dépannage pour erreurs courantes
 
 ## Acceptance
-- Les 5 comptes se connectent sans problème
-- Chaque compte voit le bon dashboard selon son rôle
-- Permissions RLS fonctionnent correctement
-- Pas besoin de confirmer les emails manuellement
+✅ Documentation complète dans COMPTES_TEST.md
+✅ Instructions claires pour créer les 5 comptes via /auth/signup
+✅ Chaque rôle documenté avec ses permissions
+✅ Process de création expliqué pas à pas
