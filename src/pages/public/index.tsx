@@ -309,7 +309,7 @@ export default function PublicHome() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Square className="w-4 h-4" />
-                            <span>{property.surface}m²</span>
+                            <span>{property.living_area}m²</span>
                           </div>
                         </div>
                         <p className="text-2xl font-price text-secondary">{formatPrice(property.price)}</p>
@@ -380,7 +380,7 @@ export default function PublicHome() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Square className="w-4 h-4" />
-                            <span>{property.surface}m²</span>
+                            <span>{property.living_area}m²</span>
                           </div>
                         </div>
                         <p className="text-2xl font-price text-secondary">{formatPrice(property.price)}</p>
