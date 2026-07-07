@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Wrench, Calendar, MapPin, Upload, CheckCircle2, Camera } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
 
 type Intervention = Database["public"]["Tables"]["interventions"]["Row"];
 type InterventionWithDetails = Intervention & {
@@ -29,8 +30,8 @@ export default function ProviderMissionsPage() {
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [selectedMission, setSelectedMission] = useState<InterventionWithDetails | null>(null);
 
-  const [photosBefore, setPhotosBefore] = useState<string>("");
-  const [photosAfter, setPhotosAfter] = useState<string>("");
+  const [photosBefore, setPhotosBefore] = useState<string[]>([]);
+  const [photosAfter, setPhotosAfter] = useState<string[]>([]);
   const [providerNotes, setProviderNotes] = useState("");
   const [actualCost, setActualCost] = useState<number>(0);
 
@@ -113,16 +114,13 @@ export default function ProviderMissionsPage() {
     if (!selectedMission) return;
 
     try {
-      const photosBeforeArray = photosBefore.split("\n").filter(url => url.trim());
-      const photosAfterArray = photosAfter.split("\n").filter(url => url.trim());
-
       const { error } = await supabase
         .from("interventions")
         .update({ 
           status: "terminee",
           completed_date: new Date().toISOString(),
-          photos_before: photosBeforeArray,
-          photos_after: photosAfterArray,
+          photos_before: photosBefore,
+          photos_after: photosAfter,
           provider_comment: providerNotes,
           actual_cost: actualCost || selectedMission.estimated_cost,
         })
@@ -136,8 +134,8 @@ export default function ProviderMissionsPage() {
       });
 
       setShowDetailDialog(false);
-      setPhotosBefore("");
-      setPhotosAfter("");
+      setPhotosBefore([]);
+      setPhotosAfter([]);
       setProviderNotes("");
       setActualCost(0);
       loadMissions();

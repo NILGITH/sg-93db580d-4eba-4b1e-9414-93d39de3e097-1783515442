@@ -27,6 +27,8 @@ import {
   Calendar
 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
+import { generateContractPDF } from "@/lib/pdf";
 
 type Contract = Database["public"]["Tables"]["contracts"]["Row"] & {
   properties?: { reference: string; title: string } | null;
@@ -57,6 +59,7 @@ export default function ContractsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<ContractType | "all">("all");
   const [filterStatus, setFilterStatus] = useState<ContractStatus | "all">("all");
+  const [uploadedContract, setUploadedContract] = useState<string>("");
 
   const [formData, setFormData] = useState<Partial<ContractInsert>>({
     property_id: "",
@@ -174,21 +177,20 @@ export default function ContractsPage() {
           .from("contracts")
           .update({
             property_id: formData.property_id,
-            owner_id: formData.owner_id || null,
-            tenant_id: formData.tenant_id || null,
-            contract_type: formData.contract_type as ContractType,
+            owner_id: formData.owner_id,
+            tenant_id: formData.tenant_id,
+            contract_type: formData.contract_type,
             reference: formData.reference,
             start_date: formData.start_date,
-            end_date: formData.end_date || null,
-            amount: formData.amount,
-            deposit_amount: formData.deposit_amount,
-            terms: formData.terms,
-            clauses: formData.clauses,
-            status: formData.status as ContractStatus,
-            file_url: formData.file_url,
-            signed_by_owner: formData.signed_by_owner,
-            signed_by_tenant: formData.signed_by_tenant,
-            signed_at: formData.signed_by_owner && formData.signed_by_tenant ? new Date().toISOString() : null,
+            end_date: formData.end_date,
+            monthly_rent: formData.monthly_rent,
+            deposit: formData.deposit,
+            payment_terms: formData.payment_terms,
+            special_clauses: formData.special_clauses,
+            contract_file_url: uploadedContract || editingContract.contract_file_url,
+            owner_signed: formData.owner_signed,
+            tenant_signed: formData.tenant_signed,
+            status: formData.status,
           })
           .eq("id", editingContract.id);
 
@@ -201,21 +203,20 @@ export default function ContractsPage() {
       } else {
         const { error } = await supabase.from("contracts").insert({
           property_id: formData.property_id,
-          owner_id: formData.owner_id || null,
-          tenant_id: formData.tenant_id || null,
-          contract_type: formData.contract_type as ContractType,
+          owner_id: formData.owner_id,
+          tenant_id: formData.tenant_id,
+          contract_type: formData.contract_type || "location",
           reference: formData.reference,
           start_date: formData.start_date,
-          end_date: formData.end_date || null,
-          amount: formData.amount || 0,
-          deposit_amount: formData.deposit_amount || 0,
-          terms: formData.terms,
-          clauses: formData.clauses,
-          status: formData.status as ContractStatus || "brouillon",
-          file_url: formData.file_url,
-          signed_by_owner: formData.signed_by_owner || false,
-          signed_by_tenant: formData.signed_by_tenant || false,
-          created_by: user?.id,
+          end_date: formData.end_date,
+          monthly_rent: formData.monthly_rent || 0,
+          deposit: formData.deposit || 0,
+          payment_terms: formData.payment_terms,
+          special_clauses: formData.special_clauses,
+          contract_file_url: uploadedContract,
+          owner_signed: false,
+          tenant_signed: false,
+          status: "brouillon",
         });
 
         if (error) throw error;
@@ -227,11 +228,44 @@ export default function ContractsPage() {
       }
 
       setShowDialog(false);
+      setUploadedContract("");
       loadData();
     } catch (error) {
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le contrat",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function downloadContractPDF(contract: ContractWithRelations) {
+    try {
+      const pdf = await generateContractPDF({
+        contractNumber: contract.reference,
+        contractType: contract.contract_type,
+        propertyRef: contract.properties?.reference || "",
+        propertyAddress: contract.properties?.address || "",
+        ownerName: `${contract.owners?.first_name} ${contract.owners?.last_name}`,
+        tenantName: contract.tenants ? `${contract.tenants.first_name} ${contract.tenants.last_name}` : "",
+        startDate: contract.start_date,
+        endDate: contract.end_date || "",
+        monthlyRent: contract.monthly_rent,
+        deposit: contract.deposit,
+        paymentTerms: contract.payment_terms || "",
+        specialClauses: contract.special_clauses || "",
+      });
+
+      pdf.save(`Contrat_${contract.reference}.pdf`);
+
+      toast({
+        title: "PDF téléchargé",
+        description: "Le contrat a été téléchargé avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF",
         variant: "destructive",
       });
     }
@@ -718,6 +752,20 @@ export default function ContractsPage() {
                 />
                 <Label htmlFor="signed_tenant">Signé par le locataire</Label>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fichier contrat signé (optionnel)</Label>
+              <FileUpload
+                bucket="contracts"
+                accept=".pdf"
+                maxFiles={1}
+                onUploadComplete={(urls) => setUploadedContract(urls[0])}
+                existingFiles={uploadedContract ? [uploadedContract] : editingContract?.contract_file_url ? [editingContract.contract_file_url] : []}
+              />
+              <p className="text-xs text-muted-foreground">
+                PDF du contrat signé (max 10MB)
+              </p>
             </div>
 
             <div className="flex gap-2 pt-4">

@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, FileText, Plus, Search, Download, Trash2, File, Image, Video, FileImage } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
 
 type Document = Database["public"]["Tables"]["documents"]["Row"];
 type DocumentWithProperty = Document & {
@@ -53,6 +54,8 @@ export default function DocumentsPage() {
     name: "",
     file_url: "",
   });
+
+  const [uploadedFile, setUploadedFile] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -101,7 +104,7 @@ export default function DocumentsPage() {
         property_id: formData.property_id,
         type: formData.type || "contrat",
         name: formData.name,
-        file_url: formData.file_url,
+        file_url: uploadedFile,
       });
 
       if (error) throw error;
@@ -118,6 +121,7 @@ export default function DocumentsPage() {
         name: "",
         file_url: "",
       });
+      setUploadedFile("");
       loadData();
     } catch (error) {
       toast({
@@ -417,17 +421,16 @@ export default function DocumentsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="file_url">URL du fichier *</Label>
-                <Input
-                  id="file_url"
-                  type="url"
-                  required
-                  value={formData.file_url}
-                  onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
-                  placeholder="https://..."
+                <Label>Fichier *</Label>
+                <FileUpload
+                  bucket="documents"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  maxFiles={1}
+                  onUploadComplete={(urls) => setUploadedFile(urls[0])}
+                  existingFiles={uploadedFile ? [uploadedFile] : []}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Lien vers le fichier (Google Drive, Dropbox, serveur, etc.)
+                  PDF, Word, Images (max 10MB)
                 </p>
               </div>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, Plus, Search, MapPin, Edit, Trash2, Eye, EyeOff, Upload, X } from "lucide-react";
-import { getProperties, createProperty, updateProperty, deleteProperty } from "@/services/propertiesService";
-import type { Database } from "@/integrations/supabase/types";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { getProperties, createProperty, updateProperty, deleteProperty } from "@/services/propertiesService";
+import { FileUpload } from "@/components/FileUpload";
+import { Building2, Search, Plus, Edit, Trash2, MapPin, Home, DollarSign, Eye, EyeOff, Upload, X } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
 type Property = Database["public"]["Tables"]["properties"]["Row"];
 type PropertyInsert = Database["public"]["Tables"]["properties"]["Insert"];
@@ -527,57 +531,36 @@ export default function PropertiesPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">Photos (URLs)</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={addPhotoUrl}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Ajouter une photo
-                      </Button>
+                    <div className="space-y-2">
+                      <Label>Photos (jusqu'à 10)</Label>
+                      <FileUpload
+                        bucket="properties"
+                        accept="image/*"
+                        maxFiles={10}
+                        multiple
+                        onUploadComplete={(urls) => setFormData({ ...formData, photos: urls })}
+                        existingFiles={formData.photos || []}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Formats acceptés : JPG, PNG, WebP (max 5MB par fichier)
+                      </p>
                     </div>
-                    {photoUrls.map((url, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          value={url}
-                          onChange={(e) => updatePhotoUrl(index, e.target.value)}
-                          placeholder="https://exemple.com/photo.jpg"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => removePhotoUrl(index)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">Vidéos (URLs)</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={addVideoUrl}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Ajouter une vidéo
-                      </Button>
+                    <div className="space-y-2">
+                      <Label>Vidéos (jusqu'à 5 URLs YouTube/Vimeo)</Label>
+                      <Textarea
+                        placeholder="https://youtube.com/watch?v=..."
+                        value={(formData.videos || []).join("\n")}
+                        onChange={(e) => {
+                          const urls = e.target.value.split("\n").filter(url => url.trim());
+                          setFormData({ ...formData, videos: urls });
+                        }}
+                        rows={3}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Une URL par ligne (vidéos hébergées)
+                      </p>
                     </div>
-                    {videoUrls.map((url, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          value={url}
-                          onChange={(e) => updateVideoUrl(index, e.target.value)}
-                          placeholder="https://exemple.com/video.mp4"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => removeVideoUrl(index)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
                   </div>
 
                   <div className="flex items-center space-x-2">

@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Plus, Edit, Trash2, Eye, EyeOff, BookOpen } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
 
 type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"];
 type BlogPostInsert = Database["public"]["Tables"]["blog_posts"]["Insert"];
@@ -40,6 +41,8 @@ export default function AdminBlogPage() {
     cover_image_url: "",
     published: false,
   });
+
+  const [uploadedImage, setUploadedImage] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -120,7 +123,7 @@ export default function AdminBlogPage() {
             excerpt: formData.excerpt,
             content: formData.content,
             category: formData.category,
-            cover_image_url: formData.cover_image_url,
+            cover_image_url: uploadedImage || editingPost.cover_image_url,
             published: formData.published,
             published_at: formData.published && !editingPost.published ? new Date().toISOString() : editingPost.published_at,
           })
@@ -139,7 +142,7 @@ export default function AdminBlogPage() {
           excerpt: formData.excerpt,
           content: formData.content,
           category: formData.category || "conseils",
-          cover_image_url: formData.cover_image_url,
+          cover_image_url: uploadedImage,
           published: formData.published,
           published_at: formData.published ? new Date().toISOString() : null,
           author_id: user?.id,
@@ -154,6 +157,7 @@ export default function AdminBlogPage() {
       }
 
       setShowDialog(false);
+      setUploadedImage("");
       loadPosts();
     } catch (error) {
       toast({
@@ -408,13 +412,13 @@ export default function AdminBlogPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cover_image_url">Image de couverture (URL)</Label>
-                <Input
-                  id="cover_image_url"
-                  type="url"
-                  value={formData.cover_image_url || ""}
-                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                  placeholder="https://..."
+                <Label>Image de couverture</Label>
+                <FileUpload
+                  bucket="blog"
+                  accept="image/*"
+                  maxFiles={1}
+                  onUploadComplete={(urls) => setUploadedImage(urls[0])}
+                  existingFiles={uploadedImage ? [uploadedImage] : editingPost?.cover_image_url ? [editingPost.cover_image_url] : []}
                 />
               </div>
 

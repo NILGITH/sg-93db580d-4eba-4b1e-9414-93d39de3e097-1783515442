@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Wrench, Plus, Search, Calendar, CheckCircle2, Clock, XCircle, DollarSign } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
 
 type Intervention = Database["public"]["Tables"]["interventions"]["Row"];
 type InterventionWithDetails = Intervention & {
@@ -585,34 +586,42 @@ export default function InterventionsPage() {
                   </div>
                 )}
 
-                {selectedIntervention.photos_before && Array.isArray(selectedIntervention.photos_before) && selectedIntervention.photos_before.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium mb-2">Photos avant</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(selectedIntervention.photos_before as string[]).map((photo, index) => (
-                        <img
-                          key={index}
-                          src={photo}
-                          alt={`Avant ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                      ))}
+                {selectedIntervention.status === "terminee" && (
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Photos avant intervention</p>
+                      {selectedIntervention.photos_before && Array.isArray(selectedIntervention.photos_before) && selectedIntervention.photos_before.length > 0 ? (
+                        <div className="grid grid-cols-3 gap-2">
+                          {(selectedIntervention.photos_before as string[]).map((photo, index) => (
+                            <img
+                              key={index}
+                              src={photo}
+                              alt={`Avant ${index + 1}`}
+                              className="w-full h-24 object-cover rounded"
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Aucune photo avant</p>
+                      )}
                     </div>
-                  </div>
-                )}
 
-                {selectedIntervention.photos_after && Array.isArray(selectedIntervention.photos_after) && selectedIntervention.photos_after.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium mb-2">Photos après</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(selectedIntervention.photos_after as string[]).map((photo, index) => (
-                        <img
-                          key={index}
-                          src={photo}
-                          alt={`Après ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                      ))}
+                    <div>
+                      <p className="text-sm font-medium mb-2">Photos après intervention</p>
+                      {selectedIntervention.photos_after && Array.isArray(selectedIntervention.photos_after) && selectedIntervention.photos_after.length > 0 ? (
+                        <div className="grid grid-cols-3 gap-2">
+                          {(selectedIntervention.photos_after as string[]).map((photo, index) => (
+                            <img
+                              key={index}
+                              src={photo}
+                              alt={`Après ${index + 1}`}
+                              className="w-full h-24 object-cover rounded"
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Aucune photo après</p>
+                      )}
                     </div>
                   </div>
                 )}

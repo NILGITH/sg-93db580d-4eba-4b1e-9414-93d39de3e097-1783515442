@@ -14,6 +14,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, DollarSign, Plus, Search, Calendar, CheckCircle2, XCircle, Receipt, Upload, Image } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FileUpload } from "@/components/FileUpload";
+import { KkiapayButton } from "@/components/KkiapayButton";
+import { Separator } from "@/components/ui/separator";
 
 type Payment = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentWithDetails = Payment & {
@@ -58,6 +61,9 @@ export default function PaymentsPage() {
     receipt_url: "",
     is_validated: false,
   });
+
+  const [uploadedReceipt, setUploadedReceipt] = useState<string>("");
+  const [showKkiapayOption, setShowKkiapayOption] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -117,7 +123,7 @@ export default function PaymentsPage() {
         amount: formData.amount,
         payment_date: formData.payment_date,
         description: formData.description,
-        receipt_url: formData.receipt_url,
+        receipt_url: uploadedReceipt,
         is_validated: false,
       });
 
@@ -141,6 +147,7 @@ export default function PaymentsPage() {
         receipt_url: "",
         is_validated: false,
       });
+      setUploadedReceipt("");
       loadData();
     } catch (error) {
       toast({
@@ -149,6 +156,16 @@ export default function PaymentsPage() {
         variant: "destructive",
       });
     }
+  }
+
+  function handleKkiapaySuccess(transactionId: string) {
+    toast({
+      title: "Paiement réussi",
+      description: `Transaction ${transactionId} confirmée`,
+    });
+    // Le paiement sera enregistré automatiquement via webhook
+    setShowCreateDialog(false);
+    loadData();
   }
 
   async function validatePayment(id: string) {
@@ -540,18 +557,36 @@ export default function PaymentsPage() {
 
                 {(formData.payment_method === "especes" || formData.payment_method === "cheque") && (
                   <div className="space-y-2">
-                    <Label htmlFor="receipt_url">Photo justificatif (URL)</Label>
-                    <Input
-                      id="receipt_url"
-                      type="url"
-                      placeholder="https://example.com/photo.jpg"
-                      value={formData.receipt_url}
-                      onChange={(e) => setFormData({ ...formData, receipt_url: e.target.value })}
+                    <Label>Photo justificatif</Label>
+                    <FileUpload
+                      bucket="payments"
+                      accept="image/*,.pdf"
+                      maxFiles={1}
+                      onUploadComplete={(urls) => setUploadedReceipt(urls[0])}
+                      existingFiles={uploadedReceipt ? [uploadedReceipt] : []}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Hébergez la photo et collez l'URL ici
+                      Photo du reçu ou chèque (recommandé)
                     </p>
                   </div>
+                )}
+              </div>
+
+              <Separator />
+
+              <div className="flex gap-2">
+                <Button type="submit" className="flex-1">
+                  Enregistrer le paiement
+                </Button>
+                {formData.payment_method === "mobile_money" && (
+                  <KkiapayButton
+                    amount={formData.amount || 0}
+                    reason={`Paiement ${formData.payment_type}`}
+                    onSuccess={handleKkiapaySuccess}
+                    className="flex-1"
+                  >
+                    Payer avec Kkiapay
+                  </KkiapayButton>
                 )}
               </div>
 
