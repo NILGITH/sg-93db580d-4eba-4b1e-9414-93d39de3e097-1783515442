@@ -98,25 +98,23 @@ export default function Login() {
         });
       }
 
-      // Redirection selon le rôle
-      setTimeout(() => {
-        switch (profile.role) {
-          case "admin":
-          case "agent":
-          case "secretary":
-          case "accountant":
-            router.push("/dashboard");
-            break;
-          case "provider":
-            router.push("/provider/missions");
-            break;
-          case "owner":
-            router.push("/owner");
-            break;
-          default:
-            router.push("/dashboard");
-        }
-      }, 500);
+      // Redirection selon le rôle (immédiate)
+      switch (profile.role) {
+        case "admin":
+        case "agent":
+        case "secretary":
+        case "accountant":
+          router.push("/dashboard");
+          break;
+        case "provider":
+          router.push("/provider/missions");
+          break;
+        case "owner":
+          router.push("/owner");
+          break;
+        default:
+          router.push("/dashboard");
+      }
     } catch (error: any) {
       const isNetworkError =
         error.message?.includes("fetch") ||

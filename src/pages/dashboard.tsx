@@ -107,9 +107,12 @@ export default function Dashboard() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const isDemoMode = localStorage.getItem("demo_user");
+        // Vérifier le mode démo en premier
+        const demoUser = localStorage.getItem("demo_user");
+        const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
 
-        if (isDemoMode) {
+        if (demoUser && demoModeActive) {
+          // Mode démo : charger les données mockées immédiatement
           setStats({
             totalProperties: mockStats.totalProperties,
             availableProperties: mockStats.availableProperties,
@@ -134,12 +137,14 @@ export default function Dashboard() {
           return;
         }
 
+        // Sinon charger depuis Supabase
         if (user) {
           await loadDashboardStats();
           await loadChartData();
         }
       } catch (error) {
         console.error("Erreur chargement dashboard:", error);
+        // En cas d'erreur, fallback sur données mockées
         setStats({
           totalProperties: mockStats.totalProperties,
           availableProperties: mockStats.availableProperties,
@@ -165,7 +170,7 @@ export default function Dashboard() {
     }
 
     loadDashboardData();
-  }, [user, router]);
+  }, [user]);
 
   async function loadDashboardStats() {
     try {

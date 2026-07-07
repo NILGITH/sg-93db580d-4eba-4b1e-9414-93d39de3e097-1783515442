@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { authService } from "@/services/authService";
 
 type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 
@@ -23,6 +24,19 @@ export function useAuth(): AuthUser {
 
     async function loadUser() {
       try {
+        // Vérifier d'abord le mode démo
+        const demoUser = localStorage.getItem("demo_user");
+        const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
+
+        if (demoUser && demoModeActive) {
+          const demoProfile = JSON.parse(demoUser);
+          setProfile(demoProfile);
+          setUser({ id: demoProfile.id, email: demoProfile.email } as User);
+          setLoading(false);
+          return;
+        }
+
+        // Sinon, charger depuis Supabase
         const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
         
         if (userError) throw userError;
