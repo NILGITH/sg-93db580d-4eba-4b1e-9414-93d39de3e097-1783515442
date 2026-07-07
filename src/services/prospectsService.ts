@@ -5,27 +5,36 @@ type Prospect = Database["public"]["Tables"]["prospects"]["Row"];
 type ProspectInsert = Database["public"]["Tables"]["prospects"]["Insert"];
 type ProspectUpdate = Database["public"]["Tables"]["prospects"]["Update"];
 
-export async function getProspects(agencyId: string) {
+export async function getProspects() {
   const { data, error } = await supabase
     .from("prospects")
-    .select("*")
-    .eq("agency_id", agencyId)
+    .select("*, properties(reference, address)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data as Prospect[];
+  return data;
 }
 
-export async function getProspectsByStatus(agencyId: string, status: string) {
+export async function getProspectsByStatus(status: string) {
   const { data, error } = await supabase
     .from("prospects")
-    .select("*")
-    .eq("agency_id", agencyId)
+    .select("*, properties(reference, address)")
     .eq("status", status)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data as Prospect[];
+  return data;
+}
+
+export async function getProspectById(id: string) {
+  const { data, error } = await supabase
+    .from("prospects")
+    .select("*, properties(reference, address, city)")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export async function createProspect(prospect: ProspectInsert) {
@@ -49,4 +58,13 @@ export async function updateProspect(id: string, updates: ProspectUpdate) {
 
   if (error) throw error;
   return data as Prospect;
+}
+
+export async function deleteProspect(id: string) {
+  const { error } = await supabase
+    .from("prospects")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
 }

@@ -1,6 +1,6 @@
 ---
 title: Nouvelle Architecture Database Complète
-status: in_progress
+status: done
 priority: urgent
 type: chore
 tags: [database, migration, architecture]
