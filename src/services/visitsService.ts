@@ -32,7 +32,7 @@ export async function getUpcomingVisits() {
     .from("visits")
     .select("*, properties(reference, address, city), prospects(first_name, last_name, phone)")
     .gte("visit_date", today)
-    .eq("status", "scheduled")
+    .eq("status", "confirmee")
     .order("visit_date", { ascending: true });
 
   if (error) throw error;

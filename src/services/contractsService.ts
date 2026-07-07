@@ -20,7 +20,7 @@ export async function getActiveContracts() {
   const { data, error } = await supabase
     .from("contracts")
     .select("*, properties(reference, address), tenants(first_name, last_name)")
-    .eq("status", "active")
+    .eq("status", "en_cours")
     .lte("start_date", today)
     .gte("end_date", today)
     .order("start_date", { ascending: false });

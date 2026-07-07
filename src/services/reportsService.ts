@@ -25,60 +25,56 @@ export async function getReportsByOwner(ownerId: string) {
   return data as Report[];
 }
 
-export async function getReportsByType(type: string) {
+export async function getReportsByType(reportType: string) {
   const { data, error } = await supabase
     .from("reports")
     .select("*, owners(first_name, last_name)")
-    .eq("type", type)
+    .eq("report_type", reportType)
     .order("period_start", { ascending: false });
 
   if (error) throw error;
   return data;
 }
 
-export async function generateReport(ownerId: string, type: "monthly" | "quarterly" | "semi-annual", periodStart: string, periodEnd: string) {
-  // Calculer les données du rapport
+export async function generateReport(
+  ownerId: string, 
+  reportType: "mensuel" | "trimestriel" | "semestriel" | "annuel", 
+  periodStart: string, 
+  periodEnd: string
+) {
+  const { data: ownerProperties } = await supabase
+    .from("properties")
+    .select("id")
+    .eq("owner_id", ownerId);
+
+  const propertyIds = ownerProperties?.map(p => p.id) || [];
+
   const { data: payments } = await supabase
     .from("payments")
     .select("amount")
-    .eq("status", "paid")
+    .in("property_id", propertyIds)
     .gte("payment_date", periodStart)
-    .lte("payment_date", periodEnd)
-    .in("property_id", 
-      supabase
-        .from("properties")
-        .select("id")
-        .eq("owner_id", ownerId)
-    );
+    .lte("payment_date", periodEnd);
 
   const { data: interventions } = await supabase
     .from("interventions")
-    .select("cost")
+    .select("estimated_cost")
+    .in("property_id", propertyIds)
     .gte("intervention_date", periodStart)
-    .lte("intervention_date", periodEnd)
-    .in("property_id",
-      supabase
-        .from("properties")
-        .select("id")
-        .eq("owner_id", ownerId)
-    );
+    .lte("intervention_date", periodEnd);
 
   const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-  const totalExpenses = interventions?.reduce((sum, i) => sum + (i.cost || 0), 0) || 0;
+  const totalExpenses = interventions?.reduce((sum, i) => sum + (i.estimated_cost || 0), 0) || 0;
   const netIncome = totalRevenue - totalExpenses;
 
   const report: ReportInsert = {
     owner_id: ownerId,
-    type,
+    report_type: reportType,
     period_start: periodStart,
     period_end: periodEnd,
     total_revenue: totalRevenue,
     total_expenses: totalExpenses,
-    net_income: netIncome,
-    data: {
-      payments: payments?.length || 0,
-      interventions: interventions?.length || 0
-    }
+    net_income: netIncome
   };
 
   return createReport(report);

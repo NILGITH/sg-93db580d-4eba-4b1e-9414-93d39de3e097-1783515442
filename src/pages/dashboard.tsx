@@ -8,7 +8,7 @@ import { Building2, Home, FileText, TrendingUp, Users, DollarSign, Wrench, Spark
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, profile, agency, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,7 +24,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user || !profile || !agency) {
+  if (!user || !profile) {
     return null;
   }
 
@@ -68,7 +68,7 @@ export default function DashboardPage() {
               <Building2 className="w-10 h-10 text-accent" />
               <div>
                 <h1 className="text-3xl font-serif font-bold">IMMO360</h1>
-                <p className="text-sm text-primary-foreground/80">{agency.name}</p>
+                <p className="text-sm text-primary-foreground/80">Gestion Immobilière</p>
               </div>
             </div>
             <div className="text-right">

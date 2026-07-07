@@ -54,10 +54,10 @@ export async function uploadDocument(file: File, propertyId: string, type: strin
 
   const document: DocumentInsert = {
     property_id: propertyId,
-    title,
+    name: title,
     type,
     file_url: urlData.publicUrl,
-    file_name: file.name,
+    mime_type: file.type,
     file_size: file.size
   };
 

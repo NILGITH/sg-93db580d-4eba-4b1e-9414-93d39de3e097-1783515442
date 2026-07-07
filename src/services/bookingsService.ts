@@ -21,7 +21,7 @@ export async function getActiveBookings() {
     .from("bookings")
     .select("*, properties(reference, address, city)")
     .gte("end_date", today)
-    .eq("status", "confirmed")
+    .eq("status", "confirmee")
     .order("start_date", { ascending: true });
 
   if (error) throw error;
@@ -44,7 +44,7 @@ export async function checkAvailability(propertyId: string, startDate: string, e
     .from("bookings")
     .select("*")
     .eq("property_id", propertyId)
-    .eq("status", "confirmed")
+    .eq("status", "confirmee")
     .or(`and(start_date.lte.${endDate},end_date.gte.${startDate})`);
 
   if (error) throw error;
@@ -77,7 +77,7 @@ export async function updateBooking(id: string, updates: BookingUpdate) {
 export async function cancelBooking(id: string) {
   const { data, error } = await supabase
     .from("bookings")
-    .update({ status: "cancelled" })
+    .update({ status: "annulee" })
     .eq("id", id)
     .select()
     .single();
