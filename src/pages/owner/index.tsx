@@ -32,9 +32,7 @@ type Intervention = Database["public"]["Tables"]["interventions"]["Row"] & {
 type Document = Database["public"]["Tables"]["documents"]["Row"] & {
   properties?: { reference: string; title: string } | null;
 };
-type Report = Database["public"]["Tables"]["reports"]["Row"] & {
-  properties?: { reference: string; title: string } | null;
-};
+type Report = Database["public"]["Tables"]["reports"]["Row"];
 
 export default function OwnerPortalPage() {
   const router = useRouter();
@@ -120,7 +118,7 @@ export default function OwnerPortalPage() {
         // Charger les rapports
         const { data: reportsData } = await supabase
           .from("reports")
-          .select("*, properties(reference, title)")
+          .select("*")
           .eq("owner_id", user.id)
           .order("period_end", { ascending: false });
 
@@ -555,7 +553,7 @@ export default function OwnerPortalPage() {
                                     <div>
                                       <p className="text-muted-foreground">Revenus</p>
                                       <p className="font-semibold text-green-600">
-                                        +{report.total_income.toLocaleString()} FCFA
+                                        +{report.total_revenue.toLocaleString()} FCFA
                                       </p>
                                     </div>
                                     <div>
