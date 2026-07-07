@@ -6,11 +6,11 @@ import { getProspects, updateProspect } from "@/services/prospectsService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Users, Plus, Mail, Phone } from "lucide-react";
+import { Building2, Plus, Mail, Phone } from "lucide-react";
 
 export default function CRMPage() {
   const router = useRouter();
-  const { user, profile, agency, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [prospects, setProspects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,15 +21,14 @@ export default function CRMPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (agency?.id) {
+    if (user) {
       loadProspects();
     }
-  }, [agency?.id]);
+  }, [user]);
 
   async function loadProspects() {
-    if (!agency?.id) return;
     try {
-      const data = await getProspects(agency.id);
+      const data = await getProspects();
       setProspects(data);
     } catch (error) {
       console.error("Error loading prospects:", error);
@@ -38,9 +37,9 @@ export default function CRMPage() {
     }
   }
 
-  async function handleDragEnd(prospectId: string, newStatus: string) {
+  async function handleStatusChange(prospectId: string, newStatus: string) {
     try {
-      await updateProspect(prospectId, { status: newStatus });
+      await updateProspect(prospectId, { status: newStatus as any });
       await loadProspects();
     } catch (error) {
       console.error("Error updating prospect:", error);
@@ -55,16 +54,16 @@ export default function CRMPage() {
     );
   }
 
-  if (!user || !profile || !agency) {
+  if (!user || !profile) {
     return null;
   }
 
   const statuses = [
     { value: "nouveau", label: "Nouveaux", variant: "available" as const },
-    { value: "contact", label: "Contactés", variant: "default" as const },
-    { value: "visite", label: "Visites", variant: "maintenance" as const },
-    { value: "negociation", label: "Négociation", variant: "premium" as const },
-    { value: "signature", label: "Signature", variant: "rented" as const },
+    { value: "contacte", label: "Contactés", variant: "default" as const },
+    { value: "qualifie", label: "Qualifiés", variant: "maintenance" as const },
+    { value: "negocie", label: "Négociation", variant: "premium" as const },
+    { value: "converti", label: "Convertis", variant: "rented" as const },
   ];
 
   return (
@@ -78,15 +77,13 @@ export default function CRMPage() {
               </Link>
               <div>
                 <h1 className="text-3xl font-serif font-bold">CRM - Pipeline Commercial</h1>
-                <p className="text-sm text-primary-foreground/80">{agency.name}</p>
+                <p className="text-sm text-primary-foreground/80">IMMO360</p>
               </div>
             </div>
-            <Link href="/crm/new">
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Prospect
-              </Button>
-            </Link>
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau Prospect
+            </Button>
           </div>
         </div>
       </header>
@@ -121,15 +118,16 @@ export default function CRMPage() {
                       <Card
                         key={prospect.id}
                         className="cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => router.push(`/crm/${prospect.id}`)}
                       >
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-semibold">
                             {prospect.first_name} {prospect.last_name}
                           </CardTitle>
-                          <CardDescription className="text-xs">
-                            {prospect.property_interest}
-                          </CardDescription>
+                          {prospect.properties && (
+                            <CardDescription className="text-xs">
+                              {prospect.properties.reference}
+                            </CardDescription>
+                          )}
                         </CardHeader>
                         <CardContent className="space-y-1">
                           {prospect.email && (
@@ -142,11 +140,6 @@ export default function CRMPage() {
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Phone className="w-3 h-3" />
                               <span>{prospect.phone}</span>
-                            </div>
-                          )}
-                          {prospect.budget && (
-                            <div className="text-xs font-semibold text-accent pt-1">
-                              Budget: {prospect.budget.toLocaleString()} €
                             </div>
                           )}
                         </CardContent>

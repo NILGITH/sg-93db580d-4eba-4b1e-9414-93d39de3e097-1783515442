@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { getPayments } from "@/services/paymentsService";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -11,7 +11,7 @@ import { Building2, CreditCard, Plus, Search, Calendar, FileText, DollarSign } f
 
 export default function PaymentsPage() {
   const router = useRouter();
-  const { user, profile, agency, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [payments, setPayments] = useState<any[]>([]);
   const [filteredPayments, setFilteredPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +24,10 @@ export default function PaymentsPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (agency?.id) {
+    if (user) {
       loadPayments();
     }
-  }, [agency?.id]);
+  }, [user]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -35,7 +35,7 @@ export default function PaymentsPage() {
         (p) =>
           p.payment_method.toLowerCase().includes(searchTerm.toLowerCase()) ||
           p.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.properties?.title.toLowerCase().includes(searchTerm.toLowerCase())
+          p.properties?.reference.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPayments(filtered);
     } else {
@@ -44,9 +44,8 @@ export default function PaymentsPage() {
   }, [searchTerm, payments]);
 
   async function loadPayments() {
-    if (!agency?.id) return;
     try {
-      const data = await getPayments(agency.id);
+      const data = await getPayments();
       setPayments(data ?? []);
       setFilteredPayments(data ?? []);
     } catch (error) {
@@ -64,16 +63,16 @@ export default function PaymentsPage() {
     );
   }
 
-  if (!user || !profile || !agency) {
+  if (!user || !profile) {
     return null;
   }
 
-  const totalAmount = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+  const totalAmount = filteredPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   const getPaymentMethodVariant = (method: string) => {
     const variants: Record<string, "available" | "premium" | "default"> = {
       mobile_money: "premium",
-      carte_bancaire: "available",
+      carte: "available",
       virement: "available",
       cheque: "default",
       especes: "default",
@@ -92,15 +91,13 @@ export default function PaymentsPage() {
               </Link>
               <div>
                 <h1 className="text-3xl font-serif font-bold">Encaissements & Paiements</h1>
-                <p className="text-sm text-primary-foreground/80">{agency.name}</p>
+                <p className="text-sm text-primary-foreground/80">IMMO360</p>
               </div>
             </div>
-            <Link href="/payments/new">
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Paiement
-              </Button>
-            </Link>
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau Paiement
+            </Button>
           </div>
         </div>
       </header>
@@ -146,12 +143,10 @@ export default function PaymentsPage() {
                   : "Commencez par enregistrer un paiement."}
               </p>
               {!searchTerm && (
-                <Link href="/payments/new">
-                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Enregistrer un paiement
-                  </Button>
-                </Link>
+                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Enregistrer un paiement
+                </Button>
               )}
             </CardContent>
           </Card>
@@ -161,25 +156,29 @@ export default function PaymentsPage() {
               <Card
                 key={payment.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => router.push(`/payments/${payment.id}`)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="font-serif text-lg">
-                        {payment.properties?.title || "Bien non spécifié"}
+                        {payment.properties?.reference || "Paiement général"}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2 mt-1">
+                      {payment.properties && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {payment.properties.address}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                         <Calendar className="w-3 h-3" />
                         {new Date(payment.payment_date).toLocaleDateString()}
-                      </CardDescription>
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
                       <div className="text-2xl font-bold text-accent tabular-nums">
                         {payment.amount.toLocaleString()} €
                       </div>
                       <StatusBadge variant={getPaymentMethodVariant(payment.payment_method)}>
-                        {payment.payment_method.replace("_", " ")}
+                        {payment.payment_method}
                       </StatusBadge>
                     </div>
                   </div>
@@ -192,10 +191,7 @@ export default function PaymentsPage() {
                       <span className="font-medium font-mono">{payment.reference}</span>
                     </div>
                   )}
-                  {payment.notes && (
-                    <p className="text-sm text-muted-foreground italic">{payment.notes}</p>
-                  )}
-                  {payment.proof_url && (
+                  {payment.photo_justificatif && (
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
                       <FileText className="w-3 h-3" />
                       Justificatif disponible

@@ -7,16 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, Plus, Search, MapPin, Bed, Bath, Square } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
-
-type Property = Database["public"]["Tables"]["properties"]["Row"];
+import { Building2, Home, Plus, Search, MapPin } from "lucide-react";
 
 export default function PropertiesPage() {
   const router = useRouter();
-  const { user, profile, agency, loading: authLoading } = useAuth();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const { user, profile, loading: authLoading } = useAuth();
+  const [properties, setProperties] = useState<any[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -27,18 +24,18 @@ export default function PropertiesPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (agency?.id) {
+    if (user) {
       loadProperties();
     }
-  }, [agency?.id]);
+  }, [user]);
 
   useEffect(() => {
     if (searchTerm) {
       const filtered = properties.filter(
         (p) =>
-          p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.city.toLowerCase().includes(searchTerm.toLowerCase())
+          p.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.city?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredProperties(filtered);
     } else {
@@ -47,11 +44,10 @@ export default function PropertiesPage() {
   }, [searchTerm, properties]);
 
   async function loadProperties() {
-    if (!agency?.id) return;
     try {
-      const data = await getProperties(agency.id);
-      setProperties(data);
-      setFilteredProperties(data);
+      const data = await getProperties();
+      setProperties(data ?? []);
+      setFilteredProperties(data ?? []);
     } catch (error) {
       console.error("Error loading properties:", error);
     } finally {
@@ -67,7 +63,7 @@ export default function PropertiesPage() {
     );
   }
 
-  if (!user || !profile || !agency) {
+  if (!user || !profile) {
     return null;
   }
 
@@ -76,7 +72,7 @@ export default function PropertiesPage() {
       disponible: "available",
       loue: "rented",
       vendu: "rented",
-      en_travaux: "maintenance",
+      reserve: "maintenance",
     };
     return variants[status] || "default";
   };
@@ -92,15 +88,13 @@ export default function PropertiesPage() {
               </Link>
               <div>
                 <h1 className="text-3xl font-serif font-bold">Gestion des Biens</h1>
-                <p className="text-sm text-primary-foreground/80">{agency.name}</p>
+                <p className="text-sm text-primary-foreground/80">IMMO360</p>
               </div>
             </div>
-            <Link href="/properties/new">
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Bien
-              </Button>
-            </Link>
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau Bien
+            </Button>
           </div>
         </div>
       </header>
@@ -110,7 +104,7 @@ export default function PropertiesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher par titre, adresse ou ville..."
+              placeholder="Rechercher par référence, adresse ou ville..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -129,12 +123,10 @@ export default function PropertiesPage() {
                   : "Commencez par ajouter votre premier bien."}
               </p>
               {!searchTerm && (
-                <Link href="/properties/new">
-                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Ajouter un bien
-                  </Button>
-                </Link>
+                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un bien
+                </Button>
               )}
             </CardContent>
           </Card>
@@ -144,15 +136,14 @@ export default function PropertiesPage() {
               <Card
                 key={property.id}
                 className="hover:shadow-xl transition-shadow cursor-pointer group"
-                onClick={() => router.push(`/properties/${property.id}`)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="font-serif text-lg group-hover:text-accent transition-colors">
-                      {property.title}
+                      {property.reference}
                     </CardTitle>
                     <StatusBadge variant={getStatusVariant(property.status)}>
-                      {property.status.replace("_", " ")}
+                      {property.status}
                     </StatusBadge>
                   </div>
                   <CardDescription className="flex items-center gap-1 text-sm">
@@ -162,25 +153,15 @@ export default function PropertiesPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                    <div className="flex items-center gap-1">
-                      <Bed className="w-4 h-4" />
-                      {property.bedrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bath className="w-4 h-4" />
-                      {property.bathrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Square className="w-4 h-4" />
-                      {property.surface_area}m²
-                    </div>
+                    <span>{property.rooms} pièces</span>
+                    <span>{property.surface}m²</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-accent tabular-nums">
-                      {property.price.toLocaleString()} €
+                      {property.price?.toLocaleString()} €
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {property.property_type.replace("_", " ")}
+                    <span className="text-xs text-muted-foreground uppercase">
+                      {property.property_type}
                     </span>
                   </div>
                 </CardContent>
