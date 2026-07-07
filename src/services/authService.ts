@@ -16,51 +16,25 @@ export interface SignupData {
 
 export const authService = {
   async login(credentials: LoginCredentials) {
-    console.log("🔐 Tentative de connexion pour:", credentials.email);
-    
     try {
-      // Test de connexion Supabase
-      console.log("📡 Test connexion Supabase...");
-      const { data: testData, error: testError } = await supabase.from("profiles").select("count").limit(1);
-      console.log("Test Supabase:", { success: !testError, error: testError?.message });
-
-      // 1. Authentification Supabase
-      console.log("🔑 Authentification en cours...");
+      // Authentification Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: credentials.email.trim(),
         password: credentials.password,
       });
 
-      console.log("Auth response:", { 
-        success: !authError, 
-        hasUser: !!authData?.user,
-        error: authError?.message 
-      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Authentification échouée");
 
-      if (authError) {
-        console.error("❌ Erreur auth:", authError);
-        throw authError;
-      }
-      if (!authData.user) {
-        console.error("❌ Pas d'utilisateur retourné");
-        throw new Error("Authentification échouée");
-      }
-
-      console.log("✅ Auth réussie, ID utilisateur:", authData.user.id);
-
-      // 2. Récupérer ou créer le profil
-      console.log("👤 Recherche du profil...");
+      // Récupérer ou créer le profil
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", authData.user.id)
         .maybeSingle();
 
-      console.log("Profil trouvé:", !!profile);
-
       // Si le profil n'existe pas, le créer automatiquement
       if (!profile) {
-        console.log("⚠️ Profil inexistant, création...");
         const { data: newProfile, error: createError } = await supabase
           .from("profiles")
           .insert({
@@ -75,18 +49,12 @@ export const authService = {
           .select()
           .single();
 
-        if (createError) {
-          console.error("❌ Erreur création profil:", createError);
-          throw createError;
-        }
-        console.log("✅ Profil créé");
+        if (createError) throw createError;
         return { user: authData.user, profile: newProfile };
       }
 
-      console.log("✅ Login complet réussi");
       return { user: authData.user, profile };
     } catch (error: any) {
-      console.error("❌ Erreur login complète:", error);
       throw error;
     }
   },

@@ -6,15 +6,9 @@ import type { Database } from "./types";
 const SUPABASE_URL = "https://qfswgjvyxiuumepepuml.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmc3dnanZ5eGl1dW1lcGVwdW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5OTg3MDgsImV4cCI6MjA1MTU3NDcwOH0.Dy9fZ_EUW0IcNqVEX3vPO5W9FbILiEVFJc5lI8kvOOE";
 
-console.log("🔧 Initializing Supabase client...");
-console.log("URL:", SUPABASE_URL);
-console.log("Key présente:", !!SUPABASE_ANON_KEY);
-
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
   },
 });
-
-console.log("✅ Supabase client initialized");
