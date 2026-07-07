@@ -74,8 +74,7 @@ export default function VisitsPage() {
       const { error } = await supabase
         .from("visits")
         .update({ 
-          status: newStatus,
-          agent_notes: note || null
+          status: newStatus
         })
         .eq("id", visitId);
 
@@ -83,7 +82,7 @@ export default function VisitsPage() {
 
       toast({
         title: "Statut mis à jour",
-        description: `Demande de visite ${newStatus === "confirmee" ? "confirmée" : newStatus === "annulee" ? "annulée" : "reportée"}`,
+        description: `Demande de visite ${newStatus === "confirmee" ? "confirmée" : newStatus === "annulee" ? "annulée" : "effectuée"}`,
       });
 
       loadVisits();
@@ -170,9 +169,8 @@ export default function VisitsPage() {
                   <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="en_attente">En attente</SelectItem>
                   <SelectItem value="confirmee">Confirmée</SelectItem>
-                  <SelectItem value="reportee">Reportée</SelectItem>
                   <SelectItem value="annulee">Annulée</SelectItem>
-                  <SelectItem value="realisee">Réalisée</SelectItem>
+                  <SelectItem value="effectuee">Effectuée</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -205,11 +203,11 @@ export default function VisitsPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Réalisées</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Effectuées</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-blue-600">
-                {visits.filter(v => v.status === "realisee").length}
+                {visits.filter(v => v.status === "effectuee").length}
               </p>
             </CardContent>
           </Card>
@@ -250,14 +248,13 @@ export default function VisitsPage() {
                           variant={
                             visit.status === "confirmee" ? "default" : 
                             visit.status === "en_attente" ? "secondary" : 
-                            visit.status === "realisee" ? "outline" : 
+                            visit.status === "effectuee" ? "outline" : 
                             "destructive"
                           }
                         >
                           {visit.status === "en_attente" ? "En attente" :
                            visit.status === "confirmee" ? "Confirmée" :
-                           visit.status === "reportee" ? "Reportée" :
-                           visit.status === "annulee" ? "Annulée" : "Réalisée"}
+                           visit.status === "annulee" ? "Annulée" : "Effectuée"}
                         </Badge>
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
@@ -346,21 +343,10 @@ export default function VisitsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateVisitStatus(visit.id, "realisee")}
+                            onClick={() => updateVisitStatus(visit.id, "effectuee")}
                           >
                             <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Réalisée
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedVisit(visit);
-                              setShowDetailDialog(true);
-                            }}
-                          >
-                            <CalendarX className="w-3 h-3 mr-1" />
-                            Reporter
+                            Effectuée
                           </Button>
                         </>
                       )}
@@ -423,15 +409,6 @@ export default function VisitsPage() {
                   </div>
                 )}
 
-                {selectedVisit.agent_notes && (
-                  <div>
-                    <p className="text-sm font-medium mb-1">Notes de l'agent</p>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <p className="text-sm text-muted-foreground">{selectedVisit.agent_notes}</p>
-                    </div>
-                  </div>
-                )}
-
                 <div className="space-y-2">
                   <Label htmlFor="actionNote">Note (optionnelle)</Label>
                   <Textarea
@@ -455,14 +432,6 @@ export default function VisitsPage() {
                       </Button>
                       <Button
                         className="flex-1"
-                        variant="outline"
-                        onClick={() => updateVisitStatus(selectedVisit.id, "reportee", actionNote)}
-                      >
-                        <CalendarX className="w-4 h-4 mr-2" />
-                        Reporter
-                      </Button>
-                      <Button
-                        className="flex-1"
                         variant="destructive"
                         onClick={() => updateVisitStatus(selectedVisit.id, "annulee", actionNote)}
                       >
@@ -476,30 +445,10 @@ export default function VisitsPage() {
                     <>
                       <Button
                         className="flex-1 bg-blue-600 hover:bg-blue-700"
-                        onClick={() => updateVisitStatus(selectedVisit.id, "realisee", actionNote)}
+                        onClick={() => updateVisitStatus(selectedVisit.id, "effectuee", actionNote)}
                       >
                         <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Marquer réalisée
-                      </Button>
-                      <Button
-                        className="flex-1"
-                        variant="outline"
-                        onClick={() => updateVisitStatus(selectedVisit.id, "reportee", actionNote)}
-                      >
-                        <CalendarX className="w-4 h-4 mr-2" />
-                        Reporter
-                      </Button>
-                    </>
-                  )}
-
-                  {selectedVisit.status === "reportee" && (
-                    <>
-                      <Button
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                        onClick={() => updateVisitStatus(selectedVisit.id, "confirmee", actionNote)}
-                      >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Confirmer
+                        Marquer effectuée
                       </Button>
                       <Button
                         className="flex-1"
