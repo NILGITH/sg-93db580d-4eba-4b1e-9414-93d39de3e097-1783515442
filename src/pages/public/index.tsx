@@ -95,16 +95,12 @@ export default function PublicHomePage() {
           <div className="flex items-center justify-between">
             <Link href="/public" className="flex items-center gap-3 group">
               <motion.img
-                src="/logo-icon.svg"
-                alt="IMMO360"
-                className="w-10 h-10"
-                whileHover={{ rotate: 5, scale: 1.1 }}
+                src="/logo_Amiri.png"
+                alt="AMIRI"
+                className="h-12 w-auto"
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               />
-              <div>
-                <h1 className="text-2xl font-serif font-bold group-hover:text-accent transition-colors">IMMO360</h1>
-                <p className="text-xs text-primary-foreground/80">Votre partenaire immobilier de confiance</p>
-              </div>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -121,7 +117,7 @@ export default function PublicHomePage() {
                 FAQ
               </Link>
               <Link href="/auth/login">
-                <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-primary">
+                <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-primary-foreground">
                   Espace Client
                 </Button>
               </Link>
@@ -454,14 +450,13 @@ export default function PublicHomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logo-icon.svg" alt="IMMO360" className="w-8 h-8" />
-                <span className="font-serif font-bold text-lg">IMMO360</span>
+                <img src="/logo_Amiri.png" alt="AMIRI" className="h-10 w-auto" />
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 Votre partenaire immobilier de confiance
               </p>
               <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} IMMO360. Tous droits réservés.
+                © {new Date().getFullYear()} AMIRI. Tous droits réservés.
               </p>
             </div>
 
@@ -496,7 +491,7 @@ export default function PublicHomePage() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>contact@immo360.com</p>
+                <p>contact@amiri.com</p>
                 <p>+221 XX XXX XX XX</p>
                 <p>Dakar, Sénégal</p>
               </div>
