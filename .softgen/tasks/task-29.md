@@ -1,6 +1,6 @@
 ---
 title: Recherche et Filtres Catalogue Public
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [public, search, filters]
@@ -13,16 +13,16 @@ position: 29
 Améliorer le catalogue public avec recherche et filtres avancés permettant aux visiteurs de trouver rapidement les biens correspondant à leurs critères.
 
 ## Checklist
-- [ ] Barre de recherche par titre, référence, localisation
-- [ ] Filtres par type de transaction (vente/location)
-- [ ] Filtres par type de bien (maison, appartement, terrain, etc.)
-- [ ] Filtres par ville et commune
-- [ ] Filtres par prix (min/max)
-- [ ] Filtres par nombre de pièces
-- [ ] Filtres par surface (min/max)
-- [ ] Affichage nombre de résultats
-- [ ] Bouton réinitialiser les filtres
-- [ ] Interface responsive et intuitive
+- [x] Barre de recherche par titre, référence, localisation
+- [x] Filtres par type de transaction (vente/location)
+- [x] Filtres par type de bien (maison, appartement, terrain, etc.)
+- [x] Filtres par ville et commune
+- [x] Filtres par prix (min/max)
+- [x] Filtres par nombre de pièces
+- [x] Filtres par surface (min/max)
+- [x] Affichage nombre de résultats
+- [x] Bouton réinitialiser les filtres
+- [x] Interface responsive et intuitive
 
 ## Acceptance
 - Les visiteurs peuvent rechercher et filtrer les biens publiés selon plusieurs critères
