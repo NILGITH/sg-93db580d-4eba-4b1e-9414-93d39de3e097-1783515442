@@ -106,14 +106,6 @@ export default function PropertyDetailPage() {
 
       if (error) throw error;
 
-      // Créer une notification pour l'agent
-      await supabase.from("notifications").insert({
-        notification_type: "visite",
-        title: "Nouvelle demande de visite",
-        message: `${visitForm.visitor_name} demande une visite pour ${property.title}`,
-        link: "/visits",
-      });
-
       toast({
         title: "Demande envoyée !",
         description: "Nous vous recontacterons rapidement pour confirmer la visite.",

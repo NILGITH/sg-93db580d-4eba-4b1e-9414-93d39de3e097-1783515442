@@ -63,7 +63,6 @@ export default function AdminPropertiesPublicPage() {
     city: "",
     commune: "",
     quartier: "",
-    gps_coordinates: "",
     rooms: "",
     bathrooms: "",
     surface_area: "",
@@ -150,7 +149,6 @@ export default function AdminPropertiesPublicPage() {
         city: formData.city,
         commune: formData.commune,
         quartier: formData.quartier,
-        gps_coordinates: formData.gps_coordinates || null,
         rooms: parseInt(formData.rooms),
         bathrooms: parseInt(formData.bathrooms) || null,
         surface_area: parseFloat(formData.surface_area),
@@ -242,7 +240,6 @@ export default function AdminPropertiesPublicPage() {
       city: "",
       commune: "",
       quartier: "",
-      gps_coordinates: "",
       rooms: "",
       bathrooms: "",
       surface_area: "",
@@ -270,7 +267,6 @@ export default function AdminPropertiesPublicPage() {
       city: property.city,
       commune: property.commune || "",
       quartier: property.quartier || "",
-      gps_coordinates: "",
       rooms: property.rooms.toString(),
       bathrooms: property.bathrooms?.toString() || "",
       surface_area: property.surface_area.toString(),
@@ -569,7 +565,7 @@ export default function AdminPropertiesPublicPage() {
                   <FileUpload
                     accept="image/*"
                     multiple
-                    onChange={(urls) => setFormData({ ...formData, photos: urls })}
+                    onUploadComplete={(urls) => setFormData({ ...formData, photos: urls })}
                   />
                 </div>
 
