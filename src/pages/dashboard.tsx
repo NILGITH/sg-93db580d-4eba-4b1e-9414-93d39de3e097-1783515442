@@ -1,14 +1,37 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Building2, Home, FileText, TrendingUp, Users, DollarSign, Wrench, Sparkles } from "lucide-react";
+import { Building2, Home, Users, DollarSign, Calendar, FileText, Wrench, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+
+interface DashboardStats {
+  totalProperties?: number;
+  availableProperties?: number;
+  rentedProperties?: number;
+  soldProperties?: number;
+  totalRevenue?: number;
+  monthlyRent?: number;
+  unpaidRent?: number;
+  upcomingVisits?: number;
+  activeBookings?: number;
+  newProspects?: number;
+  activeInterventions?: number;
+  pendingPayments?: number;
+  myProperties?: number;
+  myRentCollected?: number;
+  myInterventions?: number;
+  myMissions?: number;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, profile, loading } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({});
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -16,7 +39,140 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
-  if (loading) {
+  useEffect(() => {
+    if (profile) {
+      loadDashboardStats();
+    }
+  }, [profile]);
+
+  async function loadDashboardStats() {
+    try {
+      setLoadingStats(true);
+      const newStats: DashboardStats = {};
+
+      switch (profile?.role) {
+        case "admin":
+        case "agent":
+        case "secretary":
+          // Stats communes pour le back-office
+          const { count: totalProps } = await supabase
+            .from("properties")
+            .select("*", { count: "exact", head: true });
+          newStats.totalProperties = totalProps || 0;
+
+          const { count: availableProps } = await supabase
+            .from("properties")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "disponible");
+          newStats.availableProperties = availableProps || 0;
+
+          const { count: rentedProps } = await supabase
+            .from("properties")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "loue");
+          newStats.rentedProperties = rentedProps || 0;
+
+          const { count: soldProps } = await supabase
+            .from("properties")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "vendu");
+          newStats.soldProperties = soldProps || 0;
+
+          const { count: upcomingVisits } = await supabase
+            .from("visits")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "confirmee")
+            .gte("visit_date", new Date().toISOString());
+          newStats.upcomingVisits = upcomingVisits || 0;
+
+          const { count: activeBookings } = await supabase
+            .from("bookings")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "confirmee")
+            .gte("end_date", new Date().toISOString().split("T")[0]);
+          newStats.activeBookings = activeBookings || 0;
+
+          const { count: newProspects } = await supabase
+            .from("prospects")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "nouveau");
+          newStats.newProspects = newProspects || 0;
+
+          const { count: activeInterventions } = await supabase
+            .from("interventions")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "en_cours");
+          newStats.activeInterventions = activeInterventions || 0;
+
+          break;
+
+        case "accountant":
+          // Stats financières
+          const { data: payments } = await supabase
+            .from("payments")
+            .select("amount");
+          newStats.totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+          const thisMonth = new Date().toISOString().slice(0, 7);
+          const { data: monthlyPayments } = await supabase
+            .from("payments")
+            .select("amount")
+            .gte("payment_date", `${thisMonth}-01`)
+            .eq("payment_type", "loyer");
+          newStats.monthlyRent = monthlyPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+          const { count: unpaid } = await supabase
+            .from("payments")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "en_attente");
+          newStats.unpaidRent = unpaid || 0;
+
+          break;
+
+        case "owner":
+          // Stats propriétaire
+          const { count: myProps } = await supabase
+            .from("properties")
+            .select("*", { count: "exact", head: true })
+            .eq("owner_id", user?.id);
+          newStats.myProperties = myProps || 0;
+
+          const { data: myPayments } = await supabase
+            .from("payments")
+            .select("amount, properties!inner(owner_id)")
+            .eq("properties.owner_id", user?.id);
+          newStats.myRentCollected = myPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+          const { count: myInterv } = await supabase
+            .from("interventions")
+            .select("*, properties!inner(owner_id)", { count: "exact", head: true })
+            .eq("properties.owner_id", user?.id)
+            .eq("status", "en_cours");
+          newStats.myInterventions = myInterv || 0;
+
+          break;
+
+        case "provider":
+          // Stats prestataire
+          const { count: myMissions } = await supabase
+            .from("interventions")
+            .select("*", { count: "exact", head: true })
+            .eq("provider_id", user?.id)
+            .eq("status", "en_cours");
+          newStats.myMissions = myMissions || 0;
+
+          break;
+      }
+
+      setStats(newStats);
+    } catch (error) {
+      console.error("Erreur chargement stats:", error);
+    } finally {
+      setLoadingStats(false);
+    }
+  }
+
+  if (loading || loadingStats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Chargement...</p>
@@ -28,39 +184,19 @@ export default function DashboardPage() {
     return null;
   }
 
-  const stats = [
-    {
-      title: "Biens actifs",
-      value: "24",
-      icon: Home,
-      change: "+3 ce mois",
-      variant: "default" as const,
-    },
-    {
-      title: "Mandats en cours",
-      value: "18",
-      icon: FileText,
-      change: "+2 cette semaine",
-      variant: "default" as const,
-    },
-    {
-      title: "Revenus du mois",
-      value: "42 850 €",
-      icon: DollarSign,
-      change: "+12% vs mois dernier",
-      variant: "premium" as const,
-    },
-    {
-      title: "Taux d'occupation",
-      value: "94%",
-      icon: TrendingUp,
-      change: "+2% vs mois dernier",
-      variant: "default" as const,
-    },
-  ];
+  // Redirection selon le rôle
+  if (profile.role === "provider") {
+    router.push("/provider/missions");
+    return null;
+  }
+
+  if (profile.role === "owner") {
+    router.push("/owner");
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-background">
       <header className="bg-primary text-primary-foreground shadow-lg">
         <div className="container py-6">
           <div className="flex items-center justify-between">
@@ -68,157 +204,219 @@ export default function DashboardPage() {
               <Building2 className="w-10 h-10 text-accent" />
               <div>
                 <h1 className="text-3xl font-serif font-bold">IMMO360</h1>
-                <p className="text-sm text-primary-foreground/80">Gestion Immobilière</p>
+                <p className="text-sm text-primary-foreground/80">Tableau de bord</p>
               </div>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium">{profile.first_name} {profile.last_name}</p>
               <StatusBadge variant="premium" className="mt-1">
-                {profile.role.replace("_", " ").toUpperCase()}
+                {profile.role === "admin" ? "ADMINISTRATEUR" : 
+                 profile.role === "agent" ? "AGENT IMMOBILIER" :
+                 profile.role === "secretary" ? "SECRÉTAIRE" :
+                 profile.role === "accountant" ? "COMPTABLE" : 
+                 profile.role.toUpperCase()}
               </StatusBadge>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container py-8 space-y-8">
-        <div>
-          <h2 className="text-2xl font-serif font-semibold text-foreground mb-2">
-            Tableau de bord
-          </h2>
-          <p className="text-muted-foreground">
-            Vue d'ensemble de votre activité immobilière
-          </p>
+      <main className="container py-8">
+        {/* Navigation rapide */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+          <Button asChild variant="outline">
+            <Link href="/properties">Biens</Link>
+          </Button>
+          {(profile.role === "admin" || profile.role === "agent" || profile.role === "secretary") && (
+            <>
+              <Button asChild variant="outline">
+                <Link href="/crm">Prospects</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/visits">Visites</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/bookings">Réservations</Link>
+              </Button>
+            </>
+          )}
+          {(profile.role === "admin" || profile.role === "accountant") && (
+            <Button asChild variant="outline">
+              <Link href="/payments">Paiements</Link>
+            </Button>
+          )}
+          {(profile.role === "admin" || profile.role === "agent") && (
+            <Button asChild variant="outline">
+              <Link href="/interventions">Interventions</Link>
+            </Button>
+          )}
+          {profile.role === "admin" && (
+            <Button asChild variant="outline">
+              <Link href="/admin/users">Utilisateurs</Link>
+            </Button>
+          )}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/properties")}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Biens actifs</p>
-                  <p className="text-3xl font-bold tabular-nums mt-2">127</p>
-                </div>
-                <Building2 className="h-12 w-12 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
+        {/* KPI Cards - Admin, Agent, Secrétaire */}
+        {(profile.role === "admin" || profile.role === "agent" || profile.role === "secretary") && (
+          <>
+            <h2 className="text-2xl font-serif font-semibold mb-4">Vue d'ensemble</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Biens</CardTitle>
+                  <Home className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.totalProperties}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.availableProperties} disponibles
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/mandates")}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Mandats en cours</p>
-                  <p className="text-3xl font-bold tabular-nums mt-2">43</p>
-                </div>
-                <FileText className="h-12 w-12 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Biens Loués</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.rentedProperties}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.soldProperties} vendus
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/payments")}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Loyers du mois</p>
-                  <p className="text-3xl font-bold tabular-nums mt-2">45 780 €</p>
-                </div>
-                <DollarSign className="h-12 w-12 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Visites à venir</CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.upcomingVisits}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.activeBookings} réservations actives
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/crm")}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Prospects actifs</p>
-                  <p className="text-3xl font-bold tabular-nums mt-2">28</p>
-                </div>
-                <Users className="h-12 w-12 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Nouveaux Prospects</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.newProspects}</div>
+                  <p className="text-xs text-muted-foreground">
+                    À traiter
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Actions rapides</CardTitle>
-            </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 gap-4">
-              <Button onClick={() => router.push("/properties")} className="h-auto py-6" variant="outline">
-                <div className="flex flex-col items-center gap-2">
-                  <Building2 className="h-6 w-6" />
-                  <span>Nouveau bien</span>
-                </div>
-              </Button>
-              <Button onClick={() => router.push("/mandates")} className="h-auto py-6" variant="outline">
-                <div className="flex flex-col items-center gap-2">
-                  <FileText className="h-6 w-6" />
-                  <span>Nouveau mandat</span>
-                </div>
-              </Button>
-              <Button onClick={() => router.push("/interventions")} className="h-auto py-6" variant="outline">
-                <div className="flex flex-col items-center gap-2">
-                  <Wrench className="h-6 w-6" />
-                  <span>Nouvelle intervention</span>
-                </div>
-              </Button>
-              <Button onClick={() => router.push("/ai-assistant")} className="h-auto py-6 bg-accent/10 border-accent hover:bg-accent/20" variant="outline">
-                <div className="flex flex-col items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-accent" />
-                  <span className="text-accent">Assistant IA</span>
-                </div>
-              </Button>
-            </CardContent>
-          </Card>
+            <div className="grid gap-6 md:grid-cols-2 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wrench className="h-5 w-5" />
+                    Interventions en cours
+                  </CardTitle>
+                  <CardDescription>Travaux et maintenance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.activeInterventions}</div>
+                  <Button asChild variant="link" className="mt-2 px-0">
+                    <Link href="/interventions">Voir tout →</Link>
+                  </Button>
+                </CardContent>
+              </Card>
 
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle className="font-serif">Activité récente</CardTitle>
-              <CardDescription>Dernières opérations sur vos biens</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Home className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">Appartement 3 pièces - Paris 15ème</p>
-                      <p className="text-xs text-muted-foreground">Nouveau mandat de location</p>
-                    </div>
-                    <StatusBadge variant="available">Nouveau</StatusBadge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Actions rapides
+                  </CardTitle>
+                  <CardDescription>Gestion quotidienne</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button asChild className="w-full" variant="outline">
+                    <Link href="/properties/new">+ Nouveau Bien</Link>
+                  </Button>
+                  <Button asChild className="w-full" variant="outline">
+                    <Link href="/crm">Gérer Prospects</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
 
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle className="font-serif">Propriétaires</CardTitle>
-              <CardDescription>Liste de vos mandants actifs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                      <Users className="w-5 h-5 text-accent" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">Martin Dubois</p>
-                      <p className="text-xs text-muted-foreground">3 biens • 2 mandats actifs</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* KPI Cards - Comptable */}
+        {profile.role === "accountant" && (
+          <>
+            <h2 className="text-2xl font-serif font-semibold mb-4">Vue Financière</h2>
+            <div className="grid gap-6 md:grid-cols-3 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Revenus Total</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.totalRevenue?.toLocaleString()} FCFA</div>
+                  <p className="text-xs text-muted-foreground">
+                    Tous paiements confondus
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Loyers du mois</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.monthlyRent?.toLocaleString()} FCFA</div>
+                  <p className="text-xs text-muted-foreground">
+                    Mois en cours
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Impayés</CardTitle>
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.unpaidRent}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Paiements en attente
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions Comptables</CardTitle>
+                <CardDescription>Gestion des paiements et rapports</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/payments">Enregistrer un Paiement</Link>
+                </Button>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/reports">Générer Rapport</Link>
+                </Button>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/payments?filter=unpaid">Gérer Impayés</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </main>
     </div>
   );
