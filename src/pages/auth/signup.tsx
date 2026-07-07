@@ -54,7 +54,7 @@ export default function SignupPage() {
         throw new Error("Erreur lors de la création du compte");
       }
 
-      const { error: profileError } = await supabase.from("users").insert({
+      const { error: profileError } = await supabase.from("profiles").insert({
         id: authData.user.id,
         email: formData.email,
         first_name: formData.firstName,
