@@ -98,13 +98,13 @@ export default function Login() {
         });
       }
 
-      // Redirection selon le rôle (immédiate)
+      // Redirection selon le rôle (vers dashboard simplifié pour debug)
       switch (profile.role) {
         case "admin":
         case "agent":
         case "secretary":
         case "accountant":
-          router.push("/dashboard");
+          router.push("/dashboard-simple");
           break;
         case "provider":
           router.push("/provider/missions");
@@ -113,7 +113,7 @@ export default function Login() {
           router.push("/owner");
           break;
         default:
-          router.push("/dashboard");
+          router.push("/dashboard-simple");
       }
     } catch (error: any) {
       const isNetworkError =
