@@ -62,10 +62,13 @@ export default function PropertyDetailPage() {
   async function loadProperty() {
     try {
       setLoading(true);
+      const propertyId = typeof id === "string" ? id : id?.[0];
+      if (!propertyId) return;
+
       const { data, error } = await supabase
         .from("properties")
         .select("*")
-        .eq("id", id)
+        .eq("id", propertyId)
         .eq("published", true)
         .single();
 
@@ -98,14 +101,14 @@ export default function PropertyDetailPage() {
         visitor_phone: visitForm.visitor_phone,
         preferred_date: new Date(`${visitForm.preferred_date}T${visitForm.preferred_time}`).toISOString(),
         message: visitForm.message,
-        status: "planifiée",
+        status: "en_attente",
       });
 
       if (error) throw error;
 
       // Créer une notification pour l'agent
       await supabase.from("notifications").insert({
-        type: "visit_request",
+        notification_type: "visite",
         title: "Nouvelle demande de visite",
         message: `${visitForm.visitor_name} demande une visite pour ${property.title}`,
         link: "/visits",

@@ -36,7 +36,7 @@ type PropertyStatus = Database["public"]["Enums"]["property_status"];
 
 const PROPERTY_TYPES: PropertyType[] = ["appartement", "maison", "villa", "terrain", "bureau", "commerce", "immeuble", "studio"];
 const TRANSACTION_TYPES: TransactionType[] = ["location", "vente"];
-const PROPERTY_STATUSES: PropertyStatus[] = ["disponible", "loué", "vendu", "en_maintenance"];
+const PROPERTY_STATUSES: PropertyStatus[] = ["disponible", "loue", "vendu", "reserve"];
 
 export default function AdminPropertiesPublicPage() {
   const router = useRouter();
@@ -270,7 +270,7 @@ export default function AdminPropertiesPublicPage() {
       city: property.city,
       commune: property.commune || "",
       quartier: property.quartier || "",
-      gps_coordinates: property.gps_coordinates || "",
+      gps_coordinates: "",
       rooms: property.rooms.toString(),
       bathrooms: property.bathrooms?.toString() || "",
       surface_area: property.surface_area.toString(),
@@ -569,7 +569,6 @@ export default function AdminPropertiesPublicPage() {
                   <FileUpload
                     accept="image/*"
                     multiple
-                    value={formData.photos}
                     onChange={(urls) => setFormData({ ...formData, photos: urls })}
                   />
                 </div>
