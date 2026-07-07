@@ -8,6 +8,24 @@ Les profils ont été pré-créés dans la base de données pour les relations d
 
 ---
 
+## 🎉 DONNÉES DE TEST DISPONIBLES
+
+**✅ 20 biens immobiliers** ont déjà été créés et sont visibles sur le site vitrine `/public` :
+- Locations à Dakar (appartements, villas, studios, bureaux, commerces)
+- Ventes à Dakar (maisons, terrains, appartements neufs, immeubles)
+- Résidences meublées à Saly et Thiès
+- Prix réalistes en FCFA
+- Photos réelles générées
+- Localisation GPS précise
+
+**Une fois les 5 comptes créés**, les données additionnelles seront ajoutées automatiquement :
+- Prospects et demandes de visite
+- Réservations
+- Paiements et contrats
+- Interventions et rapports
+
+---
+
 ## Instructions d'utilisation
 
 Pour chaque compte ci-dessous, **créez le compte via l'interface `/auth/signup`** avec l'email, le mot de passe et le rôle indiqués.
