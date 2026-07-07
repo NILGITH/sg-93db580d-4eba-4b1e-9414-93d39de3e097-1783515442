@@ -1,58 +1,42 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { initKkiapay, openKkiapayWidget, type KkiapayPaymentData, type KkiapayPaymentResult } from "@/lib/kkiapay";
+import { CreditCard } from "lucide-react";
+import { initKkiapay, openKkiapayWidget, type KkiapayPaymentResult } from "@/lib/kkiapay";
 
-interface KkiapayButtonProps {
+export interface KkiapayButtonProps {
   amount: number;
   reason: string;
-  name?: string;
-  phone?: string;
-  email?: string;
   onSuccess: (result: KkiapayPaymentResult) => void;
-  onFailed?: (result: KkiapayPaymentResult) => void;
-  disabled?: boolean;
   children?: React.ReactNode;
+  disabled?: boolean;
   className?: string;
 }
 
-export function KkiapayButton({
-  amount,
-  reason,
-  name,
-  phone,
-  email,
-  onSuccess,
-  onFailed,
-  disabled = false,
+export function KkiapayButton({ 
+  amount, 
+  reason, 
+  onSuccess, 
   children,
-  className,
+  disabled = false,
+  className = "",
 }: KkiapayButtonProps) {
   useEffect(() => {
-    initKkiapay((response) => {
-      if (response.status === "SUCCESS") {
-        onSuccess(response);
-      } else if (response.status === "FAILED" && onFailed) {
-        onFailed(response);
-      }
-    });
-  }, [onSuccess, onFailed]);
+    initKkiapay();
+  }, []);
 
-  function handlePayment() {
-    const paymentData: KkiapayPaymentData = {
+  function handleClick() {
+    openKkiapayWidget({
       amount,
       reason,
-      name,
-      phone,
-      email,
-    };
-
-    openKkiapayWidget(paymentData);
+      callback: onSuccess,
+      theme: "#0F1A2B",
+    });
   }
 
   return (
     <Button
       type="button"
-      onClick={handlePayment}
+      onClick={handleClick}
       disabled={disabled}
       className={className}
     >

@@ -1,6 +1,6 @@
 ---
 title: Resend Email Integration
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [email, resend, notifications, automation]
@@ -20,12 +20,13 @@ Intégrer Resend pour l'envoi automatique d'emails lors d'événements clés (no
 - [x] Template email confirmation réservation
 - [x] Template email rapport disponible
 - [x] API route pour envoi emails
-- [ ] Intégrer dans module Visites
-- [ ] Intégrer dans module Réservations
-- [ ] Intégrer dans module Rapports
-- [ ] Tester envois
+- [x] Intégrer dans module Visites
+- [x] Intégrer dans module Réservations
+- [x] Intégrer dans module Rapports
+- [x] Tester envois
 
 ## Acceptance
 - Emails envoyés automatiquement lors des événements
 - Templates HTML professionnels
+- Pièces jointes (PDF) fonctionnent
 - Logs d'envoi visibles

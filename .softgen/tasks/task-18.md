@@ -1,6 +1,6 @@
 ---
 title: Supabase Storage - Upload Fichiers Direct
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [storage, upload, files, media]
@@ -17,12 +17,12 @@ Remplacer tous les champs URL par de vrais uploads de fichiers via Supabase Stor
 - [x] Créer composant FileUpload réutilisable
 - [x] Créer service storage.ts avec toutes les fonctions
 - [x] Migration SQL avec RLS policies
-- [ ] Mettre à jour module Properties (photos/vidéos)
-- [ ] Mettre à jour module Interventions (photos avant/après)
-- [ ] Mettre à jour module Documents (fichiers)
-- [ ] Mettre à jour module Payments (justificatifs)
-- [ ] Mettre à jour module Contracts (PDF signés)
-- [ ] Mettre à jour module Blog (images de couverture)
+- [x] Mettre à jour module Properties (photos/vidéos)
+- [x] Mettre à jour module Interventions (photos avant/après)
+- [x] Mettre à jour module Documents (fichiers)
+- [x] Mettre à jour module Payments (justificatifs)
+- [x] Mettre à jour module Contracts (PDF signés)
+- [x] Mettre à jour module Blog (images de couverture)
 
 ## Acceptance
 - Utilisateurs peuvent uploader des fichiers réels

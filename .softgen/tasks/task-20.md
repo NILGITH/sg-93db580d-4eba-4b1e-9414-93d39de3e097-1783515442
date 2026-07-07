@@ -1,6 +1,6 @@
 ---
 title: Génération PDF (Rapports, Reçus, Contrats)
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [pdf, reports, receipts, documents]
@@ -18,10 +18,10 @@ Implémenter la génération automatique de PDF pour les rapports de gestion, re
 - [x] Template PDF rapport de gestion
 - [x] Template PDF reçu de paiement
 - [x] Template PDF contrat
-- [ ] Intégrer dans module Reports
-- [ ] Intégrer dans module Payments
-- [ ] Intégrer dans module Contracts
-- [ ] Tester téléchargement PDF
+- [x] Intégrer dans module Reports
+- [x] Intégrer dans module Payments
+- [x] Intégrer dans module Contracts
+- [x] Tester téléchargement PDF
 
 ## Acceptance
 - PDFs générés avec mise en page professionnelle

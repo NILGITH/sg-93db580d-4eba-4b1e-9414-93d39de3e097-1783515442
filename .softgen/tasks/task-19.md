@@ -1,6 +1,6 @@
 ---
 title: Kkiapay Payment Integration (Sandbox)
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [payment, kkiapay, integration, sandbox]
@@ -18,9 +18,9 @@ Intégrer Kkiapay en mode sandbox pour les paiements en ligne (réservations, ac
 - [x] Créer service kkiapay.ts
 - [x] Créer composant KkiapayButton
 - [x] API route pour vérification transactions
-- [ ] Intégrer dans module Réservations (paiement acompte)
-- [ ] Intégrer dans module Paiements (enregistrement loyers)
-- [ ] Tester paiements sandbox
+- [x] Intégrer dans module Réservations (paiement acompte)
+- [x] Intégrer dans module Paiements (enregistrement loyers)
+- [x] Tester paiements sandbox
 
 ## Acceptance
 - Utilisateurs peuvent payer via Kkiapay (Mobile Money, Carte)
