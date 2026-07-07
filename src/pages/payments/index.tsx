@@ -26,8 +26,8 @@ type PaymentType = Database["public"]["Enums"]["payment_type"];
 type PaymentMethod = Database["public"]["Enums"]["payment_method"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
 
-const PAYMENT_TYPES: PaymentType[] = ["loyer", "acompte", "caution", "autre"];
-const PAYMENT_METHODS: PaymentMethod[] = ["especes", "mobile_money", "carte_bancaire", "cheque", "virement"];
+const PAYMENT_TYPES: PaymentType[] = ["loyer", "acompte", "reservation", "caution", "frais"];
+const PAYMENT_METHODS: PaymentMethod[] = ["especes", "mobile_money", "carte", "cheque", "virement"];
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function PaymentsPage() {
     payment_method: "especes",
     amount: 0,
     payment_date: new Date().toISOString().split("T")[0],
-    notes: "",
+    description: "",
     receipt_url: "",
     is_validated: false,
   });
@@ -116,7 +116,7 @@ export default function PaymentsPage() {
         payment_method: formData.payment_method as PaymentMethod,
         amount: formData.amount,
         payment_date: formData.payment_date,
-        notes: formData.notes,
+        description: formData.description,
         receipt_url: formData.receipt_url,
         is_validated: false,
       });
@@ -137,7 +137,7 @@ export default function PaymentsPage() {
         payment_method: "especes",
         amount: 0,
         payment_date: new Date().toISOString().split("T")[0],
-        notes: "",
+        description: "",
         receipt_url: "",
         is_validated: false,
       });
@@ -556,12 +556,12 @@ export default function PaymentsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optionnelles)</Label>
+                <Label htmlFor="description">Notes (optionnelles)</Label>
                 <Textarea
-                  id="notes"
+                  id="description"
                   placeholder="Informations complémentaires..."
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
                 />
               </div>
@@ -639,11 +639,11 @@ export default function PaymentsPage() {
                   </div>
                 </div>
 
-                {selectedPayment.notes && (
+                {selectedPayment.description && (
                   <div>
                     <p className="text-sm font-medium mb-1">Notes</p>
                     <div className="bg-muted/50 p-3 rounded-lg">
-                      <p className="text-sm text-muted-foreground">{selectedPayment.notes}</p>
+                      <p className="text-sm text-muted-foreground">{selectedPayment.description}</p>
                     </div>
                   </div>
                 )}
