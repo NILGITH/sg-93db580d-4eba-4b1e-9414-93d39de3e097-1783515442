@@ -563,6 +563,7 @@ export default function AdminPropertiesPublicPage() {
                 <div className="space-y-2">
                   <Label>Photos</Label>
                   <FileUpload
+                    bucket="properties"
                     accept="image/*"
                     multiple
                     onUploadComplete={(urls) => setFormData({ ...formData, photos: urls })}
