@@ -19,12 +19,11 @@ type Document = Database["public"]["Tables"]["documents"]["Row"];
 type DocumentWithProperty = Document & {
   properties?: { reference: string; title: string } | null;
 };
-type DocumentType = Database["public"]["Enums"]["document_type"];
 type DocumentInsert = Database["public"]["Tables"]["documents"]["Insert"];
 
-const DOCUMENT_TYPES: DocumentType[] = ["contrat", "facture", "recu", "photo", "video", "plan", "administratif", "autre"];
+const DOCUMENT_TYPES = ["contrat", "facture", "recu", "photo", "video", "plan", "administratif", "autre"];
 
-const DOCUMENT_ICONS: Record<DocumentType, any> = {
+const DOCUMENT_ICONS: Record<string, any> = {
   contrat: FileText,
   facture: FileText,
   recu: FileText,
@@ -45,14 +44,13 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<DocumentType | "all">("all");
+  const [filterType, setFilterType] = useState<string>("all");
   const [filterProperty, setFilterProperty] = useState<string>("all");
 
   const [formData, setFormData] = useState<Partial<DocumentInsert>>({
     property_id: "",
-    document_type: "contrat",
-    title: "",
-    description: "",
+    type: "contrat",
+    name: "",
     file_url: "",
   });
 
@@ -101,11 +99,9 @@ export default function DocumentsPage() {
     try {
       const { error } = await supabase.from("documents").insert({
         property_id: formData.property_id,
-        document_type: formData.document_type as DocumentType,
-        title: formData.title,
-        description: formData.description,
+        type: formData.type || "contrat",
+        name: formData.name,
         file_url: formData.file_url,
-        uploaded_at: new Date().toISOString(),
       });
 
       if (error) throw error;
@@ -118,9 +114,8 @@ export default function DocumentsPage() {
       setShowCreateDialog(false);
       setFormData({
         property_id: "",
-        document_type: "contrat",
-        title: "",
-        description: "",
+        type: "contrat",
+        name: "",
         file_url: "",
       });
       loadData();
@@ -157,11 +152,11 @@ export default function DocumentsPage() {
   }
 
   const filteredDocuments = documents.filter((doc) => {
-    const matchesType = filterType === "all" || doc.document_type === filterType;
+    const matchesType = filterType === "all" || doc.type === filterType;
     const matchesProperty = filterProperty === "all" || doc.property_id === filterProperty;
     const matchesSearch =
       !searchQuery ||
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.properties?.reference.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesType && matchesProperty && matchesSearch;
@@ -170,9 +165,9 @@ export default function DocumentsPage() {
   // Statistiques
   const totalDocuments = documents.length;
   const documentsByType = DOCUMENT_TYPES.reduce((acc, type) => {
-    acc[type] = documents.filter((d) => d.document_type === type).length;
+    acc[type] = documents.filter((d) => d.type === type).length;
     return acc;
-  }, {} as Record<DocumentType, number>);
+  }, {} as Record<string, number>);
 
   if (authLoading || !user || !profile) {
     return (
@@ -262,7 +257,7 @@ export default function DocumentsPage() {
                 </div>
               </div>
 
-              <Select value={filterType} onValueChange={(value) => setFilterType(value as DocumentType | "all")}>
+              <Select value={filterType} onValueChange={(value) => setFilterType(value as string)}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
@@ -308,7 +303,7 @@ export default function DocumentsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDocuments.map((doc) => {
-              const Icon = DOCUMENT_ICONS[doc.document_type];
+              const Icon = DOCUMENT_ICONS[doc.type] || File;
               return (
                 <Card key={doc.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
@@ -318,25 +313,21 @@ export default function DocumentsPage() {
                           <Icon className="w-5 h-5 text-accent" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base truncate">{doc.title}</CardTitle>
+                          <CardTitle className="text-base truncate">{doc.name}</CardTitle>
                           <CardDescription className="text-xs mt-1">
                             {doc.properties?.reference}
                           </CardDescription>
                         </div>
                       </div>
                       <Badge variant="secondary" className="capitalize text-xs">
-                        {doc.document_type}
+                        {doc.type}
                       </Badge>
                     </div>
                   </CardHeader>
 
                   <CardContent className="space-y-3">
-                    {doc.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">{doc.description}</p>
-                    )}
-
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>Ajouté le {new Date(doc.uploaded_at || "").toLocaleDateString("fr-FR")}</span>
+                      <span>Ajouté le {new Date(doc.created_at || "").toLocaleDateString("fr-FR")}</span>
                     </div>
 
                     <div className="flex gap-2 pt-2">
@@ -395,10 +386,10 @@ export default function DocumentsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="document_type">Type de document *</Label>
+                  <Label htmlFor="type">Type de document *</Label>
                   <Select
-                    value={formData.document_type}
-                    onValueChange={(value) => setFormData({ ...formData, document_type: value as DocumentType })}
+                    value={formData.type}
+                    onValueChange={(value) => setFormData({ ...formData, type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -415,24 +406,13 @@ export default function DocumentsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title">Titre *</Label>
+                <Label htmlFor="name">Nom du document *</Label>
                 <Input
-                  id="title"
+                  id="name"
                   required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: Contrat de bail - Janvier 2026"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (optionnelle)</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Détails supplémentaires..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={2}
                 />
               </div>
 
