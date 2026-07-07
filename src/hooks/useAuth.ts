@@ -3,18 +3,18 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type UserProfile = Database["public"]["Tables"]["users"]["Row"];
 
 export interface AuthUser {
   user: User | null;
-  profile: Profile | null;
+  profile: UserProfile | null;
   loading: boolean;
   error: string | null;
 }
 
 export function useAuth(): AuthUser {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +32,7 @@ export function useAuth(): AuthUser {
 
         if (currentUser) {
           const { data: profileData, error: profileError } = await supabase
-            .from("profiles")
+            .from("users")
             .select("*")
             .eq("id", currentUser.id)
             .single();
@@ -59,7 +59,7 @@ export function useAuth(): AuthUser {
         setUser(session.user);
         
         const { data: profileData } = await supabase
-          .from("profiles")
+          .from("users")
           .select("*")
           .eq("id", session.user.id)
           .single();
