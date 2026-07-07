@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
 import { initKkiapay, openKkiapayWidget, type KkiapayPaymentData, type KkiapayPaymentResult } from "@/lib/kkiapay";
 
 interface KkiapayButtonProps {
@@ -13,6 +12,7 @@ interface KkiapayButtonProps {
   onFailed?: (result: KkiapayPaymentResult) => void;
   disabled?: boolean;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export function KkiapayButton({
@@ -25,6 +25,7 @@ export function KkiapayButton({
   onFailed,
   disabled = false,
   children,
+  className,
 }: KkiapayButtonProps) {
   useEffect(() => {
     initKkiapay((response) => {
@@ -53,7 +54,7 @@ export function KkiapayButton({
       type="button"
       onClick={handlePayment}
       disabled={disabled}
-      className="bg-accent hover:bg-accent/90"
+      className={className}
     >
       <CreditCard className="w-4 h-4 mr-2" />
       {children || `Payer ${amount.toLocaleString()} FCFA`}

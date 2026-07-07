@@ -4,173 +4,105 @@ import { supabase } from "@/integrations/supabase/client";
  * Service pour gérer les uploads de fichiers vers Supabase Storage
  */
 
-// Buckets disponibles
-export const STORAGE_BUCKETS = {
-  PROPERTIES: "properties",
-  DOCUMENTS: "documents",
-  INTERVENTIONS: "interventions",
-  PAYMENTS: "payments",
-  CONTRACTS: "contracts",
-  BLOG: "blog",
-} as const;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-/**
- * Upload un fichier vers un bucket Supabase Storage
- */
-export async function uploadFile(
-  file: File,
-  bucket: string,
-  folder?: string
-): Promise<{ url: string; path: string } | null> {
+export async function uploadFile(bucket: string, file: File): Promise<string> {
+  // Validation de la taille
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`Le fichier est trop volumineux. Taille maximale : ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+  }
+
+  // Générer un nom de fichier unique
+  const timestamp = Date.now();
+  const randomStr = Math.random().toString(36).substring(7);
+  const extension = file.name.split(".").pop();
+  const fileName = `${timestamp}-${randomStr}.${extension}`;
+  const filePath = `${fileName}`;
+
+  // Upload vers Supabase Storage
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Upload error:", error);
+    throw new Error(`Échec de l'upload : ${error.message}`);
+  }
+
+  // Obtenir l'URL publique
+  const { data: urlData } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(filePath);
+
+  return urlData.publicUrl;
+}
+
+export async function deleteFile(url: string): Promise<void> {
   try {
-    // Générer un nom de fichier unique
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split(".").pop();
-    const fileName = `${timestamp}-${randomString}.${extension}`;
-    const filePath = folder ? `${folder}/${fileName}` : fileName;
+    const pathInfo = extractPathFromUrl(url);
+    if (!pathInfo) {
+      throw new Error("URL invalide");
+    }
 
-    // Upload le fichier
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
+      .from(pathInfo.bucket)
+      .remove([pathInfo.path]);
+
+    if (error) {
+      console.error("Delete error:", error);
+      throw new Error(`Échec de la suppression : ${error.message}`);
+    }
+  } catch (error) {
+    console.error("Error deleting file:", error);
+    throw error;
+  }
+}
+
+export async function listFiles(bucket: string, folder?: string): Promise<string[]> {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .list(folder);
+
+  if (error) {
+    throw new Error(`Échec de la liste des fichiers : ${error.message}`);
+  }
+
+  return data.map((file) => {
+    const { data: urlData } = supabase.storage
       .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
+      .getPublicUrl(folder ? `${folder}/${file.name}` : file.name);
+    return urlData.publicUrl;
+  });
+}
 
-    if (error) {
-      console.error("Erreur upload fichier:", error);
-      return null;
+export function validateFileType(file: File, acceptedTypes: string[]): boolean {
+  const fileType = file.type;
+  const fileExtension = `.${file.name.split(".").pop()?.toLowerCase()}`;
+
+  return acceptedTypes.some((type) => {
+    if (type === "*") return true;
+    if (type.startsWith(".")) return fileExtension === type;
+    if (type.endsWith("/*")) {
+      const category = type.split("/")[0];
+      return fileType.startsWith(category);
     }
-
-    // Obtenir l'URL publique
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(bucket).getPublicUrl(data.path);
-
-    return {
-      url: publicUrl,
-      path: data.path,
-    };
-  } catch (error) {
-    console.error("Erreur upload fichier:", error);
-    return null;
-  }
+    return fileType === type;
+  });
 }
 
-/**
- * Upload plusieurs fichiers
- */
-export async function uploadMultipleFiles(
-  files: File[],
-  bucket: string,
-  folder?: string
-): Promise<Array<{ url: string; path: string }>> {
-  const uploadPromises = files.map((file) => uploadFile(file, bucket, folder));
-  const results = await Promise.all(uploadPromises);
-  return results.filter((result) => result !== null) as Array<{
-    url: string;
-    path: string;
-  }>;
-}
-
-/**
- * Supprime un fichier du storage
- */
-export async function deleteFile(
-  bucket: string,
-  filePath: string
-): Promise<boolean> {
-  try {
-    const { error } = await supabase.storage.from(bucket).remove([filePath]);
-
-    if (error) {
-      console.error("Erreur suppression fichier:", error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Erreur suppression fichier:", error);
-    return false;
-  }
-}
-
-/**
- * Supprime plusieurs fichiers
- */
-export async function deleteMultipleFiles(
-  bucket: string,
-  filePaths: string[]
-): Promise<boolean> {
-  try {
-    const { error } = await supabase.storage.from(bucket).remove(filePaths);
-
-    if (error) {
-      console.error("Erreur suppression fichiers:", error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Erreur suppression fichiers:", error);
-    return false;
-  }
-}
-
-/**
- * Obtient l'URL publique d'un fichier
- */
-export function getPublicUrl(bucket: string, filePath: string): string {
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return publicUrl;
-}
-
-/**
- * Valide le type et la taille d'un fichier
- */
-export function validateFile(
-  file: File,
-  options: {
-    maxSizeMB?: number;
-    allowedTypes?: string[];
-  } = {}
-): { valid: boolean; error?: string } {
-  const { maxSizeMB = 10, allowedTypes = [] } = options;
-
-  // Vérifier la taille
-  const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  if (file.size > maxSizeBytes) {
-    return {
-      valid: false,
-      error: `Le fichier est trop volumineux. Taille maximum : ${maxSizeMB}MB`,
-    };
-  }
-
-  // Vérifier le type
-  if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-    return {
-      valid: false,
-      error: `Type de fichier non autorisé. Types acceptés : ${allowedTypes.join(", ")}`,
-    };
-  }
-
-  return { valid: true };
-}
-
-/**
- * Extrait le path d'une URL Supabase Storage
- */
-export function extractPathFromUrl(url: string): string | null {
+function extractPathFromUrl(url: string): { bucket: string; path: string } | null {
   try {
     const urlObj = new URL(url);
     const pathParts = urlObj.pathname.split("/");
-    // Format: /storage/v1/object/public/{bucket}/{path}
-    const bucketIndex = pathParts.indexOf("public");
+    const bucketIndex = pathParts.findIndex((part) => part === "object" && pathParts[pathParts.indexOf(part) + 1] === "public");
+    
     if (bucketIndex !== -1 && pathParts.length > bucketIndex + 2) {
-      return pathParts.slice(bucketIndex + 2).join("/");
+      const bucket = pathParts[bucketIndex + 2];
+      const path = pathParts.slice(bucketIndex + 3).join("/");
+      return { bucket, path };
     }
     return null;
   } catch {

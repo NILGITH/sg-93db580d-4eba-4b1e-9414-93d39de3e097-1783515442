@@ -416,7 +416,6 @@ export default function AdminBlogPage() {
                 <FileUpload
                   bucket="blog"
                   accept="image/*"
-                  maxFiles={1}
                   onUploadComplete={(urls) => setUploadedImage(urls[0])}
                   existingFiles={uploadedImage ? [uploadedImage] : editingPost?.cover_image_url ? [editingPost.cover_image_url] : []}
                 />

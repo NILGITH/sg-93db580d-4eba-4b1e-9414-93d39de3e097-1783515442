@@ -425,7 +425,6 @@ export default function DocumentsPage() {
                 <FileUpload
                   bucket="documents"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  maxFiles={1}
                   onUploadComplete={(urls) => setUploadedFile(urls[0])}
                   existingFiles={uploadedFile ? [uploadedFile] : []}
                 />

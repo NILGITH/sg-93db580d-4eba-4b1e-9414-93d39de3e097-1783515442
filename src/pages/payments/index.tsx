@@ -16,6 +16,7 @@ import { Building2, DollarSign, Plus, Search, Calendar, CheckCircle2, XCircle, R
 import type { Database } from "@/integrations/supabase/types";
 import { FileUpload } from "@/components/FileUpload";
 import { KkiapayButton } from "@/components/KkiapayButton";
+import { type KkiapayPaymentResult } from "@/lib/kkiapay";
 import { Separator } from "@/components/ui/separator";
 
 type Payment = Database["public"]["Tables"]["payments"]["Row"];
