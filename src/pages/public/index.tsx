@@ -19,24 +19,11 @@ import {
   Star
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/database.types";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
-interface Property {
-  id: string;
-  reference: string;
-  type: string;
-  status: string;
-  transaction_type: string;
-  title: string;
-  description: string;
-  price: number;
-  address: string;
-  city: string;
-  rooms: number;
-  surface: number;
-  photos: string[];
-}
+type Property = Database["public"]["Tables"]["properties"]["Row"];
 
 export default function PublicHome() {
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
