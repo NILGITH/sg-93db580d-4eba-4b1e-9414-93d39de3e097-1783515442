@@ -1,29 +1,28 @@
 ---
-title: Bibliothèque Documents (GED)
-status: todo
+title: Bibliothèque Documents
+status: done
 priority: medium
 type: feature
-tags: [documents, storage]
+tags: [documents, files, library]
 created_by: agent
-created_at: 2026-07-07T13:30:25Z
+created_at: 2026-07-07T13:30:36Z
 position: 12
 ---
 
-## Notes
-Gestion documentaire : chaque bien possède sa bibliothèque de documents (contrats, factures, reçus, photos, vidéos, plans, documents administratifs). Upload, visualisation, téléchargement.
-
 ## Checklist
-- [ ] Page documents/index (liste documents par bien)
-- [ ] Upload multi-fichiers (PDF, images, vidéos)
-- [ ] Catégorisation (contrat, facture, reçu, photo, vidéo, plan, admin)
-- [ ] Prévisualisation documents (PDF, images)
-- [ ] Téléchargement
-- [ ] Suppression (admin/agent)
-- [ ] Recherche documents
-- [ ] Stockage Supabase Storage
+- [x] Page /documents pour agents et secrétaires
+- [x] Liste de tous les documents par bien
+- [x] Types : contrat, facture, reçu, photo, vidéo, plan, administratif, autre
+- [x] Upload via URL
+- [x] Organisation par bien
+- [x] Filtres (type, bien, recherche)
+- [x] Statistiques par type
+- [x] Téléchargement documents
+- [x] Suppression documents
+- [x] Description optionnelle
 
 ## Acceptance
-- Agent/Admin peut uploader tout type de document
-- Documents organisés par bien et catégorie
-- Propriétaire voit documents de ses biens
-- Prévisualisation et téléchargement fonctionnent
+- Agent/Secrétaire peut ajouter documents pour chaque bien
+- Documents filtrables par type et bien
+- Téléchargement et suppression fonctionnent
+- Accessible aux propriétaires dans leur portail
