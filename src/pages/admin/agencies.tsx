@@ -21,8 +21,8 @@ type Agency = {
 };
 
 export default function AdminAgencies() {
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { profile, loading } = useAuth();
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [filteredAgencies, setFilteredAgencies] = useState<Agency[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,16 +35,16 @@ export default function AdminAgencies() {
   });
 
   useEffect(() => {
-    if (!loading && (!profile || profile.role !== "super_admin")) {
-      router.push("/dashboard");
+    if (!authLoading) {
+      if (!user) {
+        router.push("/auth/login");
+      } else if (profile && profile.role !== "admin") {
+        router.push("/dashboard");
+      } else {
+        loadAgencies();
+      }
     }
-  }, [profile, loading, router]);
-
-  useEffect(() => {
-    if (profile?.role === "super_admin") {
-      loadAgencies();
-    }
-  }, [profile]);
+  }, [user, profile, authLoading, router]);
 
   useEffect(() => {
     const filtered = agencies.filter(agency =>
@@ -93,8 +93,16 @@ export default function AdminAgencies() {
     }
   }
 
-  if (loading || !profile || profile.role !== "super_admin") {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "admin") {
+    return null;
   }
 
   return (

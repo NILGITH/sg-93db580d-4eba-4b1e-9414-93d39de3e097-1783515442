@@ -8,17 +8,17 @@ import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 
 export default function AdminSettings() {
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { profile, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && (!profile || profile.role !== "super_admin")) {
+    if (!authLoading && (!user || (profile && profile.role !== "admin"))) {
       router.push("/dashboard");
     }
-  }, [profile, loading, router]);
+  }, [user, profile, authLoading, router]);
 
-  if (loading || !profile || profile.role !== "super_admin") {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+  if (authLoading || !profile || profile.role !== "admin") {
+    return null;
   }
 
   return (

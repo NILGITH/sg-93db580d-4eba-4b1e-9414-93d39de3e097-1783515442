@@ -22,24 +22,24 @@ type UserProfile = {
 };
 
 export default function AdminUsers() {
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { profile, loading } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
   useEffect(() => {
-    if (!loading && (!profile || profile.role !== "super_admin")) {
-      router.push("/dashboard");
+    if (!authLoading) {
+      if (!user) {
+        router.push("/auth/login");
+      } else if (profile && profile.role !== "admin") {
+        router.push("/dashboard");
+      } else {
+        loadUsers();
+      }
     }
-  }, [profile, loading, router]);
-
-  useEffect(() => {
-    if (profile?.role === "super_admin") {
-      loadUsers();
-    }
-  }, [profile]);
+  }, [user, profile, authLoading, router]);
 
   useEffect(() => {
     let filtered = users;
@@ -70,8 +70,16 @@ export default function AdminUsers() {
     }
   }
 
-  if (loading || !profile || profile.role !== "super_admin") {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "admin") {
+    return null;
   }
 
   return (

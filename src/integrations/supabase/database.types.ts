@@ -1085,11 +1085,10 @@ export type Database = {
         | "commerce"
         | "bureau"
       user_role:
-        | "super_admin"
-        | "admin_agence"
-        | "comptable"
+        | "admin"
+        | "secretary"
         | "commercial"
-        | "secretaire"
+        | "accountant"
         | "proprietaire"
     }
     CompositeTypes: {
@@ -1238,11 +1237,10 @@ export const Constants = {
         "bureau",
       ],
       user_role: [
-        "super_admin",
-        "admin_agence",
-        "comptable",
+        "admin",
+        "secretary",
         "commercial",
-        "secretaire",
+        "accountant",
         "proprietaire",
       ],
     },

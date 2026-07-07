@@ -8,8 +8,31 @@ import { Building2, Users, Home, DollarSign, Activity } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminDashboard() {
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push("/auth/login");
+      } else if (profile && profile.role !== "admin") {
+        router.push("/dashboard");
+      }
+    }
+  }, [user, profile, authLoading, router]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "admin") {
+    return null;
+  }
+
   const [stats, setStats] = useState({
     agencies: 0,
     users: 0,
@@ -19,16 +42,8 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!loading && (!profile || profile.role !== "super_admin")) {
-      router.push("/dashboard");
-    }
-  }, [profile, loading, router]);
-
-  useEffect(() => {
-    if (profile?.role === "super_admin") {
-      loadStats();
-    }
-  }, [profile]);
+    loadStats();
+  }, []);
 
   async function loadStats() {
     try {
@@ -52,10 +67,6 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error loading stats:", error);
     }
-  }
-
-  if (loading || !profile || profile.role !== "super_admin") {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
   }
 
   return (
