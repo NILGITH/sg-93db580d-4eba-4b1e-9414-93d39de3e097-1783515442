@@ -88,7 +88,7 @@ export default function PropertyDetailPage() {
         email: contactForm.email,
         phone: contactForm.phone,
         property_id: property?.id,
-        request_type: "information",
+        demand_type: "information",
         message: contactForm.message,
         status: "nouveau",
       });
@@ -123,7 +123,7 @@ export default function PropertyDetailPage() {
           email: visitForm.email,
           phone: visitForm.phone,
           property_id: property?.id,
-          request_type: "visite",
+          demand_type: "visite",
           status: "nouveau",
         })
         .select()
@@ -135,9 +135,12 @@ export default function PropertyDetailPage() {
       const { error: visitError } = await supabase.from("visits").insert({
         property_id: property?.id,
         prospect_id: prospectData.id,
-        visit_date: `${visitForm.visitDate}T${visitForm.visitTime}:00`,
+        preferred_date: `${visitForm.visitDate}T${visitForm.visitTime}:00`,
+        visitor_name: `${visitForm.firstName} ${visitForm.lastName}`,
+        visitor_email: visitForm.email,
+        visitor_phone: visitForm.phone,
         status: "en_attente",
-        notes: visitForm.message,
+        message: visitForm.message,
       });
 
       if (visitError) throw visitError;
@@ -159,14 +162,16 @@ export default function PropertyDetailPage() {
   }
 
   function nextPhoto() {
-    if (property?.photos && property.photos.length > 0) {
-      setCurrentPhotoIndex((prev) => (prev + 1) % property.photos.length);
+    const photos = property?.photos as string[] | null;
+    if (photos && photos.length > 0) {
+      setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
     }
   }
 
   function prevPhoto() {
-    if (property?.photos && property.photos.length > 0) {
-      setCurrentPhotoIndex((prev) => (prev - 1 + property.photos.length) % property.photos.length);
+    const photos = property?.photos as string[] | null;
+    if (photos && photos.length > 0) {
+      setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
     }
   }
 
@@ -243,17 +248,17 @@ export default function PropertyDetailPage() {
           {/* Galerie et détails */}
           <div className="lg:col-span-2 space-y-6">
             {/* Galerie photos */}
-            {property.photos && property.photos.length > 0 && (
+            {property.photos && Array.isArray(property.photos) && property.photos.length > 0 && (
               <Card>
                 <CardContent className="p-0">
                   <div className="relative aspect-video bg-muted overflow-hidden rounded-t-lg">
                     <img
-                      src={property.photos[currentPhotoIndex]}
+                      src={(property.photos as string[])[currentPhotoIndex]}
                       alt={`${property.title} - Photo ${currentPhotoIndex + 1}`}
                       className="w-full h-full object-cover"
                     />
                     
-                    {property.photos.length > 1 && (
+                    {(property.photos as string[]).length > 1 && (
                       <>
                         <Button
                           variant="outline"
@@ -273,15 +278,15 @@ export default function PropertyDetailPage() {
                         </Button>
 
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                          {currentPhotoIndex + 1} / {property.photos.length}
+                          {currentPhotoIndex + 1} / {(property.photos as string[]).length}
                         </div>
                       </>
                     )}
                   </div>
 
-                  {property.photos.length > 1 && (
+                  {(property.photos as string[]).length > 1 && (
                     <div className="flex gap-2 p-4 overflow-x-auto">
-                      {property.photos.map((photo, index) => (
+                      {(property.photos as string[]).map((photo, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentPhotoIndex(index)}
@@ -299,7 +304,7 @@ export default function PropertyDetailPage() {
             )}
 
             {/* Vidéos */}
-            {property.videos && property.videos.length > 0 && (
+            {property.videos && Array.isArray(property.videos) && property.videos.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -308,7 +313,7 @@ export default function PropertyDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {property.videos.map((video, index) => (
+                  {(property.videos as string[]).map((video, index) => (
                     <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
                       <iframe
                         src={video}
@@ -335,14 +340,14 @@ export default function PropertyDetailPage() {
             </Card>
 
             {/* Équipements */}
-            {property.equipments && property.equipments.length > 0 && (
+            {property.equipments && Array.isArray(property.equipments) && property.equipments.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Équipements</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {property.equipments.map((equipment, index) => (
+                    {(property.equipments as string[]).map((equipment, index) => (
                       <Badge key={index} variant="secondary">
                         {equipment}
                       </Badge>

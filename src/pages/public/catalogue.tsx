@@ -12,8 +12,10 @@ import { Building2, Search, MapPin, Home, DollarSign, Filter, SlidersHorizontal 
 import type { Database } from "@/integrations/supabase/types";
 
 type Property = Database["public"]["Tables"]["properties"]["Row"];
+type TransactionType = Database["public"]["Enums"]["transaction_type"];
+type PropertyType = Database["public"]["Enums"]["property_type"];
 
-const PROPERTY_TYPES = ["appartement", "maison", "villa", "terrain", "bureau", "commerce", "immeuble", "studio"];
+const PROPERTY_TYPES: PropertyType[] = ["appartement", "maison", "villa", "terrain", "bureau", "commerce", "immeuble", "studio"];
 
 export default function PublicCataloguePage() {
   const router = useRouter();
@@ -22,8 +24,16 @@ export default function PublicCataloguePage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // Filtres
-  const [filters, setFilters] = useState({
-    transaction_type: (router.query.transaction_type as string) || "all",
+  const [filters, setFilters] = useState<{
+    transaction_type: TransactionType | "all";
+    property_type: PropertyType | "all";
+    city: string;
+    min_price: string;
+    max_price: string;
+    min_rooms: string;
+    min_surface: string;
+  }>({
+    transaction_type: (router.query.transaction_type as TransactionType) || "all",
     property_type: "all",
     city: (router.query.query as string) || "",
     min_price: "",
@@ -48,10 +58,10 @@ export default function PublicCataloguePage() {
         .order("created_at", { ascending: false });
 
       if (filters.transaction_type !== "all") {
-        query = query.eq("transaction_type", filters.transaction_type);
+        query = query.eq("transaction_type", filters.transaction_type as TransactionType);
       }
       if (filters.property_type !== "all") {
-        query = query.eq("property_type", filters.property_type);
+        query = query.eq("property_type", filters.property_type as PropertyType);
       }
       if (filters.city) {
         query = query.or(`city.ilike.%${filters.city}%,quartier.ilike.%${filters.city}%,commune.ilike.%${filters.city}%`);
@@ -277,7 +287,7 @@ export default function PublicCataloguePage() {
               <Link key={property.id} href={`/public/properties/${property.id}`}>
                 <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden h-full">
                   <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                    {property.photos && property.photos.length > 0 ? (
+                    {property.photos && Array.isArray(property.photos) && property.photos.length > 0 ? (
                       <img
                         src={property.photos[0]}
                         alt={property.title}
