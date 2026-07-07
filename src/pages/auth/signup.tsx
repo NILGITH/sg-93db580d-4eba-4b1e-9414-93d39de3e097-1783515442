@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,13 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Mail, Lock, User, Phone } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
 
-type UserRole = Database["public"]["Enums"]["user_role"];
+type UserRole = "admin" | "secretary" | "commercial" | "accountant" | "proprietaire";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [agencies, setAgencies] = useState<Array<{ id: string; name: string }>>([]);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,36 +21,11 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     phone: "",
-    agencyId: "",
-    role: "admin_agence" as UserRole,
+    role: "commercial" as UserRole,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    loadAgencies();
-  }, []);
-
-  async function loadAgencies() {
-    try {
-      const { data, error } = await supabase
-        .from("agencies")
-        .select("id, name")
-        .eq("is_active", true)
-        .order("name");
-
-      if (error) {
-        console.error("Error loading agencies:", error);
-        return;
-      }
-
-      console.log("Agencies loaded:", data);
-      setAgencies(data || []);
-    } catch (error) {
-      console.error("Failed to load agencies:", error);
-    }
-  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -61,12 +34,6 @@ export default function SignupPage() {
 
     if (formData.password !== formData.confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.agencyId) {
-      setError("Veuillez sélectionner une agence");
       setLoading(false);
       return;
     }
@@ -80,7 +47,6 @@ export default function SignupPage() {
             first_name: formData.firstName,
             last_name: formData.lastName,
             phone: formData.phone,
-            agency_id: formData.agencyId,
             role: formData.role,
           },
         },
@@ -170,7 +136,7 @@ export default function SignupPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="vous@agence.fr"
+                  placeholder="vous@immo360.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="pl-10"
@@ -195,31 +161,6 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="agency">Agence</Label>
-              <Select
-                value={formData.agencyId}
-                onValueChange={(value) => setFormData({ ...formData, agencyId: value })}
-              >
-                <SelectTrigger id="agency">
-                  <SelectValue placeholder="Sélectionnez une agence" />
-                </SelectTrigger>
-                <SelectContent>
-                  {agencies.length === 0 ? (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      Aucune agence disponible
-                    </div>
-                  ) : (
-                    agencies.map((agency) => (
-                      <SelectItem key={agency.id} value={agency.id}>
-                        {agency.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="role">Rôle</Label>
               <Select
                 value={formData.role}
@@ -229,8 +170,7 @@ export default function SignupPage() {
                   <SelectValue placeholder="Sélectionnez un rôle" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="super_admin">Super Admin (Administrateur Plateforme)</SelectItem>
-                  <SelectItem value="admin_agency">Gérant d'Agence</SelectItem>
+                  <SelectItem value="admin">Administrateur</SelectItem>
                   <SelectItem value="secretary">Secrétaire</SelectItem>
                   <SelectItem value="commercial">Commercial</SelectItem>
                   <SelectItem value="accountant">Comptable</SelectItem>
