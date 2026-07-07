@@ -38,8 +38,8 @@ export async function getPropertyById(id: string) {
 }
 
 export async function searchProperties(filters: {
-  transaction_type?: string;
-  property_type?: string;
+  transaction_type?: Database["public"]["Enums"]["transaction_type"];
+  property_type?: Database["public"]["Enums"]["property_type"];
   city?: string;
   district?: string;
   min_price?: number;

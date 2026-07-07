@@ -25,7 +25,7 @@ export async function getReportsByOwner(ownerId: string) {
   return data as Report[];
 }
 
-export async function getReportsByType(reportType: string) {
+export async function getReportsByType(reportType: Database["public"]["Enums"]["report_type"]) {
   const { data, error } = await supabase
     .from("reports")
     .select("*, owners(first_name, last_name)")

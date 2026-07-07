@@ -15,7 +15,7 @@ export async function getProspects() {
   return data;
 }
 
-export async function getProspectsByStatus(status: string) {
+export async function getProspectsByStatus(status: Database["public"]["Enums"]["prospect_status"]) {
   const { data, error } = await supabase
     .from("prospects")
     .select("*, properties(reference, address)")
