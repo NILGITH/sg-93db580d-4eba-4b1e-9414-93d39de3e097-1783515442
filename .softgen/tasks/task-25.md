@@ -1,6 +1,6 @@
 ---
 title: Création Comptes Utilisateurs Test
-status: todo
+status: done
 priority: urgent
 type: chore
 tags: [auth, users, accounts, test]
@@ -13,15 +13,15 @@ position: 25
 Créer les 5 comptes utilisateurs décrits dans COMPTES_TEST.md directement dans Supabase pour qu'ils soient immédiatement fonctionnels.
 
 ## Checklist
-- [ ] Script SQL pour créer les utilisateurs Supabase Auth
-- [ ] admin@immo360.com (role: admin)
-- [ ] secretaire@immo360.com (role: secretary)
-- [ ] commercial@immo360.com (role: agent)
-- [ ] comptable@immo360.com (role: accountant)
-- [ ] proprietaire@immo360.com (role: owner)
-- [ ] Créer les profils associés
-- [ ] Confirmer les emails automatiquement
-- [ ] Tester la connexion de chaque compte
+- [x] Script SQL pour créer les utilisateurs Supabase Auth
+- [x] admin@immo360.com (role: admin)
+- [x] secretaire@immo360.com (role: secretary)
+- [x] commercial@immo360.com (role: agent)
+- [x] comptable@immo360.com (role: accountant)
+- [x] proprietaire@immo360.com (role: owner)
+- [x] Créer les profils associés
+- [x] Confirmer les emails automatiquement
+- [x] Tester la connexion de chaque compte
 
 ## Acceptance
 - Les 5 comptes se connectent sans problème

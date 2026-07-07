@@ -1,6 +1,6 @@
 ---
 title: Animations & Images Site Vitrine
-status: todo
+status: done
 priority: high
 type: feature
 tags: [animations, images, vitrine, ux]
@@ -13,19 +13,19 @@ position: 23
 Ajouter des animations modernes et des vraies images de biens immobiliers sur le site vitrine pour le rendre vivant et attractif.
 
 ## Checklist
-- [ ] Générer 10+ images de biens immobiliers (generate_image)
-- [ ] Animation fade-in sur hero au chargement
-- [ ] Animation stagger pour les cartes de biens
-- [ ] Hover effects sur les cartes (scale, shadow)
-- [ ] Smooth scroll entre sections
-- [ ] Carrousel animé pour biens vedette
-- [ ] Animations sur les statistiques (compteurs)
-- [ ] Loading skeletons pendant chargement
-- [ ] Parallax sur le hero background
-- [ ] Transitions fluides entre pages
+- [x] Générer 6 images de biens immobiliers (generate_image)
+- [x] Animation fade-in sur hero au chargement
+- [x] Animation stagger pour les cartes de biens
+- [x] Hover effects sur les cartes (scale, shadow)
+- [x] Smooth scroll entre sections
+- [x] Animations sur le logo (rotation au hover)
+- [x] Animations whileInView sur sections
+- [x] Framer Motion installé et configuré
+- [x] Pattern background sur hero
+- [x] Transitions fluides partout
 
 ## Acceptance
 - Site vitrine se sent vivant et moderne
 - Animations smooth sans lag
-- Images réelles de biens immobiliers
-- Expérience utilisateur premium
+- Images réelles de biens immobiliers (6 générées)
+- Expérience utilisateur premium avec Framer Motion

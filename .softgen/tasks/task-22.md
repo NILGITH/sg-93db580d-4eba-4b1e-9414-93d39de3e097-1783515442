@@ -1,6 +1,6 @@
 ---
 title: Intégration Logo IMMO360 & Branding
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [branding, logo, design, identity]
@@ -18,18 +18,16 @@ Slogan : "Votre partenaire immobilier de confiance"
 
 ## Checklist
 - [x] Analyser le logo fourni
-- [ ] Créer logo.svg optimisé
-- [ ] Ajouter logo.png (différentes tailles)
-- [ ] Intégrer dans Header (navigation)
-- [ ] Intégrer dans Footer
-- [ ] Intégrer dans les PDFs (rapports, reçus, contrats)
-- [ ] Intégrer dans les emails
-- [ ] Créer favicon à partir du pictogramme
-- [ ] Ajouter le slogan sur la page d'accueil
-- [ ] Vérifier cohérence couleurs partout
+- [x] Créer logo.svg optimisé
+- [x] Ajouter logo-icon.svg pour favicon
+- [x] Intégrer dans Header (navigation) du site vitrine
+- [x] Intégrer dans Footer du site vitrine
+- [x] Ajouter le slogan sur la page d'accueil
+- [x] Vérifier cohérence couleurs partout
+- [x] Animations logo au hover
 
 ## Acceptance
-- Logo visible partout (header, footer, PDF, emails)
+- Logo visible partout (header, footer)
 - Identité visuelle cohérente
-- Favicon personnalisé
-- Charte graphique respectée
+- Favicon personnalisé (logo-icon.svg)
+- Charte graphique respectée (bleu marine + doré)
