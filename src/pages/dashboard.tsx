@@ -124,7 +124,7 @@ export default function DashboardPage() {
           const { count: unpaid } = await supabase
             .from("payments")
             .select("*", { count: "exact", head: true })
-            .eq("status", "en_attente");
+            .eq("is_validated", false);
           newStats.unpaidRent = unpaid || 0;
 
           break;
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                  profile.role === "agent" ? "AGENT IMMOBILIER" :
                  profile.role === "secretary" ? "SECRÉTAIRE" :
                  profile.role === "accountant" ? "COMPTABLE" : 
-                 profile.role.toUpperCase()}
+                 "UTILISATEUR"}
               </StatusBadge>
             </div>
           </div>
