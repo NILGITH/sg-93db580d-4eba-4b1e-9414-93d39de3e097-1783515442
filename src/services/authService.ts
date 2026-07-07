@@ -27,7 +27,7 @@ export const authService = {
       if (!authData.user) throw new Error("Authentification échouée");
 
       // 2. Récupérer ou créer le profil
-      let { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", authData.user.id)
@@ -50,7 +50,7 @@ export const authService = {
           .single();
 
         if (createError) throw createError;
-        profile = newProfile;
+        return { user: authData.user, profile: newProfile };
       }
 
       return { user: authData.user, profile };
