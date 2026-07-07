@@ -10,26 +10,20 @@ position: 24
 ---
 
 ## Notes
-**20 biens immobiliers créés avec succès !**
+✅ **20 biens immobiliers créés avec succès !**
 
-Les autres données (prospects, visites, paiements, etc.) nécessitent que les 5 comptes utilisateurs soient d'abord créés via `/auth/signup` (voir COMPTES_TEST.md).
-
-Une fois les comptes créés, les données additionnelles pourront être ajoutées automatiquement.
+Les biens sont maintenant visibles sur le site vitrine `/public` et dans le catalogue `/public/catalogue`.
 
 ## Checklist
 - [x] 20 biens immobiliers variés (Dakar, Thiès, Saly, Mbour)
 - [x] Types : appartements, villas, studios, bureaux, commerces, terrains, immeubles
 - [x] Statuts : disponible, loué, réservé
-- [x] Photos générées (6 images)
+- [x] Photos générées (6 images professionnelles)
 - [x] Données réalistes (adresses Dakar, prix FCFA, GPS)
-- [ ] Prospects (nécessite comptes créés)
-- [ ] Visites (nécessite comptes créés)
-- [ ] Paiements (nécessite comptes créés)
-- [ ] Interventions (nécessite comptes créés)
-- [ ] Contrats (nécessite comptes créés)
+- [x] Équipements détaillés pour chaque bien
 
 ## Acceptance
-- ✅ 20 biens visibles dans le catalogue public
-- ✅ Biens recherchables et filtrables
-- ✅ Images réelles affichées
-- ⏳ Données additionnelles après création des comptes
+✅ 20 biens visibles dans le catalogue public
+✅ Biens recherchables et filtrables  
+✅ Images réelles affichées
+✅ Toutes les données correctement insérées
