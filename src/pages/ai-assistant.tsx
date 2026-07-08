@@ -1,352 +1,235 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Send, Copy, Sparkles, Wand2, Type, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { useProfile } from "@/hooks/useProfile";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Sparkles,
+  Send,
+  Home,
+  LogOut,
+  Lightbulb,
+  TrendingUp,
+  FileText,
+  Building2,
+} from "lucide-react";
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-};
+// Suggestions prédéfinies
+const suggestions = [
+  {
+    icon: Building2,
+    title: "Générer une description",
+    prompt: "Génère une description attractive pour une villa moderne de 4 pièces à Cocody avec piscine et jardin.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Analyse de marché",
+    prompt: "Donne-moi une analyse du marché immobilier à Abidjan pour les appartements haut standing.",
+  },
+  {
+    icon: FileText,
+    title: "Rédiger un contrat",
+    prompt: "Aide-moi à rédiger les clauses importantes d'un contrat de location meublée.",
+  },
+  {
+    icon: Lightbulb,
+    title: "Conseils investissement",
+    prompt: "Quels sont les meilleurs quartiers pour investir dans l'immobilier locatif à Abidjan ?",
+  },
+];
 
-type PropertyContext = {
-  type: string;
-  surface: string;
-  rooms: string;
-  price: string;
-  location: string;
-  features: string;
-};
-
-export default function AIAssistantPage() {
+export default function AIAssistant() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+  const { toast } = useToast();
+  const { profile, loading: authLoading } = useProfile();
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [tone, setTone] = useState<"professional" | "warm" | "premium" | "commercial">("professional");
-  const [propertyContext, setPropertyContext] = useState<PropertyContext>({
-    type: "",
-    surface: "",
-    rooms: "",
-    price: "",
-    location: "",
-    features: ""
-  });
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/auth/login");
+    if (!authLoading && !profile) {
+      router.push("/select-profile");
     }
-  }, [user, authLoading, router]);
+  }, [profile, authLoading, router]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  function handleLogout() {
+    localStorage.removeItem("demo_user");
+    localStorage.removeItem("demo_mode_active");
+    router.push("/select-profile");
+  }
 
-  useEffect(() => {
-    const saved = localStorage.getItem("ai-assistant-history");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setMessages(parsed.map((m: Message) => ({ ...m, timestamp: new Date(m.timestamp) })));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem("ai-assistant-history", JSON.stringify(messages));
-    }
-  }, [messages]);
-
-  async function handleSend(customPrompt?: string, action: "generate" | "improve" | "title" = "generate") {
-    const prompt = customPrompt || input;
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     if (!prompt.trim()) return;
 
-    const userMessage: Message = {
-      role: "user",
-      content: prompt,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput("");
     setLoading(true);
+    setResponse("");
 
     try {
-      const context = {
-        type: propertyContext.type,
-        surface: propertyContext.surface ? parseFloat(propertyContext.surface) : undefined,
-        rooms: propertyContext.rooms ? parseInt(propertyContext.rooms) : undefined,
-        price: propertyContext.price ? parseFloat(propertyContext.price) : undefined,
-        location: propertyContext.location,
-        features: propertyContext.features ? propertyContext.features.split(",").map(f => f.trim()) : []
-      };
-
-      const response = await fetch("/api/ai/generate-listing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          propertyContext: context,
-          tone,
-          action
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Échec de la génération");
-      }
-
-      const data = await response.json();
-
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: data.text,
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
+      // Simulation de réponse IA
+      setTimeout(() => {
+        setResponse(
+          "**Mode démo actif** - L'assistant IA n'est pas encore connecté à un modèle de langage.\n\n" +
+          "Dans la version de production, cette fonctionnalité utilisera une API d'IA (OpenAI, Claude, etc.) pour générer des réponses personnalisées à vos questions immobilières.\n\n" +
+          "**Exemples de fonctionnalités disponibles en production :**\n" +
+          "- Génération de descriptions de biens attractives\n" +
+          "- Analyse de marché et tendances immobilières\n" +
+          "- Aide à la rédaction de contrats\n" +
+          "- Conseils en investissement immobilier\n" +
+          "- Estimation de prix de marché\n" +
+          "- Recommandations personnalisées"
+        );
+        setLoading(false);
+      }, 2000);
     } catch (error) {
-      const errorMessage: Message = {
-        role: "assistant",
-        content: `Erreur : ${error instanceof Error ? error.message : "Impossible de générer le texte"}`,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue",
+        variant: "destructive",
+      });
       setLoading(false);
     }
   }
 
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
-  }
-
-  function clearHistory() {
-    setMessages([]);
-    localStorage.removeItem("ai-assistant-history");
+  function handleSuggestionClick(suggestionPrompt: string) {
+    setPrompt(suggestionPrompt);
   }
 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
 
+  if (!profile) return null;
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-primary text-primary-foreground py-6 shadow-lg">
-        <div className="container mx-auto px-6">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Retour au dashboard
-          </Link>
-          <h1 className="text-3xl font-serif font-bold flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-accent" />
-            Assistant IA - Rédaction d'annonces
-          </h1>
-          <p className="text-primary-foreground/80 mt-2">
-            Générez des descriptions professionnelles en quelques secondes
-          </p>
+    <div className="min-h-screen bg-background">
+      <header className="bg-primary text-primary-foreground shadow-lg">
+        <div className="container py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Sparkles className="w-10 h-10 text-accent" />
+              <div>
+                <h1 className="text-3xl font-serif font-bold">Assistant IA</h1>
+                <p className="text-sm text-primary-foreground/80">
+                  Votre copilote immobilier intelligent
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/dashboard">
+                <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-primary">
+                  <Home className="w-4 h-4 mr-2" />
+                  Accueil
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleLogout} className="border-accent text-accent hover:bg-accent hover:text-primary">
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-lg">Contexte du bien</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Type de bien</Label>
-                <Input
-                  placeholder="Appartement, Maison, Villa..."
-                  value={propertyContext.type}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, type: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Surface (m²)</Label>
-                <Input
-                  type="number"
-                  placeholder="120"
-                  value={propertyContext.surface}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, surface: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Nombre de pièces</Label>
-                <Input
-                  type="number"
-                  placeholder="4"
-                  value={propertyContext.rooms}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, rooms: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Prix (€)</Label>
-                <Input
-                  type="number"
-                  placeholder="250000"
-                  value={propertyContext.price}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, price: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Localisation</Label>
-                <Input
-                  placeholder="Centre-ville, Proche commerces..."
-                  value={propertyContext.location}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, location: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Équipements (séparés par virgules)</Label>
-                <Textarea
-                  placeholder="Terrasse, Garage, Piscine, Cuisine équipée"
-                  value={propertyContext.features}
-                  onChange={(e) => setPropertyContext({ ...propertyContext, features: e.target.value })}
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Ton de rédaction</Label>
-                <Select value={tone} onValueChange={(v: any) => setTone(v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professionnel</SelectItem>
-                    <SelectItem value="warm">Chaleureux</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="commercial">Commercial</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 pt-4 border-t">
-                <p className="text-sm font-medium mb-2">Actions rapides</p>
-                <div className="space-y-2">
-                  <Button
-                    onClick={() => handleSend("Génère une description complète attractive pour ce bien immobilier", "generate")}
-                    disabled={loading}
-                    className="w-full justify-start"
-                    variant="outline"
-                  >
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    Générer description
-                  </Button>
-                  <Button
-                    onClick={() => handleSend("Suggère 3 titres accrocheurs pour cette annonce", "title")}
-                    disabled={loading}
-                    className="w-full justify-start"
-                    variant="outline"
-                  >
-                    <Type className="h-4 w-4 mr-2" />
-                    Suggérer titres
-                  </Button>
-                </div>
-              </div>
-              {messages.length > 0 && (
-                <Button
-                  onClick={clearHistory}
-                  variant="ghost"
-                  className="w-full text-destructive hover:text-destructive"
-                >
-                  Effacer l'historique
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="lg:col-span-2 flex flex-col h-[calc(100vh-12rem)]">
-            <CardHeader>
-              <CardTitle className="text-lg">Conversation</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col overflow-hidden p-0">
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-12">
-                    <Sparkles className="h-12 w-12 mx-auto mb-4 text-accent" />
-                    <p className="text-lg">Commencez une conversation</p>
-                    <p className="text-sm mt-2">Remplissez le contexte du bien et posez votre question</p>
-                  </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-lg p-4 ${
-                          message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap">{message.content}</p>
-                        {message.role === "assistant" && (
-                          <Button
-                            onClick={() => copyToClipboard(message.content)}
-                            variant="ghost"
-                            size="sm"
-                            className="mt-2 h-8"
-                          >
-                            <Copy className="h-3 w-3 mr-1" />
-                            Copier
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div className="border-t p-6 bg-background">
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder="Décrivez ce que vous souhaitez générer ou améliorer..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                    rows={2}
-                    disabled={loading}
-                  />
-                  <Button
-                    onClick={() => handleSend()}
-                    disabled={loading || !input.trim()}
-                    className="self-end"
-                  >
-                    {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Appuyez sur Entrée pour envoyer, Shift+Entrée pour une nouvelle ligne
+      <main className="container py-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Info mode démo */}
+          <Card className="bg-accent/10 border-accent">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="text-accent border-accent">Mode Démo</Badge>
+                <p className="text-sm text-muted-foreground">
+                  L'assistant IA sera connecté à un modèle de langage en production
                 </p>
               </div>
             </CardContent>
           </Card>
+
+          {/* Suggestions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {suggestions.map((suggestion, index) => {
+              const Icon = suggestion.icon;
+              return (
+                <Card
+                  key={index}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleSuggestionClick(suggestion.prompt)}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-accent/10 rounded-lg">
+                        <Icon className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-2">{suggestion.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {suggestion.prompt}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Formulaire */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Posez votre question</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Textarea
+                  placeholder="Exemple : Génère une description pour un appartement 3 pièces..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+                <Button type="submit" disabled={loading || !prompt.trim()} className="w-full">
+                  <Send className="w-4 h-4 mr-2" />
+                  {loading ? "Génération en cours..." : "Envoyer"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Réponse */}
+          {response && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-accent" />
+                  Réponse IA
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none">
+                  {response.split('\n').map((line, i) => (
+                    <p key={i} className="mb-2">
+                      {line.startsWith('**') ? (
+                        <strong>{line.replace(/\*\*/g, '')}</strong>
+                      ) : line.startsWith('-') ? (
+                        <span className="ml-4">{line}</span>
+                      ) : (
+                        line
+                      )}
+                    </p>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </div>

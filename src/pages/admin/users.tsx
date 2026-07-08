@@ -1,78 +1,46 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { Search, User } from "lucide-react";
 import Link from "next/link";
-
-type UserProfile = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-  is_active: boolean;
-  created_at: string;
-};
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { useProfile } from "@/hooks/useProfile";
+import { mockProfiles } from "@/lib/mock-data";
+import {
+  Users,
+  Search,
+  Home,
+  LogOut,
+  Shield,
+  Mail,
+  Phone,
+} from "lucide-react";
 
 export default function AdminUsers() {
-  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const { profile, loading: authLoading } = useProfile();
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push("/auth/login");
-      } else if (profile && profile.role !== "admin") {
-        router.push("/dashboard");
-      } else {
-        loadUsers();
-      }
+    if (!authLoading && !profile) {
+      router.push("/select-profile");
     }
-  }, [user, profile, authLoading, router]);
+    if (profile && profile.role !== "admin") {
+      router.push("/dashboard");
+    }
+  }, [profile, authLoading, router]);
 
-  useEffect(() => {
-    let filtered = users;
-    
-    if (searchTerm) {
-      filtered = filtered.filter(user => {
-        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-        return fullName.includes(searchTerm.toLowerCase());
-      });
-    }
-    
-    if (roleFilter !== "all") {
-      filtered = filtered.filter(user => user.role === roleFilter);
-    }
-    
-    setFilteredUsers(filtered);
-  }, [searchTerm, roleFilter, users]);
-
-  async function loadUsers() {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) {
-      setUsers(data as UserProfile[]);
-      setFilteredUsers(data as UserProfile[]);
-    }
+  function handleLogout() {
+    localStorage.removeItem("demo_user");
+    localStorage.removeItem("demo_mode_active");
+    router.push("/select-profile");
   }
 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Chargement...</p>
+        <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
@@ -81,78 +49,178 @@ export default function AdminUsers() {
     return null;
   }
 
+  const users = Object.values(mockProfiles);
+  const filteredUsers = users.filter((user) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      user.first_name?.toLowerCase().includes(searchLower) ||
+      user.last_name?.toLowerCase().includes(searchLower) ||
+      user.email.toLowerCase().includes(searchLower) ||
+      user.role.toLowerCase().includes(searchLower)
+    );
+  });
+
+  function getRoleLabel(role: string) {
+    const labels: Record<string, string> = {
+      admin: "Administrateur",
+      agent: "Agent",
+      secretary: "Secrétaire",
+      accountant: "Comptable",
+      provider: "Prestataire",
+      owner: "Propriétaire",
+    };
+    return labels[role] || role;
+  }
+
+  function getRoleBadgeVariant(role: string) {
+    if (role === "admin") return "destructive";
+    if (role === "agent") return "default";
+    return "secondary";
+  }
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
-        <div className="container mx-auto px-6 py-4">
+    <div className="min-h-screen bg-background">
+      <header className="bg-primary text-primary-foreground shadow-lg">
+        <div className="container py-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-serif font-bold text-primary">Gestion des Utilisateurs</h1>
-            <Link href="/admin/dashboard">
-              <Button variant="outline">Retour</Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Users className="w-10 h-10 text-accent" />
+              <div>
+                <h1 className="text-3xl font-serif font-bold">Utilisateurs</h1>
+                <p className="text-sm text-primary-foreground/80">
+                  Gestion des comptes utilisateurs
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/admin/dashboard">
+                <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-primary">
+                  <Home className="w-4 h-4 mr-2" />
+                  Admin
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleLogout} className="border-accent text-accent hover:bg-accent hover:text-primary">
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher un utilisateur..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filtrer par rôle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les rôles</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="agent">Agent</SelectItem>
-              <SelectItem value="secretary">Secrétaire</SelectItem>
-              <SelectItem value="accountant">Comptable</SelectItem>
-              <SelectItem value="provider">Prestataire</SelectItem>
-              <SelectItem value="owner">Propriétaire</SelectItem>
-            </SelectContent>
-          </Select>
+      <main className="container py-8 space-y-6">
+        {/* Recherche */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un utilisateur..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Statistiques */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Total</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Admins</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.filter(u => u.role === "admin").length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Agents</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.filter(u => u.role === "agent").length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Secrétaires</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.filter(u => u.role === "secretary").length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Comptables</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.filter(u => u.role === "accountant").length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground">Prestataires</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{users.filter(u => u.role === "provider").length}</p>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid gap-4">
-          {filteredUsers.map((user) => (
-            <Card key={user.id}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+        {/* Liste utilisateurs */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Utilisateurs ({filteredUsers.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
-                      <User className="h-6 w-6 text-accent" />
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">
-                        {user.first_name} {user.last_name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Créé le {new Date(user.created_at).toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold">
+                          {user.first_name} {user.last_name}
+                        </p>
+                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                          {getRoleLabel(user.role)}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Mail className="w-3 h-3" />
+                          {user.email}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Phone className="w-3 h-3" />
+                          {user.phone}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge variant={user.is_active ? "available" : "default"}>
-                      {user.is_active ? "Actif" : "Inactif"}
-                    </StatusBadge>
-                    <StatusBadge variant="default">
-                      {user.role}
-                    </StatusBadge>
-                  </div>
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    Actif
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
