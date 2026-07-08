@@ -9,10 +9,23 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Building2, FileText, Plus, Search, Calendar, Download, Send, TrendingUp, TrendingDown } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { mockStats, mockRevenueData, mockTopProperties } from "@/lib/mock-data";
+import { Building2, FileText, Plus, Search, Calendar, Download, Send, TrendingUp, TrendingDown, Home, LogOut, BarChart3, DollarSign } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Report = Database["public"]["Tables"]["reports"]["Row"];
 type ReportWithOwner = Report & {
@@ -26,7 +39,7 @@ const REPORT_TYPES: ReportType[] = ["mensuel", "trimestriel", "semestriel", "ann
 export default function ReportsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading } = useProfile();
 
   const [reports, setReports] = useState<ReportWithOwner[]>([]);
   const [owners, setOwners] = useState<any[]>([]);
@@ -37,6 +50,7 @@ export default function ReportsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<ReportType | "all">("all");
   const [generating, setGenerating] = useState(false);
+  const [period, setPeriod] = useState("monthly");
 
   const [formData, setFormData] = useState<Partial<ReportInsert>>({
     owner_id: "",
@@ -49,8 +63,8 @@ export default function ReportsPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/auth/login");
+    if (!authLoading && !profile) {
+      router.push("/select-profile");
     }
   }, [user, authLoading, router]);
 
