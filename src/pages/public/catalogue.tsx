@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,88 +6,58 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
-import { Building2, Search, MapPin, Home, DollarSign, Filter, SlidersHorizontal } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
+import { mockProperties } from "@/lib/mock-data";
+import { Building2, Search, MapPin, Home, DollarSign, Filter, SlidersHorizontal, Phone, Mail, Facebook, Instagram, Twitter } from "lucide-react";
 
-type Property = Database["public"]["Tables"]["properties"]["Row"];
-type TransactionType = Database["public"]["Enums"]["transaction_type"];
-type PropertyType = Database["public"]["Enums"]["property_type"];
-
-const PROPERTY_TYPES: PropertyType[] = ["appartement", "maison", "villa", "terrain", "bureau", "commerce", "immeuble", "studio"];
+const PROPERTY_TYPES = ["appartement", "maison", "villa", "terrain", "bureau", "commerce", "studio"];
 
 export default function PublicCataloguePage() {
-  const router = useRouter();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
   // Filtres
-  const [filters, setFilters] = useState<{
-    transaction_type: TransactionType | "all";
-    property_type: PropertyType | "all";
-    city: string;
-    min_price: string;
-    max_price: string;
-    min_rooms: string;
-    min_surface: string;
-  }>({
-    transaction_type: (router.query.transaction_type as TransactionType) || "all",
+  const [filters, setFilters] = useState({
+    transaction_type: "all",
     property_type: "all",
-    city: (router.query.query as string) || "",
+    city: "",
     min_price: "",
     max_price: "",
     min_rooms: "",
     min_surface: "",
   });
 
-  useEffect(() => {
-    loadProperties();
-  }, [filters]);
+  // Filtrer les biens publiés
+  const filteredProperties = useMemo(() => {
+    let result = mockProperties.filter(p => p.is_published && p.status === "disponible");
 
-  async function loadProperties() {
-    try {
-      setLoading(true);
-
-      let query = supabase
-        .from("properties")
-        .select("*")
-        .eq("published", true)
-        .eq("status", "disponible")
-        .order("created_at", { ascending: false });
-
-      if (filters.transaction_type !== "all") {
-        query = query.eq("transaction_type", filters.transaction_type as TransactionType);
-      }
-      if (filters.property_type !== "all") {
-        query = query.eq("property_type", filters.property_type as PropertyType);
-      }
-      if (filters.city) {
-        query = query.or(`city.ilike.%${filters.city}%,quartier.ilike.%${filters.city}%,commune.ilike.%${filters.city}%`);
-      }
-      if (filters.min_price) {
-        query = query.gte("price", parseFloat(filters.min_price));
-      }
-      if (filters.max_price) {
-        query = query.lte("price", parseFloat(filters.max_price));
-      }
-      if (filters.min_rooms) {
-        query = query.gte("rooms", parseInt(filters.min_rooms));
-      }
-      if (filters.min_surface) {
-        query = query.gte("surface_area", parseFloat(filters.min_surface));
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setProperties(data || []);
-    } catch (error) {
-      console.error("Erreur chargement biens:", error);
-    } finally {
-      setLoading(false);
+    if (filters.transaction_type !== "all") {
+      result = result.filter(p => p.transaction_type === filters.transaction_type);
     }
-  }
+    if (filters.property_type !== "all") {
+      result = result.filter(p => p.type === filters.property_type);
+    }
+    if (filters.city) {
+      const searchLower = filters.city.toLowerCase();
+      result = result.filter(p => 
+        p.city.toLowerCase().includes(searchLower) ||
+        p.commune.toLowerCase().includes(searchLower) ||
+        p.neighborhood.toLowerCase().includes(searchLower)
+      );
+    }
+    if (filters.min_price) {
+      result = result.filter(p => p.price >= parseFloat(filters.min_price));
+    }
+    if (filters.max_price) {
+      result = result.filter(p => p.price <= parseFloat(filters.max_price));
+    }
+    if (filters.min_rooms) {
+      result = result.filter(p => p.rooms >= parseInt(filters.min_rooms));
+    }
+    if (filters.min_surface) {
+      result = result.filter(p => p.surface >= parseFloat(filters.min_surface));
+    }
+
+    return result;
+  }, [filters]);
 
   function resetFilters() {
     setFilters({
@@ -109,9 +78,9 @@ export default function PublicCataloguePage() {
         <div className="container py-4">
           <div className="flex items-center justify-between">
             <Link href="/public" className="flex items-center gap-3">
-              <Building2 className="w-8 h-8 text-accent" />
+              <img src="/logo_Amiri.png" alt="AMIRI" className="h-12 w-auto" />
               <div>
-                <h1 className="text-2xl font-serif font-bold">IMMO360</h1>
+                <h1 className="text-2xl font-serif font-bold">AMIRI</h1>
                 <p className="text-xs text-primary-foreground/80">Catalogue des biens</p>
               </div>
             </Link>
@@ -121,14 +90,17 @@ export default function PublicCataloguePage() {
                 Accueil
               </Link>
               <Link href="/public/catalogue" className="text-sm font-semibold text-accent">
-                Nos biens
+                Catalogue
               </Link>
-              <Link href="/public/blog" className="text-sm hover:text-accent transition-colors">
+              <Link href="/blog" className="text-sm hover:text-accent transition-colors">
                 Blog
               </Link>
-              <Link href="/auth/login">
+              <Link href="/faq" className="text-sm hover:text-accent transition-colors">
+                FAQ
+              </Link>
+              <Link href="/select-profile">
                 <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-primary">
-                  Espace Client
+                  Espace Pro
                 </Button>
               </Link>
             </nav>
@@ -141,7 +113,7 @@ export default function PublicCataloguePage() {
           <div>
             <h2 className="text-3xl font-serif font-bold mb-2">Catalogue des biens</h2>
             <p className="text-muted-foreground">
-              {loading ? "Chargement..." : `${properties.length} bien${properties.length > 1 ? "s" : ""} disponible${properties.length > 1 ? "s" : ""}`}
+              {filteredProperties.length} bien{filteredProperties.length > 1 ? "s" : ""} disponible{filteredProperties.length > 1 ? "s" : ""}
             </p>
           </div>
 
@@ -170,7 +142,7 @@ export default function PublicCataloguePage() {
                   <label className="text-sm font-medium">Transaction</label>
                   <Select
                     value={filters.transaction_type}
-                    onValueChange={(value) => setFilters({ ...filters, transaction_type: value as TransactionType | "all" })}
+                    onValueChange={(value) => setFilters({ ...filters, transaction_type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -187,7 +159,7 @@ export default function PublicCataloguePage() {
                   <label className="text-sm font-medium">Type de bien</label>
                   <Select
                     value={filters.property_type}
-                    onValueChange={(value) => setFilters({ ...filters, property_type: value as PropertyType | "all" })}
+                    onValueChange={(value) => setFilters({ ...filters, property_type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -267,11 +239,7 @@ export default function PublicCataloguePage() {
         )}
 
         {/* Liste des biens */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Chargement des biens...</p>
-          </div>
-        ) : properties.length === 0 ? (
+        {filteredProperties.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <Home className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -283,21 +251,15 @@ export default function PublicCataloguePage() {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
+            {filteredProperties.map((property) => (
               <Link key={property.id} href={`/public/properties/${property.id}`}>
                 <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden h-full">
                   <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                    {property.photos && Array.isArray(property.photos) && property.photos.length > 0 ? (
-                      <img
-                        src={property.photos[0]}
-                        alt={property.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Home className="w-16 h-16 text-muted-foreground/30" />
-                      </div>
-                    )}
+                    <img
+                      src={property.images?.[0] || "/generated/property-1.png"}
+                      alt={property.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
 
                   <CardHeader>
@@ -306,17 +268,17 @@ export default function PublicCataloguePage() {
                     </CardTitle>
                     <CardDescription className="flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
-                      {property.city} {property.quartier && `• ${property.quartier}`}
+                      {property.city}, {property.commune}
                     </CardDescription>
                   </CardHeader>
 
                   <CardContent>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <span className="capitalize">{property.property_type}</span>
+                      <span className="capitalize">{property.type}</span>
                       <span>•</span>
                       <span>{property.rooms} pièces</span>
                       <span>•</span>
-                      <span>{property.surface_area} m²</span>
+                      <span>{property.surface} m²</span>
                     </div>
 
                     <div className="flex items-center justify-between pt-4 border-t">
@@ -337,6 +299,63 @@ export default function PublicCataloguePage() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="bg-primary text-primary-foreground py-12 mt-16">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h4 className="font-serif font-bold text-xl mb-4">AMIRI</h4>
+              <p className="text-sm text-primary-foreground/80">
+                Votre partenaire de confiance pour tous vos projets immobiliers
+              </p>
+            </div>
+            <div>
+              <h5 className="font-semibold mb-4">Navigation</h5>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/public" className="hover:text-accent transition-colors">Accueil</Link></li>
+                <li><Link href="/public/catalogue" className="hover:text-accent transition-colors">Catalogue</Link></li>
+                <li><Link href="/blog" className="hover:text-accent transition-colors">Blog</Link></li>
+                <li><Link href="/faq" className="hover:text-accent transition-colors">FAQ</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-semibold mb-4">Contact</h5>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  +229 XX XX XX XX
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  contact@amiri.bj
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Cotonou, Bénin
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-semibold mb-4">Réseaux Sociaux</h5>
+              <div className="flex gap-4">
+                <Button size="icon" variant="outline" className="rounded-full border-accent text-accent hover:bg-accent hover:text-primary">
+                  <Facebook className="w-5 h-5" />
+                </Button>
+                <Button size="icon" variant="outline" className="rounded-full border-accent text-accent hover:bg-accent hover:text-primary">
+                  <Instagram className="w-5 h-5" />
+                </Button>
+                <Button size="icon" variant="outline" className="rounded-full border-accent text-accent hover:bg-accent hover:text-primary">
+                  <Twitter className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/60">
+            <p>&copy; 2026 AMIRI. Tous droits réservés.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
