@@ -4,20 +4,13 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { authService } from "@/services/authService";
+import { useProfile } from "@/hooks/useProfile";
 import { 
   Building2, 
   Users, 
   DollarSign, 
   TrendingUp, 
   Calendar,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  FileText,
   Home,
   Briefcase,
   LogOut,
@@ -39,7 +32,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { mockStats, mockRevenueData, mockPropertyTypeData, mockTopProperties, isInDemoMode } from "@/lib/mock-data";
+import { mockStats, mockRevenueData, mockPropertyTypeData, mockTopProperties } from "@/lib/mock-data";
 
 interface DashboardStats {
   totalProperties: number;
@@ -64,227 +57,28 @@ const COLORS = ["#3282B8", "#16213E", "#BBE1FA", "#1A1A2E", "#0B4F6C"];
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
-  const { toast } = useToast();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProperties: 0,
-    availableProperties: 0,
-    rentedProperties: 0,
-    soldProperties: 0,
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    pendingPayments: 0,
-    upcomingVisits: 0,
-    activeContracts: 0,
-    newProspects: 0,
+  const { profile, loading } = useProfile();
+  const [stats] = useState(mockStats);
+  const [chartData] = useState({
+    monthlyRevenue: mockRevenueData,
+    propertyTypes: mockPropertyTypeData,
+    revenueByProperty: mockTopProperties.map(p => ({
+      name: p.name,
+      revenue: p.prix,
+    })),
   });
 
-  const [chartData, setChartData] = useState<ChartData>({
-    monthlyRevenue: [],
-    propertyTypes: [],
-    revenueByProperty: [],
-  });
-
-  async function handleSignOut() {
-    try {
-      await supabase.auth.signOut();
-      router.push("/auth/login");
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de se déconnecter",
-        variant: "destructive",
-      });
-    }
+  function handleLogout() {
+    localStorage.removeItem("demo_user");
+    localStorage.removeItem("demo_mode_active");
+    router.push("/select-profile");
   }
 
   useEffect(() => {
-    // Ne pas rediriger si en mode démo
-    const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
-    
-    if (!loading && !user && !demoModeActive) {
-      router.push("/auth/login");
+    if (!loading && !profile) {
+      router.push("/select-profile");
     }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        // Vérifier le mode démo en premier
-        const demoUser = localStorage.getItem("demo_user");
-        const demoModeActive = localStorage.getItem("demo_mode_active") === "true";
-
-        if (demoUser && demoModeActive) {
-          // Mode démo : charger les données mockées immédiatement
-          setStats({
-            totalProperties: mockStats.totalProperties,
-            availableProperties: mockStats.availableProperties,
-            rentedProperties: mockStats.rentedProperties,
-            soldProperties: mockStats.soldProperties,
-            totalRevenue: mockStats.totalRevenue,
-            monthlyRevenue: mockStats.monthlyRevenue,
-            pendingPayments: mockStats.pendingPayments,
-            upcomingVisits: mockStats.totalVisits,
-            activeContracts: 12,
-            newProspects: mockStats.newProspects,
-          });
-
-          setChartData({
-            monthlyRevenue: mockRevenueData,
-            propertyTypes: mockPropertyTypeData,
-            revenueByProperty: mockTopProperties.map(p => ({
-              name: p.name,
-              revenue: p.prix,
-            })),
-          });
-          return;
-        }
-
-        // Sinon charger depuis Supabase
-        if (user) {
-          await loadDashboardStats();
-          await loadChartData();
-        }
-      } catch (error) {
-        console.error("Erreur chargement dashboard:", error);
-        // En cas d'erreur, fallback sur données mockées
-        setStats({
-          totalProperties: mockStats.totalProperties,
-          availableProperties: mockStats.availableProperties,
-          rentedProperties: mockStats.rentedProperties,
-          soldProperties: mockStats.soldProperties,
-          totalRevenue: mockStats.totalRevenue,
-          monthlyRevenue: mockStats.monthlyRevenue,
-          pendingPayments: mockStats.pendingPayments,
-          upcomingVisits: mockStats.totalVisits,
-          activeContracts: 12,
-          newProspects: mockStats.newProspects,
-        });
-
-        setChartData({
-          monthlyRevenue: mockRevenueData,
-          propertyTypes: mockPropertyTypeData,
-          revenueByProperty: mockTopProperties.map(p => ({
-            name: p.name,
-            revenue: p.prix,
-          })),
-        });
-      }
-    }
-
-    loadDashboardData();
-  }, [user]);
-
-  async function loadDashboardStats() {
-    try {
-      const [
-        propertiesResult,
-        paymentsResult,
-        visitsResult,
-        contractsResult,
-        prospectsResult,
-      ] = await Promise.all([
-        supabase.from("properties").select("*", { count: "exact" }),
-        supabase.from("payments").select("amount, created_at"),
-        supabase.from("visits").select("*", { count: "exact" }).eq("status", "confirmee"),
-        supabase.from("contracts").select("*", { count: "exact" }).eq("status", "en_cours"),
-        supabase.from("prospects").select("*", { count: "exact" }).eq("status", "nouveau"),
-      ]);
-
-      const properties = propertiesResult.data || [];
-      const payments = paymentsResult.data || [];
-      const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-      
-      // Revenus du mois en cours
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthlyRevenue = payments
-        .filter(p => {
-          const date = new Date(p.created_at);
-          return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-        })
-        .reduce((sum, p) => sum + (p.amount || 0), 0);
-
-      setStats({
-        totalProperties: properties.length,
-        availableProperties: properties.filter(p => p.status === "disponible").length,
-        rentedProperties: properties.filter(p => p.status === "loue").length,
-        soldProperties: properties.filter(p => p.status === "vendu").length,
-        totalRevenue,
-        monthlyRevenue,
-        pendingPayments: 0,
-        upcomingVisits: visitsResult.count || 0,
-        activeContracts: contractsResult.count || 0,
-        newProspects: prospectsResult.count || 0,
-      });
-    } catch (error) {
-      console.error("Error loading dashboard stats:", error);
-    }
-  }
-
-  async function loadChartData() {
-    try {
-      const { data: payments } = await supabase
-        .from("payments")
-        .select("amount, created_at")
-        .order("created_at", { ascending: true });
-
-      const { data: properties } = await supabase
-        .from("properties")
-        .select("property_type, price, title");
-
-      // Revenus mensuels des 6 derniers mois
-      const monthlyRevenueData = [];
-      const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
-      const currentDate = new Date();
-      
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-        const monthIndex = date.getMonth();
-        const year = date.getFullYear();
-        
-        const monthRevenue = (payments || [])
-          .filter(p => {
-            const paymentDate = new Date(p.created_at);
-            return paymentDate.getMonth() === monthIndex && paymentDate.getFullYear() === year;
-          })
-          .reduce((sum, p) => sum + (p.amount || 0), 0);
-
-        monthlyRevenueData.push({
-          month: months[monthIndex],
-          revenue: monthRevenue,
-        });
-      }
-
-      // Types de biens
-      const propertyTypeCounts: Record<string, number> = {};
-      (properties || []).forEach(p => {
-        propertyTypeCounts[p.property_type] = (propertyTypeCounts[p.property_type] || 0) + 1;
-      });
-
-      const propertyTypesData = Object.entries(propertyTypeCounts).map(([name, value]) => ({
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        value,
-      }));
-
-      // Top 5 biens par prix
-      const topProperties = (properties || [])
-        .sort((a, b) => (b.price || 0) - (a.price || 0))
-        .slice(0, 5)
-        .map(p => ({
-          name: p.title.length > 20 ? p.title.substring(0, 20) + "..." : p.title,
-          revenue: p.price || 0,
-        }));
-
-      setChartData({
-        monthlyRevenue: monthlyRevenueData,
-        propertyTypes: propertyTypesData,
-        revenueByProperty: topProperties,
-      });
-    } catch (error) {
-      console.error("Error loading chart data:", error);
-    }
-  }
+  }, [profile, loading, router]);
 
   if (loading) {
     return (
@@ -297,9 +91,22 @@ export default function Dashboard() {
     );
   }
 
-  if (!user || !profile) {
+  if (!profile) {
     return null;
   }
+
+  const dashboardStats = {
+    totalProperties: stats.totalProperties,
+    availableProperties: stats.availableProperties,
+    rentedProperties: stats.rentedProperties,
+    soldProperties: stats.soldProperties,
+    totalRevenue: stats.totalRevenue,
+    monthlyRevenue: stats.monthlyRevenue,
+    pendingPayments: stats.pendingPayments,
+    upcomingVisits: stats.scheduledVisits,
+    activeContracts: 12,
+    newProspects: stats.newProspects,
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -331,7 +138,7 @@ export default function Dashboard() {
                   </div>
                 </Button>
               </Link>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Déconnexion
               </Button>
@@ -395,9 +202,9 @@ export default function Dashboard() {
                   <Home className="h-4 w-4 text-accent" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalProperties}</div>
+                  <div className="text-2xl font-bold">{dashboardStats.totalProperties}</div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {stats.availableProperties} disponibles • {stats.rentedProperties} loués
+                    {dashboardStats.availableProperties} disponibles • {dashboardStats.rentedProperties} loués
                   </p>
                 </CardContent>
               </Card>
