@@ -108,18 +108,19 @@ export const mockProperties = [
 
 export const mockStats = {
   totalProperties: 18,
-  availableProperties: 13,
-  rentedProperties: 3,
+  availableProperties: 12,
+  rentedProperties: 4,
   soldProperties: 2,
-  totalRevenue: 45800000,
+  totalRevenue: 45000000,
   monthlyRevenue: 3200000,
-  pendingPayments: 2,
-  totalVisits: 156,
+  pendingPayments: 8,
+  totalVisits: 24,
   scheduledVisits: 12,
-  totalProspects: 89,
-  newProspects: 15,
-  activeBookings: 8,
-  pendingInterventions: 5,
+  upcomingVisits: 12,
+  activeContracts: 15,
+  newProspects: 18,
+  totalInterventions: 15,
+  pendingInterventions: 6,
 };
 
 export const mockRevenueData = [
