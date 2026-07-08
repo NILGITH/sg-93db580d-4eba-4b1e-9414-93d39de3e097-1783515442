@@ -6,44 +6,93 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar, User, Tag, Search, ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/database.types";
 
-type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"];
+// Articles de blog mockés
+const mockBlogPosts = [
+  {
+    id: "1",
+    slug: "investir-immobilier-cotonou",
+    title: "Pourquoi investir dans l'immobilier à Cotonou en 2026 ?",
+    excerpt: "Découvrez les opportunités d'investissement immobilier dans la capitale économique du Bénin.",
+    content: "",
+    category: "Investissement",
+    cover_image_url: "/generated/property-1.png",
+    published: true,
+    published_at: "2026-07-05T10:00:00Z",
+    created_at: "2026-07-05T10:00:00Z",
+  },
+  {
+    id: "2",
+    slug: "guide-achat-premiere-maison",
+    title: "Guide complet pour acheter votre première maison",
+    excerpt: "Tous les conseils pour réussir votre premier achat immobilier sans stress.",
+    content: "",
+    category: "Guides",
+    cover_image_url: "/generated/property-2.png",
+    published: true,
+    published_at: "2026-07-03T10:00:00Z",
+    created_at: "2026-07-03T10:00:00Z",
+  },
+  {
+    id: "3",
+    slug: "tendances-immobilieres-2026",
+    title: "Les tendances immobilières de 2026 au Bénin",
+    excerpt: "Analyse des tendances du marché immobilier béninois pour cette année.",
+    content: "",
+    category: "Actualités",
+    cover_image_url: "/generated/property-3.png",
+    published: true,
+    published_at: "2026-07-01T10:00:00Z",
+    created_at: "2026-07-01T10:00:00Z",
+  },
+  {
+    id: "4",
+    slug: "location-meuble-avantages",
+    title: "Location meublée : avantages et inconvénients",
+    excerpt: "Tout savoir sur la location meublée avant de prendre votre décision.",
+    content: "",
+    category: "Guides",
+    cover_image_url: "/generated/property-4.png",
+    published: true,
+    published_at: "2026-06-28T10:00:00Z",
+    created_at: "2026-06-28T10:00:00Z",
+  },
+  {
+    id: "5",
+    slug: "vendre-bien-rapidement",
+    title: "5 astuces pour vendre votre bien immobilier rapidement",
+    excerpt: "Des conseils pratiques pour accélérer la vente de votre propriété.",
+    content: "",
+    category: "Conseils",
+    cover_image_url: "/generated/property-5.png",
+    published: true,
+    published_at: "2026-06-25T10:00:00Z",
+    created_at: "2026-06-25T10:00:00Z",
+  },
+  {
+    id: "6",
+    slug: "quartiers-investir-cotonou",
+    title: "Les meilleurs quartiers où investir à Cotonou",
+    excerpt: "Analyse des quartiers les plus prometteurs pour vos investissements.",
+    content: "",
+    category: "Investissement",
+    cover_image_url: "/generated/property-6.png",
+    published: true,
+    published_at: "2026-06-22T10:00:00Z",
+    created_at: "2026-06-22T10:00:00Z",
+  },
+];
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState(mockBlogPosts);
+  const [filteredPosts, setFilteredPosts] = useState(mockBlogPosts);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    loadBlogPosts();
-  }, []);
-
-  useEffect(() => {
     filterPosts();
-  }, [searchQuery, selectedCategory, posts]);
-
-  async function loadBlogPosts() {
-    try {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("published", true)
-        .order("published_at", { ascending: false });
-
-      if (data) {
-        setPosts(data);
-        setFilteredPosts(data);
-      }
-    } catch (error) {
-      console.error("Error loading blog posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [searchQuery, selectedCategory]);
 
   function filterPosts() {
     let filtered = posts;
@@ -97,17 +146,23 @@ export default function BlogPage() {
                 FAQ
               </Link>
             </nav>
+
+            <Link href="/select-profile">
+              <Button variant="outline" size="sm">
+                Espace Pro
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-white to-[#FFF8EC] py-20">
+      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-20">
         <div className="container text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4"
           >
             Blog Immobilier
           </motion.h1>
@@ -123,7 +178,7 @@ export default function BlogPage() {
       </section>
 
       {/* Recherche et filtres */}
-      <section className="py-12 bg-muted">
+      <section className="py-12 bg-muted/30">
         <div className="container">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -139,7 +194,6 @@ export default function BlogPage() {
               <Button
                 variant={selectedCategory === null ? "default" : "outline"}
                 onClick={() => setSelectedCategory(null)}
-                className={selectedCategory === null ? "bg-primary hover:bg-primary/90" : ""}
               >
                 Tous
               </Button>
@@ -148,7 +202,6 @@ export default function BlogPage() {
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category || null)}
-                  className={selectedCategory === category ? "bg-primary hover:bg-primary/90" : ""}
                 >
                   {category}
                 </Button>
@@ -180,23 +233,25 @@ export default function BlogPage() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Link href={`/blog/${post.slug}`}>
-                    <Card className="card-property h-full hover:scale-105 transition-transform duration-300">
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden">
                       {post.cover_image_url && (
-                        <div className="relative h-48 overflow-hidden rounded-t-xl">
+                        <div className="relative h-48 overflow-hidden">
                           <img
                             src={post.cover_image_url}
                             alt={post.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                           {post.category && (
-                            <Badge className="absolute top-3 right-3 bg-primary text-white">
+                            <Badge className="absolute top-3 right-3 bg-accent text-white">
                               {post.category}
                             </Badge>
                           )}
                         </div>
                       )}
                       <CardContent className="p-6">
-                        <h3 className="text-xl font-bold mb-3 line-clamp-2">{post.title}</h3>
+                        <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-accent transition-colors">
+                          {post.title}
+                        </h3>
                         {post.excerpt && (
                           <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
                         )}
@@ -205,7 +260,7 @@ export default function BlogPage() {
                             <Calendar className="w-4 h-4" />
                             <span>{formatDate(post.published_at || post.created_at!)}</span>
                           </div>
-                          <ArrowRight className="w-5 h-5 text-primary" />
+                          <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform" />
                         </div>
                       </CardContent>
                     </Card>
@@ -218,30 +273,33 @@ export default function BlogPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#6E4A24] text-white py-12">
+      <footer className="bg-primary text-primary-foreground py-12">
         <div className="container">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <img src="/logo_Amiri.png" alt="AMIRI" className="h-10 w-auto mb-4 brightness-0 invert" />
-              <p className="text-sm opacity-90">Votre partenaire immobilier de confiance</p>
+              <p className="text-sm text-primary-foreground/80">Votre partenaire immobilier de confiance</p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Navigation</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/public" className="block opacity-90 hover:text-primary transition-colors">
+                <Link href="/public" className="block text-primary-foreground/80 hover:text-accent transition-colors">
                   Accueil
                 </Link>
-                <Link href="/public/catalogue" className="block opacity-90 hover:text-primary transition-colors">
+                <Link href="/public/catalogue" className="block text-primary-foreground/80 hover:text-accent transition-colors">
                   Catalogue
                 </Link>
-                <Link href="/blog" className="block opacity-90 hover:text-primary transition-colors">
+                <Link href="/blog" className="block text-primary-foreground/80 hover:text-accent transition-colors">
                   Blog
                 </Link>
-                <Link href="/faq" className="block opacity-90 hover:text-primary transition-colors">
+                <Link href="/faq" className="block text-primary-foreground/80 hover:text-accent transition-colors">
                   FAQ
                 </Link>
               </div>
             </div>
+          </div>
+          <div className="border-t border-primary-foreground/20 pt-8 mt-8 text-center text-sm text-primary-foreground/60">
+            <p>&copy; 2026 AMIRI. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

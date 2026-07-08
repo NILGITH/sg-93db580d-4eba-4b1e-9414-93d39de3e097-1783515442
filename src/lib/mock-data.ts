@@ -141,11 +141,11 @@ export const mockPropertyTypeData = [
 ];
 
 export const mockTopProperties = [
-  { name: "Villa Cocody", prix: 85000000 },
-  { name: "Penthouse Bonoumin", prix: 65000000 },
-  { name: "Villa Abatta", prix: 55000000 },
-  { name: "Immeuble Marcory", prix: 450000000 },
-  { name: "Terrain Grand-Bassam", prix: 25000000 },
+  { name: "Villa Moderne 4 Pièces", ville: "Akpakpa", type: "villa", prix: 350000 },
+  { name: "Appartement Standing 3 Pièces", ville: "Haie Vive", type: "appartement", prix: 280000 },
+  { name: "Villa de Luxe 6 Pièces", ville: "Fidjrossè", type: "villa", prix: 85000000 },
+  { name: "Duplex 5 Pièces", ville: "Akpakpa", type: "appartement", prix: 450000 },
+  { name: "Bureau Open Space", ville: "Cadjehoun", type: "bureau", prix: 800000 },
 ];
 
 // Prospects

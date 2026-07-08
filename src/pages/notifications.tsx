@@ -5,128 +5,97 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Building2, Bell, CheckCheck, Trash2 } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
+import { useProfile } from "@/hooks/useProfile";
+import { Building2, Bell, CheckCheck, Trash2, Home, LogOut } from "lucide-react";
 
-type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+// Notifications mockées
+const mockNotifications = [
+  {
+    id: "1",
+    title: "Nouvelle demande de visite",
+    message: "Jean Dupont souhaite visiter la Villa Moderne 4 Pièces à Akpakpa",
+    read: false,
+    link: "/visits",
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Il y a 2h
+  },
+  {
+    id: "2",
+    title: "Paiement reçu",
+    message: "Loyer de 350 000 FCFA reçu pour la Villa Moderne",
+    read: false,
+    link: "/payments",
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // Il y a 5h
+  },
+  {
+    id: "3",
+    title: "Nouvelle réservation",
+    message: "Marie Martin a réservé le Studio Meublé à Cadjehoun",
+    read: true,
+    link: "/bookings",
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Il y a 1 jour
+  },
+  {
+    id: "4",
+    title: "Intervention terminée",
+    message: "Réparation plomberie terminée à la Villa Moderne",
+    read: true,
+    link: "/interventions",
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Il y a 2 jours
+  },
+  {
+    id: "5",
+    title: "Nouveau prospect",
+    message: "Sophie Leblanc recherche un appartement 3 pièces",
+    read: true,
+    link: "/crm",
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // Il y a 3 jours
+  },
+];
 
 export default function NotificationsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading } = useProfile();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState(mockNotifications);
   const [filterRead, setFilterRead] = useState<"all" | "unread">("all");
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/auth/login");
+    if (!authLoading && !profile) {
+      router.push("/select-profile");
     }
-  }, [user, authLoading, router]);
+  }, [profile, authLoading, router]);
 
-  useEffect(() => {
-    if (user) {
-      loadNotifications();
-    }
-  }, [user]);
-
-  async function loadNotifications() {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setNotifications(data || []);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les notifications",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  function handleLogout() {
+    localStorage.removeItem("demo_user");
+    localStorage.removeItem("demo_mode_active");
+    router.push("/select-profile");
   }
 
-  async function markAsRead(notificationId: string) {
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
-        .eq("id", notificationId);
-
-      if (error) throw error;
-
-      loadNotifications();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de marquer la notification",
-        variant: "destructive",
-      });
-    }
+  function markAsRead(notificationId: string) {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+    );
+    toast({
+      title: "Notification marquée comme lue",
+    });
   }
 
-  async function markAllAsRead() {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
-        .eq("user_id", user.id)
-        .eq("read", false);
-
-      if (error) throw error;
-
-      toast({
-        title: "Notifications marquées",
-        description: "Toutes les notifications ont été marquées comme lues",
-      });
-
-      loadNotifications();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de marquer les notifications",
-        variant: "destructive",
-      });
-    }
+  function markAllAsRead() {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    toast({
+      title: "Toutes les notifications ont été marquées comme lues",
+    });
   }
 
-  async function deleteNotification(notificationId: string) {
-    try {
-      const { error } = await supabase.from("notifications").delete().eq("id", notificationId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Notification supprimée",
-        description: "La notification a été supprimée",
-      });
-
-      loadNotifications();
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer la notification",
-        variant: "destructive",
-      });
-    }
+  function deleteNotification(notificationId: string) {
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    toast({
+      title: "Notification supprimée",
+    });
   }
 
-  function handleNotificationClick(notification: Notification) {
+  function handleNotificationClick(notification: typeof mockNotifications[0]) {
     if (!notification.read) {
       markAsRead(notification.id);
     }
@@ -151,13 +120,15 @@ export default function NotificationsPage() {
     });
   }
 
-  if (authLoading || !user || !profile) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
+
+  if (!profile) return null;
 
   const filteredNotifications =
     filterRead === "unread" ? notifications.filter((n) => !n.read) : notifications;
@@ -170,7 +141,7 @@ export default function NotificationsPage() {
         <div className="container py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Building2 className="w-10 h-10 text-accent" />
+              <Bell className="w-10 h-10 text-accent" />
               <div>
                 <h1 className="text-3xl font-serif font-bold">Notifications</h1>
                 <p className="text-sm text-primary-foreground/80">
@@ -191,9 +162,14 @@ export default function NotificationsPage() {
               )}
               <Link href="/dashboard">
                 <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-primary">
-                  Tableau de bord
+                  <Home className="w-4 h-4 mr-2" />
+                  Accueil
                 </Button>
               </Link>
+              <Button variant="outline" onClick={handleLogout} className="border-accent text-accent hover:bg-accent hover:text-primary">
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
             </div>
           </div>
         </div>
@@ -217,11 +193,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Liste notifications */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Chargement...</p>
-          </div>
-        ) : filteredNotifications.length === 0 ? (
+        {filteredNotifications.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <Bell className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -277,13 +249,13 @@ export default function NotificationsPage() {
                       )}
                       <Button
                         size="sm"
-                        variant="destructive"
+                        variant="outline"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteNotification(notification.id);
                         }}
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3 text-destructive" />
                       </Button>
                     </div>
                   </div>
